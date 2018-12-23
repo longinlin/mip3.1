@@ -35,7 +35,7 @@
   Dim qrALL,act, Uvar, Upar, Upag, f2postSQ, f2postDA, spfily, spDescript, usnm32, pswd32, logID, exitWord, userID,userNM, userCP,userOG,userWK, siteName       as string
   Dim digilist, FilmFDlist, cnInFilm, headlist, atComp,   dataFF,dataTu,dataGu, dataTuA2, ddccss, dataToDIL       as string
   Dim thisDefaultName, serverIP, strConnLogDB     as string
-  Dim mij() As String = {"zero","mi1", "mi2", "mi3", "mi4", "mi5", "mi6", "mi7", "mi8", "mi9", "mia"}
+  Dim mij() As String = {"zero","[mi1]", "[mi2]", "[mi3]", "[mi4]", "[mi5]", "[mi6]", "[mi7]", "[mi8]", "[mi9]", "[mia]"}
 
   dim iisPermitWrite as int32            ' you must let c:\main\webT  not readonly
   dim showExcel      as boolean=false    ' if you need excel, you have to let iisPermitWrite=1
@@ -72,13 +72,14 @@
   Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) 
     CCFD=Request.ServerVariables("PATH_TRANSLATED")
      CCFD=left(CCFD, instr(CCFD, "webc")-1)   ' so CCFD="c:\main\"  
-     prgDisk = CCFD & "webc\" : codDisk = CCFD & "webd\"    :    tmpDisk = CCFD & "webT\"    :   tmpy="webT" :  queDisk = CCFD & "webQ\"     
+     prgDisk = CCFD & "webc\" : codDisk = CCFD & "webc\"    :    tmpDisk = CCFD & "webT\"    :   tmpy="webT" :  queDisk = CCFD & "webQ\"     
      iisPermitWrite=1 'iif(inside("WebService", CCFD),  0, 1) 
      splistFname   ="cspList.txt" 
      uslistFromDB  =0 
-     siteName      ="勤務系統"
+     siteName      ="管理功能全集"
     
 
+    intflow = intloopi()
     gccwrite = tmpDisk & "gccwrite" & intflow & ".txt"
     headlistRepeat = 0 : digilist = "" : FilmFDlist = "F1" : cnInFilm = -1 : headlist = "" : dataToDIL=defaultDIT
     needSchema = 0 : data_from_cn = 0 : forLoopTH=0 : seeJump=0
@@ -86,7 +87,6 @@
     tmpo = CreateObject("scripting.filesystemObject")
     
 	
-    intflow = intloopi()
     dataTu = "screen" : dataTuA2 = "[defc]" : dataFF = "matrix"
     'dataTu=screen         means show reslt to <table>
     'dataTu=xyz            means transport data
@@ -264,7 +264,7 @@ end if
     If (loopi is Nothing) Orelse loopi >= 9999 Then loopi = 0
     loopi = loopi + 1
     Application("loopi") = loopi
-    intloopi = loopi
+    return loopi
   End Function
 
 
@@ -981,8 +981,12 @@ end function
    moth2=mid(moth2,m1+1): m1=instr(moth2, son): if m1<=0 then return 4
    return 5
   end function  
-
-  Function ifeq(p,q,s1,s2) as string
+  function tryCint(aa as string) as int32
+   if isNumeric(aa) then return cint(aa) else return 0
+  end function
+  
+  
+  Function ifeq(p,q, s1, s2) as string
                 If p = q Then return s1 Else return s2
   End Function
   function iflt(a as int32,  b as int32,  v1 as string, optional v2 as string="") as string
@@ -1062,9 +1066,9 @@ end function
    if ipath="" then
       if mid(gname,2,1)<>":" then gname=tmpDisk & gname 'else gname=gname
    else
-      gname=tmpDisk & gname
+      gname=ipath & gname
    end if
-   wwbk2(1067,gname)
+   'wwbk3(1067,"save-to-file",gname)
    saveToFile_utf8(gname, strr) 
   end sub
   
@@ -1267,7 +1271,7 @@ end function
     for i=0 to Ubound(sons)
         if inside(sons(i).trim ,    mother ) then return true
     next
-    wwbk5(1264,"so false", sonList, mother, sons(1) )
+    'wwbk5(1264,"so false", sonList, mother, sons(1) )
     return false
   end function
 
@@ -1618,8 +1622,8 @@ end sub
         wwpp("<td valign=top for=newColumn>")
         sawFirstCol = 1
       ElseIf Left(words(0), 2) = "[]" Then '若遇到小段落
-        sectionName = Mid(words(0), 3)
-        sectionKind = words(1)
+        sectionKind = Mid(words(0), 3)
+        sectionName = words(1)
         If usr_can_see(userMayViewKinds, sectionKind, "show") Then wwpp("<b>" & sectionName & "</b><br><br>")
       Else '若遇一程式
         If words(2) = "hide" Then hideMa = "hide" Else hideMa = "show"
@@ -1653,10 +1657,9 @@ end sub
   Function usr_can_see(userCates, sectionKind, hideMa)   ' userCats是複選，sectionKind 是單選 ， hideMa = (show or hide)
     'userCats乃user可看之程式類 其狀如 "mkt1 prd"   sectionKind乃程式類 其狀如mkt  
     'userCats設mkt1可看到mkt:行銷通常段 及mkt1:行銷特許段
-
     If userOG = mister Then usr_can_see = True : Exit Function
-
-    'usr_can_see=true:exit function
+    userCates=userCates.trim
+    sectionKind=sectionKind.trim
 
     'so next user is not admin
     usr_can_see = False
@@ -1676,20 +1679,29 @@ end sub
   End Function
 
   Sub prepare_UparUpag(acta) 'this sub to: prepare Upar,Upag
-    Dim org12() as string    'this sub do: if(spfily=""){ Upar=screen.Upar;Upag=screen.Upag }else{ Upar=file.Upar + injected.Upar; Upag=file.Upag}
+    Dim org12() as string    
+    'wwbk2(1683,spfily)
     If trim(spfily)=""   Then Exit Sub ' so (Upar, Upag) come from screen and ignore Uvar  
+    spContent = loadFromFile(codDisk, spfily):org12 = Split(spContent, "#1#2") : If UBound(org12) <> 1 Then errstop(1714,"program opened " & spfily & " but it looks not like #1#2 format")
+    
+    if acta="showop" then Upar = merge_fewSentence_into_manySentence(Uvar, "into",org12(0)) : Upag=org12(1) : exit sub
+    
+    'below are for act=run
     if userOG=mister then
-       'use screen Upar,Upag
+          if Upar="" and Upag="" then
+             'wwbk2(1684,111)
+             Upar = merge_fewSentence_into_manySentence(Uvar, "into",org12(0)) : Upag=org12(1)
+          else
+             'wwbk2(1684,222)
+             'use screen upar, upag
+             if upag="" then upag="exit==done"
+          end if
     else
-       spContent = loadFromFile(codDisk, spfily)
-       org12 = Split(spContent, "#1#2")
-       If UBound(org12) <> 1 Then errstop(1714,"program opened " & spfily & " but it looks not like #1#2 format")
-       if Upar="" then 'so this is program initial run
-          Upar = merge_fewSentence_into_manySentence(Uvar, "into",org12(0)) 
-       else
-          Upar = merge_fewSentence_into_manySentence(Uvar, "into",Upar    ) 
-       end if
-          Upag=                                                   org12(1) 
+          if Upar="" and Upag=""  then 'so this is program initial run
+             Upar = merge_fewSentence_into_manySentence(Uvar, "into",org12(0)) : Upag=org12(1) 
+          else
+             Upar = merge_fewSentence_into_manySentence(Uvar, "into",Upar    ) : Upag=org12(1) 
+          end if
     end if
   End Sub
   
@@ -1845,7 +1857,7 @@ end sub
       If ("textarea" =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "rows=" & replace(Dlen,"x", " cols=")         )    
       If ("mmbx"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "rows=" & replace(Dlen,"x", " cols=")         )    
       If ("enter"    =Dtyp)              Then elem=replace(elem, "onkeyx" , "onkeypress='return onEnter(event, this.f2)'" )
-	  If ("comb"     =Dtyp)              Then DOPT= sumVec(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "#space"        ) : elem=replace(elem,"cxDopt",DOPT)
+	  If ("comb"     =Dtyp)              Then DOPT= glu1v(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "#space"        ) : elem=replace(elem,"cxDopt",DOPT)
 	  elem=replaces(elem, "cxFkey",Dkey,  "cxFval",Dval,  "cxFmrk",Dmrk,    "cxTIT",      "$;" & mrks(i) & "$;" & typs(i)  )
 	  'wwbk6(1914,purpose,dkey,dval,dtyp,elem)
       s2 = s2 & elem & ienter
@@ -2236,6 +2248,8 @@ end sub
 	  case "sendmail" 
         Call sendmail(m_part)
         If vals(i) =  "1" Then wwqq("<br>send mail ok<br>")
+      case "doscmd"          : dosCmd(         vals(i))
+      case "doscmd_onebyone" : dosCmd_oneByOne(vals(i))
       case "m_part"     : m_part = vals(i)
       case "m_dos"      : calldosa(vals(i))
       case "m_dosbg"    : calldosqu(vals(i))
@@ -2268,7 +2282,7 @@ end sub
       case "convertcode" : Call perlConvertCode(vals(i)) ' infile,big5, oufile,utf8
       case "setxmlroot"  : XMLroot = vals(i)
       case "sleepy"      : Call sleepy(vals(i))
-      case "headlist"    : headlistRepeat = ifeq(keyAdj1,"",0,keyAdj1) : headlist = noSpace(vals(i))
+      case "headlist"    : headlistRepeat = tryCint(keyAdj1) : headlist = noSpace(vals(i))
       case "taillist"    : TailList = vals(i) : Call zeroize_sumTotal()  ' was named as needSumList
       case "savetofile"  : saveToFileD("",keyAdj1, vals(i))  
       case "addstring"   'this works as appending string, so working for appending file
@@ -2312,8 +2326,8 @@ end sub
    for findingBracket=1 to 99
      cms=split(cut_to_3_parts(cmd2,fcBeg,fcEnd), tmpGlu)           ' so cms() example is: (0):hhh , (1):fun1!p1!p2 , (2):gg @{fun2!p3!p4} kk
      par1=cms(0) :focus2=cms(1) : par3=cms(2)
-     if nowMa="maybeLater" andAlso (not atomCross("fdv0,[ui],[vi],mi1,mi2,mi3,mi4,mi5,mi6,mi7", focus2)  )then
-          wwbk3(2336,"in calla later", focus2)
+     if nowMa="maybeLater" andAlso (not atomCross("fdv0,[ui],[vi],[mi1],[mi2],[mi3],[mi4],[mi5],[mi6],[mi7]", focus2)  )then
+          'wwbk3(2336,"in calla later", focus2)
           focus2=replace(focus2, pip, astoni)
           focus2=translateFunc(focus2)
      elseif nowMa="now"  then 
@@ -2372,23 +2386,38 @@ end sub
 	'but can    use this                CreateObject("WScript.Shell").Popup ("pausing",2,"pause",64)  'this is also runable in vb.net
 	System.Threading.Thread.Sleep(cint(sec*1000))	
   End Sub  
-  Sub calldosa(doscmd)
-    Dim objfiler, fLead, fnbat, itime
-    objfiler = CreateObject("Scripting.FileSystemObject")
-    fLead = queDisk & intloopi()
-    fnbat = fLead & ".que"
-    'if   objfiler.fileExists( fLead & ".ok") then objfiler.DeleteFile( fLead & ".ok")
-    saveToFileD(queDisk , fnbat, Replace(doscmd, "&", "#") & ienter & "echo ok > " & fLead & ".ok" & ienter)
+  
+  Sub DosCmd(command as String,  optional permanent as Boolean=false) 
+        Dim p as Process = new Process() 
+        Dim pi as ProcessStartInfo = new ProcessStartInfo() 
+        pi.Arguments = " " + if(permanent = true, "/K" , "/C") + " " + command 
+        pi.FileName = "cmd.exe" 
+        p.StartInfo = pi 
+        p.Start() 
+  End Sub
+  
+  sub DosCmd_OneByOne(commands as String) 'run one line, if ok then run next else goto end
+      dim fnbat, fnok, fnErr as string   :  dim LP,itime as int32 :  LP=intloopi()    :   fnbat=LP & ".bat"    : fnok=LP & ".ok"   : fnErr=LP & ".err"
+      commands=glu1m(commands, "set msgg=might err at cmd[mith] $$[mi1] || goto enda", ienter,"") 
+      commands=replaces(commands, "$$", ienter) & replaces("$$exit $$:enda $$echo msgg > c:\tmp\" & fnErr , "$$", ienter)
+      saveToFileD(queDisk , fnbat, commands )
+      dosCmd(     queDisk & fnbat           )
+  end sub      
+  Sub calldosa(cmmd) 'this is not directly run DOS, it run dos by external program, it waits running result until intflow.ok file appear
+      Dim objfiler
+      dim fnbat, fnok, fnErr as string   :  dim LP,itime as int32 :  LP=intloopi()    :   fnbat=LP & ".bat"    : fnok=LP & ".ok"   : fnErr=LP & ".err"
+      saveToFileD(queDisk , fnbat, cmmd )
 
-    For itime = 1 To 12 * 30 ' 30 means 30 minutes
-      Call sleepy(5)
-      If objfiler.fileExists(fLead & ".ok") Then Exit Sub
-    Next
+      objfiler = CreateObject("Scripting.FileSystemObject")
+      For itime = 1 To 12 *  30 ' 30 means 30 minutes
+        Call sleepy(5)
+        If objfiler.fileExists(queDisk & fnok) Then Exit Sub
+      Next
   End Sub
 
-  Sub calldosqu(doscmd)
+  Sub calldosqu(cmmd)
     Dim fnBat = intloopi() & ".que"
-    saveToFileD(queDisk, fnBat, Replace(doscmd, "&", "#") & ienter)
+    saveToFileD(queDisk, fnBat, Replace(cmmd, "&", "#") & ienter)
   End Sub
 
   Sub callperl(cmds, nowma) 'dosa
@@ -2399,8 +2428,8 @@ end sub
 
      'example: FTPUpload("c:\tmp\p2.txt", "q3.txt")  ' so write to ftp://61.56.80.250/Receive/q3.txt
     Sub FTPUpload(localFileName As String, ftpFileName As String)
-        Const ftpUser As String = "ST.KC"    'ftp用户名
-        Const ftpPassword As String = "KC16436439"    'ftp密码
+        Const ftpUser     As String = "sata"        'ftp user
+        Const ftpPassword As String = "1234"        'ftp passw
         Const rcvX = "ftp://61.56.80.250/Receive/"
         
         Dim localFile As FileInfo = New FileInfo(localFileName)
@@ -2412,19 +2441,18 @@ end sub
             Dim Uri As String = rcvX & ftpFileName
             ftpWebRequest = FtpWebRequest.Create(New Uri(Uri))
             ftpWebRequest.Credentials = New NetworkCredential(ftpUser, ftpPassword)
-            ftpWebRequest.UseBinary = True '指定数据传输类型为二进制
-            ftpWebRequest.KeepAlive = False '成功执行一个命令后连接被关闭
-            ftpWebRequest.Method = WebRequestMethods.Ftp.UploadFile ' 指定执行什么命令
-            ftpWebRequest.ContentLength = localFile.Length '上传文件时通知服务器文件的大小 
-            Const buffLength = 20480 ' 缓冲大小设置为20kb
+            ftpWebRequest.UseBinary = True 
+            ftpWebRequest.KeepAlive = False  
+            ftpWebRequest.Method = WebRequestMethods.Ftp.UploadFile  
+            ftpWebRequest.ContentLength = localFile.Length  
+            Const buffLength = 20480 
             Dim buff() As Byte = New Byte(buffLength) {}
 
             Dim contentLen As Int32
-            localFileStream = localFile.OpenRead() '打开一个文件流去读上传的文件
-            requestStream = ftpWebRequest.GetRequestStream() '把上传的文件写入流
-            contentLen = localFileStream.Read(buff, 0, buffLength) '每次读文件流的2kb
-            While (contentLen <> 0) ' 流内容没有结束
-                ' 把内容从file stream 写入 upload stream
+            localFileStream = localFile.OpenRead() 
+            requestStream = ftpWebRequest.GetRequestStream() 
+            contentLen = localFileStream.Read(buff, 0, buffLength)  
+            While (contentLen <> 0)  
                 requestStream.Write(buff, 0, contentLen)
                 contentLen = localFileStream.Read(buff, 0, buffLength)
             End While
@@ -2437,9 +2465,9 @@ end sub
     End Sub
 
    Sub FTPDownload(ftpFileName As String, localFileName As String)
-        Const ftpUser As String = "ST.KC"    'ftp用户名
-        Const ftpPassword As String = "KC16436439"    'ftp密码
-        Const rcvX = "ftp://61.56.80.250/SendBK/" '指定目錄
+        Const ftpUser     As String = "sata"   
+        Const ftpPassword As String = "1234"  
+        Const rcvX = "ftp://61.56.80.250/SendBK/"  
 
         Dim ftpWebRequest As FtpWebRequest
         Dim FtpWebResponse As FtpWebResponse
@@ -2458,7 +2486,7 @@ end sub
             'Const bufferSize = 20480
             'Byte[] buffer = New Byte[bufferSize]
 
-            Const buffLength = 20480 ' 缓冲大小设置为20kb
+            Const buffLength = 20480 
             Dim buff() As Byte = New Byte(buffLength) {}
 
             Dim readCount As Int32
@@ -2745,9 +2773,9 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
         return convert_to_cLang(arr(1))
     case "glu1v" 'glue one vector => glu1v!vector[vi]! pattern    !       ,
                                     '    0     1           2              3
-        return                   sumVec(   arr(1),     arr(2),        arr(3)             )                                                                                
+        return                   glu1v(   arr(1),     arr(2),        arr(3)             )                                                                                
     case "glu2v" 'glue two vectors =>glu2v!vector[vi]! vector[wi] !  pattern  !      ,
-        return                  sum2Vec(   arr(1)    , arr(2)     ,   arr(3)  ,  arr(4)  )                                                                                
+        return                  glu2v(   arr(1)    , arr(2)     ,   arr(3)  ,  arr(4)  )                                                                                
 	case "glu1m" 'glue one matrix => glu1m!matrix    ! patt2      !       ,   !      4s 
                               return glu1m(arr(1)    , arr(2)     ,   arr(3)  ,  arr(4)  )
     case "atom"         ' format: atom!a,b,c!2!,    so to pick array element out
@@ -2756,8 +2784,8 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
       patt=arr(2)
       dott=arr(3): If dott = "" Then dott =bestDIT(arr(1))
       return atom(targ, patt, dott)  
-    case "sumv"          ' example  sumv!11,22,33,44,55!c[vith]=f([vi])
-	  return sumVec(arr(1), arr(2), arr(3))	  
+    case "sumvxxx"          ' example  sumv!11,22,33,44,55!c[ith]=f([vi])
+	  return glu1v(arr(1), arr(2), arr(3))	  
     case "ucase" 
       return UCase(arr(1))
     case "lcase" 
@@ -2880,7 +2908,7 @@ function replaceParam(arr() as string) as string 'note: I suppose arr() are alre
   return mother
 end function
 
-function sumVec(vectorU, pattU, glueU) as string 'glu1v
+function glu1v(vectorU, pattU, glueU) as string 'glu1v
       dim jj,j as int32   
       dim patt, patty, glue, cifhay as string    
       dim wordvs() as string
@@ -2900,13 +2928,13 @@ function sumVec(vectorU, pattU, glueU) as string 'glu1v
         patty = Replace(patty, "[vi]"    , wordvs(j)                 ) 
         patty = Replace(patty, "[vi$L]"  , dollarSign_LeftRightSide(wordvs(j),1)   )
         patty = Replace(patty, "[vi$R]"  , dollarSign_LeftRightSide(wordvs(j),2)   )
-        patty = Replace(patty, "[vith]"  , Right("00" & (j + 1), 2)  )        
+        patty = Replace(patty, "[vith]"  , ""&(j+1)  )        
         cifhay = cifhay & patty & iflt(j,jj,glue)
       Next  
 	  return cifhay
 end function
 
-function sum2Vec(a1v as string,  a2v as string,   pattU as string,   optional g1U as string=",",  optional g2U as string=";") as string 
+function glu2v(a1v as string,  a2v as string,   pattU as string,   optional g1U as string=",",  optional g2U as string=";") as string 
       dim i1,ni1, i2,ni2 as int32   
       dim patty, g1,g2, colly,c1,c2 as string    
       dim a1vs(), a2vs() as string
@@ -2923,7 +2951,8 @@ function sum2Vec(a1v as string,  a2v as string,   pattU as string,   optional g1
       for i1=0 to ni1
 	   For i2=0 to ni2
 	    c1=a1vs(i1).trim : c2=a2vs(i2).trim : patty=pattU
-        patty = Replaces(patty, "[ui]", c1, "[vi]", c2) 
+        patty= Replaces(patty, "[ui]"  ,     c1    , "[vi]"   ,     c2    ) 
+        patty= replaces(patty, "[uith]", ""&(i1+1) , "[vith]" , ""&(i2+1) )
         colly = colly & patty & iflt(i2,ni2,g1)
        Next  
         colly = colly & iflt(i1,ni1,g2)
@@ -2933,8 +2962,8 @@ function sum2Vec(a1v as string,  a2v as string,   pattU as string,   optional g1
 end function
 
 	  
-function dollarSign_LeftRightSide(strr as string, ith as int32)
-  if inside("$", strr) then return atom(strr, ith, "$") 
+function dollarSign_LeftRightSide(strr as string, nth as int32)
+  if inside("$", strr) then return atom(strr, nth, "$") 
   return strr
 end function  
   
@@ -2985,7 +3014,7 @@ end function
   function glu1m(arrOne as string,   arr02 as string,   arr03 as string,   selectedRULE as string) as string  
     'glue one matrix => glu1m!matrix!patt!,  !4c
     '                       0     1    2  3   4    
-    dim ithLine,j,j1,selected as int32
+    dim nthLine,j,j1,selected as int32
     dim selectedCOL,casesCOL, ubMaxj,UBmanyLines as int32                 
 
     dim patt1,selectedSYMB, caserightHandPartYM1, caserightHandPartYM2, caserightHandPartYM3, caserightHandPartYM4 as string
@@ -3013,8 +3042,8 @@ end function
       cifhay = "" : manyLines = Split(arrOne, ienter) 'manyLines means data records
       UBmanyLines=UBound(manyLines)
       dim divL as string
-        For ithLine = 0 To UBmanyLines
-          oneLine = trim(manyLines(ithLine))
+        For nthLine = 0 To UBmanyLines
+          oneLine = trim(manyLines(nthLine))
           If oneLine ="" Then continue for
 		  divL=defaultDIT: if inside(defaultDIT, oneLine) then else if inside(itab, oneLine) then divL=itab else divL=icoma
           cols=split(oneLine,  divL) 
@@ -3026,11 +3055,11 @@ end function
 
               if InStr(patt1, "[vi") > 0  Then  
                  For j = 0 To ubMaxj
-                   patty = patt1 :j1=j+1
+                   patty = patt1  
                    patty = Replace(patty, "[vi]"    , cols(j)                   )
                    patty = Replace(patty, "[vi$L]"  , dollarSign_LeftRightSide(cols(j),1)     )
                    patty = Replace(patty, "[vi$R]"  , dollarSign_LeftRightSide(cols(j),2)     )
-                   patty = Replace(patty, "[vith]"  , Right("00" & j1, 2)  )
+                   patty = Replace(patty, "[vith]"  , ""&(j+1)  )
                    cifhay = cifhay & patty & glue
                  Next		
 			    return cutLastGlue(cifhay, glue) 'only eidt the first record, no more on next records
@@ -3039,7 +3068,7 @@ end function
           if (selectedCOL<0) orelse ((selectedCOL>=0) andAlso inside(selectedSYMB,cols(selectedCOL)) ) then selected=1 else goto nextLine ' thus ignore this line because symbol not matched
           
           patty = patt1        
-          patty = Replace(patty, "ith" ,ithLine+1)
+          patty = Replace(patty, "[mith]" ,""&(nthLine+1) ) ' it will show i when working on matrix row i: (mi1,mi2,mi3...)
            
             for j=0 to min(9, ubMaxj)
             j1=j+1  ' so j1 is 1..10
@@ -3050,7 +3079,7 @@ end function
           patty = Replace(patty, "#enter", ienter)
           cifhay = cifhay & patty & glue
         nextLine:
-        Next ithLine      
+        Next nthLine      
       return cutLastGlue(cifhay, glue)  
   end function    
 
