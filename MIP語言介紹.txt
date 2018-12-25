@@ -66,10 +66,12 @@
   
 ### 顯示九九乘法表
   於下框寫
-    uuuu==1,2,3,4,5,6,7,8,9
-    vvvv==1,2,3,4,5,6,7,8,9
+    uuuu==1,2,3,4
+    vvvv==4,5
     show==glu2v!uuuu!vvvv![ui]x[vi]=@{eval![ui]*[vi]}!td 
-  按[確定]即可看到九九乘法表
+  按[確定]即可看到九九乘法表之一部份:
+    1x4=4  2x4=8  3x4=12  4x4=16
+    1x5=5  2x5=10 3x5=15  4x5=20
      
 ### 寫一個簡單的SQL 或呼叫DOS指令
   於下框寫
@@ -186,7 +188,7 @@
       show== Hi, I was happy in recent @{eval!2*3+1} days 
   也就是整個函數用  @{}括住。 這串字在口語怎麼唸呢?
   @看起來像是ca ， 所以 @{}唸作call
-  @{function3!parameter1!parameter2} 唸作call fucntion3 parameter1 parameter2
+  @{function3!parameter1!parameter2} 唸作call fucntion3
   @{function3!parameter1!parameter2} 也可以簡稱為@函數
   
   對上面那行程式按下[確定]，於是畫面顯示 
@@ -195,14 +197,15 @@
       myFunc==I have someOne
       show==@{myFunc!have=love!someOne=Mary}
   畫面會顯示            I love Mary 
-  不用宣告函數開始，函數結束，也不用宣告參數。自定函數就是字，一串字。
+  你不用宣告自定函數的開始與結束，也不用宣告參數。自定函數就是字，一串字。
+  更不用宣告既定函數，因為既定函數早就內建在MIP裏了。
   
   有些程式語言例如c或java，特別喜歡用{}
-  為了讓MIP可以好好操控並生產這類的程式，可以稍微改一下@函數的括號:
-     aa==@{func!p1!p2}@ 
-  也就是用兩個@ ，用兩個像耳朵的符號把函數括住。欲達此，你必須先寫明:
+  為了讓MIP可以好好操控並生產這類的程式，稍微改一下@函數的括號，例如:
+     aa==@{func3!p1!p2}@ 
+  用兩個@ ，像是兩個耳朵，把函數括住。欲達此，你必須先寫明:
      setFunctionBracket==@{ , }@
-  過了幾行程式不喜歡這種括號，可以再改回來 
+  經過幾行程式，你不喜歡這種括號了，可以再改回來 
      setFunctionBracket==@{ , }
   如果你都不喜歡也可以隨時自定括號，例如:
      setFunctionBracket==@[ , ]
@@ -215,9 +218,9 @@
       再看到某一行以/開頭 則整行忽略 ， 例如 /a==1;;b==2 則這整行忽略
       再看到;; 則改為換行符號 但若這;;所在那一行有uvar則不要改   
       再看到某行是if== ， 下面又有一行endif== ， 則MIP知道這是一個區塊。
-### 程式運作: 洗染、解函、擦罩
+### 單一行程式運作順序: 洗染、解函、擦罩
   (1)洗染:
-     程式從第一行開始往下跑，當看到一行A==B ，MIP就記住了(關鍵字,它的值)=(A,B)
+     程式從第一行開始往下跑，當看到一行 A==B ，MIP就記住了(關鍵字,它的值)=(A,B)
      當看到一行aa==
                    bb,123
                    cc,456
@@ -268,7 +271,7 @@
                   say(1,2,3,4,5,6)
 
      矩陣不適合整塊往下丟，想要染誰? 適合染誰? 現在想不出來。
-     矩陣有專用的提示字[mij]，能把矩陣分解為元素，再往下洗染，再去組合。
+     矩陣有專用的提示字[mi...]，能把矩陣分解為元素，再往下洗染，再去組合。
      
   (2)解函:                      
      當來到某一行kk==vv，文字vv洗染後，字面上有函數，則會解開函數，
@@ -302,82 +305,66 @@
              show==5 + 6 + 7
      於是顯示
                    5 + 6 + 7  
-     這種@函數讓外層先做的行為叫做 @後解 
+     這種@函數讓外層先做完，它接在後面做的行為稱為: 後解。
+     為甚麼要後解? 就像一顆糖球外殼先溶解，裏面的小小球再溶解，
+     瞬間在舌尖釋放出繽紛的味道。
+     只有後解才能瞬間釋放出繽紛多樣的程式碼，大量減低你的碼字寫作。
+     
+     
+     取個英文名給它吧: calling-function-after-vector-solved
                  
-  (3)遮罩、擦罩
+  (3)擦罩
      當某個字不想被洗染，就故意把[]擠在字裏防止洗染，例如:     
         aa==2
         show==I say a[]a=aa
      畫面應顯示 
         I say a[]a=2
+     這個[]是一個既定關鍵字，我稱它為遮罩，用途是防止洗染。
      但MIP會在顯示前一瞬間把[]擦掉，所以實際顯示為:
         I say aa=2
-     這個[]是一個既定關鍵字，我稱它為遮罩，用途是防止洗染。
-     在左方關鍵字接收右方值之前，MIP自動把遮罩擦掉，稱為擦罩。
+     在左方關鍵字收到右方值之前，MIP自動把遮罩擦掉，稱為擦罩。
      
-     凡是MIP看到 kk==vv...uu 這樣的句子，MIP把認識的關鍵字依序灌進去洗染，
+     總之，一行程式內的運作順序是:
+     凡是MIP看到 kk==vv...uu 這樣的句子，MIP把前面認識的關鍵字依序灌進去洗染，
      染後裏面也許有函數，MIP就解函
      解函後裏面也許有[]，MIP就擦掉它。
      如此處理後的值傳給左方kk，
-     若kk是一個既定關鍵字，則MIP按照既定的動作辦事，
-     然後MIP跑下一行，程式就這麼一行一行運作。
+     若左方kk是一個既定關鍵字，MIP就按照既定的動作做事，
+     然後MIP再跑下一行，程式就這麼一行一行運作。
                  
-                
-###預先定義好的字 舉例  
-        #userID  這個字將被轉換成 你現在的帳號
+### 程式跳躍
+  程式一行一行的運作，但可以跳躍。最基本的跳躍就是 goto 這個既定關鍵字   
+  還有 if ... then ... else ... endif
+  還有 for ... next
+  還有 forEach ... next
+  還有 gosub label ... label ... return
 
 
-###預先定義好的關鍵字 舉例    
+###預先定義好的關鍵字 全集 unfinish   
    預先定義好的關鍵字會促使電腦做事
-   例如下面這關鍵字sqlcmd ，將發送一段SQL給資料庫引擎，這一段SQL可能含有多個句子。發送前會先把okclick改成onclick
+   (*) sqlcmd ，將發送一段SQL給資料庫引擎，這一段SQL可以含有多個句子。
+    發送前會先把okclick改成onclick
     sqlcmd==
 	    some_SQL1;
 		some_SQL2;
 		some_SQL3;
 		
-	例如下面這關鍵字saveToFile ，將多行文字存到檔案fcc.txt裏
+	(*) saveToFile ，將多行文字存到檔案fcc.txt裏
     saveToFile,fcc.txt==
         this is fcc line1
         this is fcc line2
         
-	例如下面這關鍵字addString ，將多次收集文字以方便最後存到檔案裏
+	(*) addString ，將多次收集文字以方便最後存到檔案裏
     addString,paragraph99_txt ==123
     addString,paragraph99_txt ==456
     saveToFile,paragraph99.txt==paragraph99_txt  
                    
-### 預先定義好的函數 舉例                   
+### 預先定義好的函數 全集 unfinish                 
         若有程式碼如下
           showHtm==add!1!2
 		畫面將顯示3
 		也就是說add是一個函數，函數的參數以!分隔，這樣設計是因為允許逗點也是參數的內容
 		  
-        
-                
-### 給定預設值
-        若有程式碼如下
-           lover==Lily           
-           comment==let go        
-           lover==Mary
-           show==I love lover
-        程式來到第3行，發現第1行和第3行關鍵字相同，則以最近指定的值為準，也就是lover==Mary
-        程式來到第4行，顯示 I love mary
-                
-        但若有程式碼如下
-           lover==Lily      
-           ..
-           ..
-           comment==below is a common-purpose section       
-           lover==@{ifeq!lover!love[]r!mary!lover}
-           show==I love lover
-        
-        
-        此程式碼第二行的comment 往下置換，於是                   第三行cc不變   ，第四行不變            ，第五行不變
-        此程式碼第三行的cc      往下置換，於是                                    第四行不變            ，第五行變成showhtm==3, hello John 
-        此程式碼第四行的moreWord往下置換，下方已無moreWord字眼，                  所以                  ，第五行仍是showhtm==3, hello John 
-        也就是moreWord出現兩次，只有第一個發生效果，第二個是預設值現在失效。
-		當第二行以下是固定模組時，這方法可以用來改變預設值。
-
-		
                          
 ###查詢資料庫資料
 
