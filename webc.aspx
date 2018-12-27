@@ -2424,13 +2424,6 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
     if myTryParse(das1,dat1) then return dateadd("d",more, dat1).toString(formatt) else return "bad-dateAdd"    
   end function 
   
-  function dateRangeUSA(das1 as string, das2 as string) as int32  ' days range: from das1 to at2
-    dim dat1,dat2 as dateTime
-    das1=Any_to_usaSlash(das1)
-    das2=Any_to_usaSlash(das2)
-    if myTryParse(das1,dat1) andAlso myTryParse(das2,dat2) then return dateDiff("d",dat1,dat2) else return "bad-dateRange"    
-  end function 
-  
   function any_to_usaSlash(das1 as string) as string
            if isNumeric(das1) andAlso len(das1)=8  then return         left(das1,4)  & "/" & mid(das1,5,2) & "/" & mid(das1,7)
            if isNumeric(das1) andAlso len(das1)=7  then return c3A1911(left(das1,3)) & "/" & mid(das1,4,2) & "/" & mid(das1,6)
@@ -2477,13 +2470,13 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
     end if
   end function
   
-  function dateRangeROC(das1 as string, das2 as string) as int32  ' days range: from das1 to at2
+  function dateRange(das1 as string, das2 as string) as int32  ' days range: from das1 to at2
      dim dat1,dat2 as dateTime
      das1=Any_to_usaSlash(das1)
      das2=Any_to_usaSlash(das2)
     if myTryParse(das1,dat1) andAlso myTryParse(das2,dat2) then return dateDiff("d",dat1,dat2) else return "bad-dateRange"    
   end function 
-
+  
                             
   Function ffMatch(tb1 as string,  tb2 as string,  ff1s as string,  ff2s as string,  glu2 as string) as string
     Dim gg1s(), gg2s(), rr as string : dim i as int32
@@ -2739,6 +2732,7 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
         
     arr = Split(rightHandPart & astoni6, astoni) : For j = 0 To UBound(arr) : arr(j) = Trim(arr(j)) : Next 
     arr0L=LCase(arr(0))
+    wwbk3(2735, rightHandPart, arr0L)
   try
 	select case arr0L
     case "add"  
@@ -2784,8 +2778,7 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
     case "mobiletel"
       if left(arr(1),1)="9" then return "0" & arr(1) else return arr(1)
     case "mytryparse" : if myTryParse("881122", dateTime22) then return "22" else return "bad"
-    case "daterangeusa", "daterange" :return dateRangeUSA(arr(1), arr(2))
-    case "daterangeroc"              :return dateRangeROC(arr(1), arr(2))
+    case "daterange"  : return dateRange(arr(1), arr(2))
     case "dateaddusa", "dateadd" : return dateAddUSA(arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd
     case "dateaddroc"            : return dateAddROC(arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd
     case "condin"   '0 condIn! 1 trdt! 2 某日期! 3 n3dt
@@ -2982,7 +2975,7 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
     case "cdate"  '0:Date      1:(Jul  6, 1991) or (28-Aug-79)
                     dateAdd(arr(2),0,"yyyy/MM/dd")  
     case else ' kk==myLongParagraph!yy1!yy2
-      return replaceParam(arr)
+      if userDefinedBlock_replaceParam(arr, targ) then return targ
     End select
     return rightHandPart
     
@@ -2991,20 +2984,24 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
   end try
 End Function 'translateFunc
 
-function replaceParam(arr() as string) as string 'note: I suppose arr() are already trimed
- dim mother, xeqy,x,y as string : dim k as int32
- mother=arr(0): if mother="" then return ""
+function userDefinedBlock_replaceParam(arr() as string, byref answ as string) as boolean 'note: I suppose arr() are already trimed
+ dim mother, xeqy,x,y as string : dim k as int32 : dim met as boolean
+ met=false : mother=arr(0)
+                               if mother=""         then answ="" : return met
  for k=1 to ubound(arr)
      xeqy=arr(k)
      if inside(ieq, xeqy) then 
-        x=atom(xeqy,1,ieq): y=atom(xeqy,2,ieq): mother=replace(mother,x,y) 
+                               x=atom(xeqy,1,ieq): y=atom(xeqy,2,ieq)
+                               if inside(x, mother) then met=true: mother=replace(mother,x,y) 
      elseif xeqy="#empty" then 
-                                                mother=replace(mother, "[x" & k & "]"  , "")
+                               x="[p" & k & "]"
+                               if inside(x, mother) then met=true:  mother=replace(mother, x  , "")
      elseif xeqy<>""      then 
-                                                mother=replace(mother, "[x" & k & "]"  , xeqy)
+                               x="[p" & k & "]"
+                               if inside(x, mother) then met=true:  mother=replace(mother, x  , xeqy)
      end if
   next
-  return mother
+                                                         answ=mother : return met
 end function
 
 function glu1v(vectorU as string, patt as string, glue as string) as string 
