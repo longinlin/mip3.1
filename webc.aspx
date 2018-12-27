@@ -17,6 +17,7 @@
 
 <%@ Import Namespace="System.Security.Cryptography"   %>
 <%@ Import Namespace=System.Threading %>
+<%@ Import Namespace=System.Text.RegularExpressions %>
 
 <script runat="server" language="VB" >
   ' System.Data.OracleClient  Oracle.ManagedDataAccess.Client  
@@ -27,9 +28,9 @@
   Const sysTitle = "HQ", metaCCset = "<meta charset='UTF-8'>" ,    begpt="<scri" & "pt "  , endpt="</scri" & "pt>" , mister="mis"
   'const codePage=65001 '是指定IIS要用什麼編碼讀取傳過來的網頁資料 , frank tested: 不論有寫65001或沒寫 對select * from f2tb2(內有utf80 都正確顯示到網頁 但若寫936簡體 或寫950繁體 都會顯示出錯  
   Const bodybgAdmin = "", bodybgNuser = "bgcolor=#FBEBEC"  '#FFF7B2=light-yellow  #C4DEE6=turkey-blue  #81982F=light-green  #FBEBEC=pink
-  Const webServerID = 41, vadj="$;" , jj12 = "j1j2", defaultDIT="#!", pip="|" ,  divi = "|" , astoni="!" , astoni6="!!!!!!"
-  const entery = "[!y)", enterz="[!e)" , icoma = ",", ieq="=", const_maxrc_fil = 190000, const_maxrc_htm = 10000, iniz = 1  ' iniz=0 means fdv00=rs2(0), iniz=1 means fdv01=rs2(0)
-  const itab = Chr(9), ienter=vbNewLine, keyGlue="#$" , fcBeg="@{" , fcEnd="}" , tmpGlu="$*:"
+  const entery = "[!y)", enterz="[!e)" , ieq="=", KVMX=280, FDMX=340, const_maxrc_fil = 190000, const_maxrc_htm = 10000, iniz = 1  ' iniz=0 means fdv00=rs2(0), iniz=1 means fdv01=rs2(0)
+  Const webServerID = 41, vadj="$;" , j1j2 = "j1j2", defaultDIT="#!", pip="|" ,  astoni="!" , astoni6="!!!!!!" 
+  const itab = Chr(9), ienter=vbNewLine, keyGlue="#$" ,  tmpGlu="$*:" , icoma = "," , ispace=" " , iempty="" , ibest="best"
 
   dim  CCFD, codDisk ,  tmpDisk , tmpy, queDisk , prgDisk, splistFname,   table0,table0z,tr0, th0, td0, thriz,tdriz as string
   Dim qrALL,act, Uvar, Upar, Upag, f2postSQ, f2postDA, spfily, spDescript, usnm32, pswd32, logID, exitWord, userID,userNM, userCP,userOG,userWK, siteName       as string
@@ -44,13 +45,14 @@
   dim usjson         as string ="n"      ' to parse uvar by JSON , when version="okMartSmallOD" then always use JSON
   
   '這程式必須用utf8內碼存起來, 這程式讀檔也要讀utf8檔,  讀資料庫的資料內容是utf8, 然後這程式在下一行宣告產出是uft8,  browser也設定為顯示utf8 , 一切才會顯示正常
-  dim keys(280), vals(280), mrks(280), typs(280), vbks(280)   as string: dim hot(280) as boolean
-  dim keyys(280),valls(280) as string
-  dim gridLR(340),    tdRights(340),    top1hz(340),       top1rz(340)                   as string 
-  dim fdt_math(340), fdt_level(340), fdt_color(340), fdt_sumtotal(340), fdt_needsum(340) as string
+  dim keys(KVMX), vals(KVMX), mrks(KVMX), typs(KVMX), vbks(KVMX)   as string: dim mayReplaceOther(KVMX) as boolean
+  dim keyys(KVMX),valls(KVMX) as string
+  dim callerAdrs(KVMX)        as int32 , callerAdrN as int32=0 'for gosub
+  dim gridLR(FDMX),    tdRights(FDMX),    top1hz(FDMX),       top1rz(FDMX)                   as string 
+  dim fdt_math(FDMX), fdt_level(FDMX), fdt_color(FDMX), fdt_sumtotal(FDMX), fdt_needsum(FDMX) as string
+  dim fcBeg as string="@{" , fcEnd as string="}" 
   dim wkds(), digis() as string
   dim wkdsI, wkdsU as int32
-
   
   dim             top1T as string= "" ,      top1h as string= "",       top1r as string= "" : dim top1u as int32=0
   'the above are: top1T=record.columnTypes;  top1h=record.columnNames;  top1h=record.value;       top1u=top 1 record.value's number of columns -1
@@ -72,7 +74,7 @@
   Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) 
     CCFD=Request.ServerVariables("PATH_TRANSLATED")
      CCFD=left(CCFD, instr(CCFD, "webc")-1)   ' so CCFD="c:\main\"  
-     prgDisk = CCFD & "webc\" : codDisk = CCFD & "webc\"    :    tmpDisk = CCFD & "webT\"    :   tmpy="webT" :  queDisk = CCFD & "webQ\"     
+     prgDisk = CCFD & "webc\" : codDisk = CCFD & "webd\"    :    tmpDisk = CCFD & "webT\"    :   tmpy="webT" :  queDisk = CCFD & "webQ\"     
      iisPermitWrite=1 'iif(inside("WebService", CCFD),  0, 1) 
      splistFname   ="cspList.txt" 
      uslistFromDB  =0 
@@ -176,10 +178,8 @@ end if
       end if
     End If
 
-    table0 = "<center><table border=2 class='cdata'>"
+    table0 = "<center><table class='cdata'>"
     table0z= "</table></center><br>"	
-    'tableSML="<table border=1 style='font-size:9pt' >"
-    'tableBIG="<table border=1 style='font-size:12pt'>"
     tr0 = "<tr>"
     th0 = "<th>"  : thriz="<th class=riz>"
     td0 = "<td>"  : tdriz="<td class=riz>"
@@ -511,17 +511,13 @@ end if
 
   Function atom(mother as string,   idx as int32,   sepa as string,   optional overFlowVAL as string="bad_index") as string
     if trim(sepa)="" then errStop(550,"[function atom] got empty separater")
-    Dim pps = Split(mother, sepa) : Dim UB as int32=UBound(pps) : dim i as int32 : dim aa as string
-	'if idx=3 then wwbk5(537,mother, idx, sepa, overFlowVAL)
+    Dim pps = Split(mother, sepa) : Dim UB as int32=UBound(pps)  
 	if idx=9999 then 'idx is #n
 	                                         return cstr(UB+1)
-	elseif idx=999 then
+	elseif idx=999 then                     'return the last atom
 	                                         return pps(UB).trim
-	elseif idx=199 or idx=299  or idx=399 then '199==>1==>glue atom(1..LastOne)    299==>2==>glue atom(2..LastOne)
-	      aa="" :for i=(idx-99)/100.0-1 to UB :aa=aa & pps(i) & sepa :next
-		  return cutLastGlue(aa, sepa)
     elseif  (1<=idx and  idx<= UB+1) Then 
-	      return pps(idx-1).trim 
+	                                         return pps(idx-1).trim 
     end if
     return overFlowVAL    
   End Function
@@ -533,9 +529,10 @@ end if
     return pps(idx-1)
   end function
   
-  function bestDIT(words as string) as string ' return best delimeter
-   if inside(defaultDIT,words) then return defaultDIT
-   if inside(itab      ,words) then return itab
+  function bestDIT(line as string) as string ' return best delimeter
+   if inside(defaultDIT,line) then return defaultDIT
+  'if inside(pip       ,line) then return pip
+   if inside(itab      ,line) then return itab
    return icoma
   end function
   
@@ -676,11 +673,11 @@ end if
     Dim rs2, cn, line, j : cn = 0 : line = ""
     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then Return "" 'no need to say rs2.close
     vectorlizeHead("", rs2, 338)
-    Response.Write(preWord & top1h & jj12 & top1T & jj12)
+    Response.Write(preWord & top1h & j1j2 & top1T & j1j2)
     While cn < const_maxrc_fil And Not rs2.eof()
       cn = cn + 1 : line = ""
       For j = 0 To top1u - 1
-        line =      line & rs2(j).value & divi
+        line =      line & rs2(j).value & pip
       Next : line = line & rs2(j).value & entery
       Response.Write(line )
       If (cn Mod 1000) = 1 Then
@@ -865,22 +862,20 @@ end function
     xhead = "<?xml version=#1.0#  encoding=#utf8# ?>"
     xhead = Replace(xhead, "#", Chr(34))
 
-    xmhs = Split(XMLroot, ",")
-    xmhs(0) = Trim(xmhs(0))
-    xmhs(1) = Trim(xmhs(1))
+    trimSplit(XMLroot, icoma , xmhs)
     tmpf.write(xhead & ienter & "<" & xmhs(0) & ">" & ienter)
 
     If sql = "" Then Exit Sub
     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then Exit Sub ' rs.state=0 means rs is closed so this sql is a update,  1 means rs is opened so it carry recordset
 
     'prepare head_columnName_List
-    uTBC = rs2.fields.count - 1 : tits = Split(headList2 & " ", ",") : uGIV = UBound(tits) : headline = "" 'for xml
+    uTBC = rs2.fields.count - 1 : tits = Split(headList2 & " ", icoma) : uGIV = UBound(tits) : headline = "" 'for xml
     For j = 0 To uTBC
       hd = rs2.fields(j).name
       If j <= uGIV Then If Trim(tits(j)) <> "" Then hd = tits(j)
-      headline = headline & hd & ","
+      headline = headline & hd & icoma
     Next
-    tits = Split(headline, ",")
+    tits = Split(headline, icoma)
 
     cn = 0
     While cn < const_maxrc_fil And Not rs2.eof
@@ -891,7 +886,7 @@ end function
       oneRecord = oneRecord & ienter & "</" & xmhs(1) & ">" & ienter
       tmpf.write(oneRecord)
       rs2.movenext() : End While : rs2.close()
-    tmpf.write("</" & xmhs(0) & ">" & ienter & "</xml>" & ienter)
+    tmpf.write("</" & xmhs(0) & ">" & ienter &  "</xml>" & ienter)
     tmpf.close()
   End Sub
   '---------------------------------------------------------------------------
@@ -988,6 +983,9 @@ end function
   
   Function ifeq(p,q, s1, s2) as string
                 If p = q Then return s1 Else return s2
+  End Function
+  Function ifneq(p,q, s1, s2) as string
+                If p <> q Then return s1 Else return s2
   End Function
   function iflt(a as int32,  b as int32,  v1 as string, optional v2 as string="") as string
                 if a<b then return v1 else return v2
@@ -1153,18 +1151,17 @@ end function
     return ans
   end function
   
-  Function leftIs(mother as string, son as string) as boolean
-    dim L as int32 : L=len(son)
+  Function isLeftOf(son as string, mother as string) as boolean
     if mother="" or son="" then return false
-    return left(mother,L)=son
+    return left(mother,len(son))=son
   end function
   
-  function leftPart(strr, cutter)
+  function leftPart(strr, cutter) ' if cutter not found then leftPart takes all
    dim ix=instr(strr, cutter)
    if ix>0 then return left(strr,ix-1) else return strr & ""
   end function
   
-  function rightPart(strr, cutter)
+  function rightPart(strr, cutter) ' if cutter not found then rightPart takes none
    dim ix=instr(strr, cutter)
    if ix>0 then return mid(strr,ix+len(cutter)) else return ""
   end function
@@ -1225,14 +1222,18 @@ end function
     End If
   End Function
 
-  Function betweenstr(ss, ggb, gge)
+  Function xinner(ss, ggb, gge)
     Dim iggb, igge, bb As Int32
     iggb = InStr(ss, ggb)
     igge = InStr(iggb + 1, ss, gge)
-    betweenstr = ""
+    xinner = ""
     bb = iggb + Len(ggb)
-    If iggb >= 1 And igge >= 1 Then betweenstr = Mid(ss, bb, igge - bb)
+    If iggb >= 1 And igge >= 1 Then xinner = Mid(ss, bb, igge - bb)
   End Function
+  function isBetween(ss as string, i1 as int32, i2 as int32) as boolean
+    if not isnumeric(ss)                 then return false
+    if i1<=cint(ss) andAlso cint(ss)<=i2 then return true else return false  
+  end function
 
   Function nopath(fname)
     Dim ss
@@ -1290,13 +1291,13 @@ end function
     wwpp("   .riz{ text-align:right}                                ")
     wwpp("   .lez{ text-align:left}                                 ")
     wwpp("   .border2{border:solid 1px #bbb}                     ")  ' #E8E8FF
-    wwpp("   .summer                   {border: 1px solid #3FB826; background-color:#FFBA00;  white-space:nowrap; vertical-align:top; }                 ")
-    wwpp("   .cSPLIST                    {border-collapse: collapse; border-spacing:0px 0px; }                                                          ")
-    wwpp("   .cSPLIST td                 {white-space:nowrap; vertical-align:top;  font-size:10pt; padding:1px }                                        ")
+    wwpp("   .summer                   {border:1px solid #3FB826; background-color:#FFBA00;  white-space:nowrap; vertical-align:top; }                 ")
+    wwpp("   .cSPLIST                  {border-collapse: collapse; border-spacing:0px 0px; }                                                          ")
+    wwpp("   .cSPLIST td               {white-space:nowrap; vertical-align:top;  font-size:10pt; padding:1px }                                        ")
     wwpp("   .roundaa                  {border:1px groove gray; border-radius:3px;  text-decoration:none;  padding:4px 5px; background-color:#FFEBDC }  ")  '.round2:hover{ background-color:Khaki;} 
     wwpp("   .round2                   {text-decoration:none;  }                                                                                        ")  
     wwpp("                                                                                                                                              ")
-    wwpp("   .cdata                    {border-collapse: collapse; border-spacing:0px 0px; }                                                            ")  '點號開頭: <table class=cdata>
+    wwpp("   .cdata                    {border:2px; border-collapse:collapse; border-spacing:0px 0px;   }                                                            ")  '點號開頭: <table class=cdata>
     wwpp("   .cdata th                 {white-space:nowrap;              vertical-align:top; border: 1px solid #3FB826; background-color:#BDE9EB; }     ")
     wwpp("   .cdata td                 {white-space:nowrap;              vertical-align:top; border: 1px solid #3FB826; padding:2px;font-size:100% }    ")
     wwpp("   .cdata tr:nth-child( odd) {background-color: #FFFFFF}                                                                                      ")
@@ -1370,13 +1371,13 @@ end function
     wwpp(endpt)
   End Sub
 
-sub edit_ghh(caseN)
+sub edit_ghh(caseN) 'edit the output wording style, 
     select case caseN
     case 88101
                ghh=replace(ghh, "0px 0px; }", "0px 0px;width:96%}") 
                ghh=replace(ghh, "padding:2px;font-size:100", "padding:10px;font-size:100" )
-               ghh=replace(ghh, "//moreJS",    "setTimeout(function(){window.location='../callon.asp'}, 25000);")
                ghh=replace(ghh, "background-color:#BDE9EB", "background-color:pink")
+               ghh=replace(ghh, "//moreJS",    "setTimeout(function(){window.location='../callon.asp'}, 25000);")
     end select
 end sub
 
@@ -1489,7 +1490,7 @@ end sub
 	users = Split(userALL, ienter)
     Application("inputF") = Now()
     For i = 0 To UBound(users)
-      u2atts = Split(users(i), ",")
+     trimSplit(users(i), ",", u2atts)
      if UBound(u2atts) >= 6 then
         xnm =                      LCase(Trim(u2atts(1))) ' 人的帳號
         Application(xnm & ",nm") =       Trim(u2atts(0))  ' 人的中文名
@@ -1511,6 +1512,13 @@ end sub
       Application("dbcs," & atom(dbccs(i), 1, ":")) = atom(dbccs(i), 3, ":") 'memo DB connectString
     Next
   End Sub
+  
+  sub trimSplit(longStr as string, cut as string, byref srr() as string)
+      dim k as int32
+      if cut=ibest then cut=bestDIT(longStr)
+      srr=split(longStr, cut) 
+      for k=0 to ubound(srr) : srr(k)=trim(srr(k)) :next
+  end sub
 
 
   Sub buildFormShape()
@@ -1524,7 +1532,7 @@ end sub
       wwpp("<textarea cols=110 rows=16 wrap=off class=border2 name=Upag>" & Upag & "</textarea Upag>     ") 'hi=18 hihi
       wwpp("<input type=hidden name=f2postDA>                      ") 'f2postDA is used to collect large string, there permits ienter in f2postDA, f2postDA is independent with uvar
       wwpp("<input type=hidden name=act     value=run>                                            ")
-      wwpp("<input type=button name=bt1     value='run'   onclick=bk1()> [" & userID &  "][" & userOG & "]"  )
+      wwpp("<input type=button name=bt1     value='確定'   onclick=bk1()> [" & userID &  "][" & userOG & "]"  )
       wwpp("  <span id=runnBG style='display:none'>       ")
       wwpp("  <font color=red >run...</font>              ")
       wwpp("  </span>                                     ")
@@ -1566,13 +1574,13 @@ end sub
     Dim strr2
     'wwbk2(91,act)
     If  inside("run",act) Then 'execute program
-      if not permitRun(spfily) then wwpp("not permit to run " & spfily & ", try click functionList or another function or login again, your ID now is:" &userID) :dumpEnd():exit sub
+      if not permitRun(spfily) then wwpp("not permit to run "  & spfily & ", try click functionList or login again, your ID now is:" &userID) :dumpEnd():exit sub
       Call prepare_UparUpag("run")            
-      Call show_UparUpag(1, Upar, Upag, spfily) 
+      Call show_UparUpag("for-run", Upar, Upag, spfily) 
     ElseIf act = "showop" Then 'user call a prog named spfily, show GUI on web page
-      if not permitRun(spfily) then wwpp("not permit to show " & spfily & ", try click functionList or another function or login again, your ID now is:" &userID) :dumpEnd():exit sub
+      if not permitRun(spfily) then wwpp("not permit to show " & spfily & ", try click functionList or login again, your ID now is:" &userID) :dumpEnd():exit sub
       Call prepare_UparUpag("showop")
-      Call show_UparUpag(4, Upar, Upag, spfily)
+      Call show_UparUpag("for-showop", Upar, Upag, spfily)
       show_splist() 
     ElseIf  inside("showsplist",act) Or act = "" Then 'show store proc list
        if userid="qpass" then wwpp("user is qpass, no show functionList") :dumpEnd():exit sub
@@ -1584,7 +1592,7 @@ end sub
       If Not ( inside(".txt", spfily) or inside(".q", spfily) ) Then wwpp(reds("fileName must end by .txt or .q"))        : exit sub
       If spDescript = ""                                        Then wwpp(reds("to save file, it need a description"))    : exit sub
 
-      spfily = Trim(spfily)  'so to prevent bad filename like report/spa/ aaa.txt
+      spfily = replace(spfily,ispace,iempty)  'so to prevent bad filename like report/spa/ aaa.txt
       strr2 = loadFromFile(codDisk, splistFname)
       If InStr(strr2, spfily) > 0 Then
         wwpp(reds("not saved, this   file name has been occupied in spList2"))
@@ -1616,15 +1624,15 @@ end sub
     spRunable=""
     lines = Split(spList2, ienter)
     For i = 0 To UBound(lines)
-      words = Split(lines(i) & ",,", ",") : For j = 0 To UBound(words) : words(j) = Trim(words(j)) : Next
+      trimSplit(lines(i) & ",,",  ","  , words)
       If words(0) = "[td]" Then '若換大段
         wwpp(ifeq(sawFirstCol, 1, "<td>&nbsp;&nbsp;", ""))
         wwpp("<td valign=top for=newColumn>")
         sawFirstCol = 1
-      ElseIf Left(words(0), 2) = "[]" Then '若遇到小段落
-        sectionKind = Mid(words(0), 3)
+      ElseIf isLeftof("[tf]", words(0) )  Then '若遇到小段落
+        sectionKind = Mid(words(0), 5)
         sectionName = words(1)
-        If usr_can_see(userMayViewKinds, sectionKind, "show") Then wwpp("<b>" & sectionName & "</b><br><br>")
+        If usr_can_see(userMayViewKinds, sectionKind, "show") Then wwpp("<b>" & sectionName & ":</b><br><br>")
       Else '若遇一程式
         If words(2) = "hide" Then hideMa = "hide" Else hideMa = "show"
         If usr_can_see(userMayViewKinds, sectionKind, hideMa) Then
@@ -1783,7 +1791,7 @@ end sub
       errstop(1802,"no such userID=[" & userID & "]")
     End If
   End Sub
-
+  
   Sub show_UparUpag(purpose as string, Upar2 as string, Upag2 as string, spfily2 as string)
     Dim w2
     If userOG = mister Then '將讓輸入參數擠在一整個textarea裡
@@ -1792,9 +1800,10 @@ end sub
       ghh = replacewords(ghh, "progNM1 ", " progNM2", "value='" & spfily2 & "'")
       ghh = replacewords(ghh, "progDM1 ", " progDM2", "value='" & spDescriptFromFile(spfily2) & "'")
     Else
-	  'wwbk4(1859,purpose,cmN12,Upar2)
+	  wwbk4(1859,purpose,cmN12,Upar2)
       cmN10=0    :Call textToPair("toParaBoxes",1, Upar2, keyys, valls, cmN10)   'in sub show_UparUpag  
-
+      'show4Array(1798, keyys, valls,mrks, typs, 1,cmN10)
+      
       w2 = ""
       w2 = w2 & ienter & "<center><table border=0 style='font-size:10pt;' >"  
       w2 = w2 & ienter & "<tr><td style='font-size:11pt;color:blue'>"
@@ -1836,15 +1845,20 @@ end sub
       If "enter"     =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                   class=border2 name='cxFkey'  type=text   cxFlen onkeyx value='cxFval'  title='cxTIT' > cxFmrk"
 	  If "readonly"  =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left> cxFval <input                         name='cxFkey'  type=text readonly        value='cxFval'  title='cxTIT' > cxFmrk"
       if "comment"   =Dtyp Then elem = "<tr drew><td align=right>        <td align=left><input                                 name='cxFkey'  type=hidden               value='cxFval'  title='cxTIT' > cxFval"    
- if leftIs("comment" ,Dkey)Then elem = "<tr drew><td align=right>        <td align=left><input                                 name='cxFkey'  type=hidden               value='cxFval'  title='cxTIT' > cxFval"    
+if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td align=left><input                                 name='cxFkey'  type=hidden               value='cxFval'  title='cxTIT' > cxFval"
       If "hidden"    =Dtyp Then elem = "<tr drew><td align=right>        <td align=left><input                                 name='cxFkey'  type=hidden               value='cxFval'  title='cxTIT' >       "
+
       If "textarea"  =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><textarea wrap=off       class=border3 name='cxFkey'              cxFlen                        title='cxTIT' > cxFval</textarea>  cxFmrk"
       If "mmbx"      =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><textarea wrap=off       class=border3 name='cxFkey'              cxFlen                        title='cxTIT' > cxFval</textarea>  cxFmrk"
+
       If "select-one"=Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><select                                name='cxFkey'>cxDopt</select>                                                               cxFmrk"
+      If "comb"      =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><select                                name='cxFkey'>cxDopt</select>                                                               cxFmrk"
+
 	  if "checkbox"  =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                                 name='cxFkey' type=checkbox><sup>                                             <font size=3> cxFmrk</font></sup>"
       If "file"      =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                                 name='cxFkey' type=file    >                                                                cxFmrk"
       'elem=elem & "<input type=hidden name='cxFkey_h2' value='" & vadj & mrks(i) & vadj & typs(i) & "'>"
 	  
+      'element replacement step1/2
       If ("iibx"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )
       If ("iib2"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )
       'wwbk3(1868,Dtyp,Dlen):showvars():errstop(123,123)                                                                  
@@ -1857,7 +1871,11 @@ end sub
       If ("textarea" =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "rows=" & replace(Dlen,"x", " cols=")         )    
       If ("mmbx"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "rows=" & replace(Dlen,"x", " cols=")         )    
       If ("enter"    =Dtyp)              Then elem=replace(elem, "onkeyx" , "onkeypress='return onEnter(event, this.f2)'" )
-	  If ("comb"     =Dtyp)              Then DOPT= glu1v(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "#space"        ) : elem=replace(elem,"cxDopt",DOPT)
+      
+      'origin writes:  xx==yy $; say comment $; comb~y1$say1,y2$say2,y3$say3
+	  If ("comb"     =Dtyp)              Then DOPT=  glu1v(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "#space"        ) : elem=replace(elem,"cxDopt",DOPT)
+      
+      'element replacement step2/2
 	  elem=replaces(elem, "cxFkey",Dkey,  "cxFval",Dval,  "cxFmrk",Dmrk,    "cxTIT",      "$;" & mrks(i) & "$;" & typs(i)  )
 	  'wwbk6(1914,purpose,dkey,dval,dtyp,elem)
       s2 = s2 & elem & ienter
@@ -1878,9 +1896,9 @@ end sub
   Sub setValue(whatkey as string,   whatval as string,   optional ifHot as boolean=true)
     dim i as int32
     For i = 1 To cmN12
-      If                     keys(i)=whatkey Then vals(i) = whatval : hot(i)=ifHot : Exit Sub
+      If                     keys(i)=whatkey Then vals(i) = whatval : mayReplaceOther(i)=ifHot : Exit Sub
     Next
-	cmN12=cmN12+1 : i=cmN12: keys(i)=whatKey :    vals(i) = whatval : hot(i)=true
+	cmN12=cmN12+1 : i=cmN12: keys(i)=whatKey :    vals(i) = whatval : mayReplaceOther(i)=true
     if len(keys(cmN12))<4  then errstop(4330,   " you wish set value to [" & whatKey & "], but this name is too short")
 	if len(keys(cmN12))>20 then errstop(4331,   " you wish set value to [" & whatKey & "], but this name is too long")
   End Sub
@@ -1999,13 +2017,26 @@ end sub
 
   sub showVars
   dim i as int32
-  wwpp("<table border=2 class='cdata'><tr><td>inpbox th<td>hot <td>key <td>val <td>mrk <td>typ <td>bak")
+  wwpp("<table class='cdata'><tr><td>inpbox th<td>hot <td>key <td>val <td>mrk <td>typ <td>bak")
   for i=1 to cmN12
-  wwpp("<tr><td>" & ifeq(i,cmN10, i & " endP" ,i) &     "<td>" & hot(i)  &     "<td>" & keys(i) &    "<td>" & nof(vals(i)) &     "<td>" & mrks(i) &  "<td>" & typs(i) &  "<td>" & vbks(i))
+  wwpp("<tr><td>" & ifeq(i,cmN10, i & " endP" ,i) &     "<td>" & mayReplaceOther(i)  &     "<td>" & keys(i) &    "<td>" & nof(vals(i)) &     "<td>" & mrks(i) &  "<td>" & typs(i) &  "<td>" & vbks(i))
   next
   wwpp("</table>")
   end sub
-
+  
+  sub show4Array(idf as int32, ar1() as string, ar2() as string, ar3() as string, ar4() as string,           BB as int32, EE as int32)
+      dim i as int32
+      for i=BB to EE
+          wwbk6(idf, i, ar1(i), ar2(i), ar3(i), ar4(i))
+      next
+  end sub
+  
+  sub show1Array(idf as int32, ar1() as string,                  BB as int32, EE as int32)
+      dim i as int32
+      for i=BB to EE
+          wwbk3(idf, i, ar1(i))
+      next
+  end sub
   
   Sub textToPair(purpose as string, part12 as int32,    mystr1 as string, byref keyjs() as string, byref valjs() as string,   byref cmNxy as int32)
   'example: kk==vv $; marks_say_something $; type~length
@@ -2058,67 +2089,78 @@ end sub
     'next
   end sub
     
-  function build_few_kv_from_top1r(line as string) as string       'line    example: a,b,c==top1r!1,2,3 ;; some_another_word
-    dim k1,v1,another,kks(),vvs(), sumc as string  : dim i,ii as int32
-    if notInside(icoma, atom(line,  1, ";;" ) )  then return line
-    another=            atom(line,299, ";;" )                      'another example: some_another_word
-    line   =atom(line,1,";;")                                      'line    becomes: a,b,c==top1r!1,2,3
-    k1     =atom(line,1,"==")                                      'k1      example: a,b,c
-    v1     =replace(atom(line,2,"=="), "top1r!" , "")              'v1      example: 1,2,3
-    kks    =split(k1,icoma)
-    vvs    =split(v1,icoma) : sumc=""
-    for i=0 to ubound(kks)  
-     ii=min(i, ubound(vvs)) : sumc=sumc & kks(i) & "==" & ifle(i, ubound(vvs),   "top1r!" & vvs(ii) & ";;"    ,    ";;")
-    next
+  function build_few_kv_from_top1r(line as string) as string           'line    example: a,b,c==top1r!1,2,3 ;; some_another_word
+    dim k1,v1,kv,another,kks(),vvs(), sumc as string  : dim i,ii as int32
+    another=rightPart(line, ";;")                                      'another example: some_another_word
+    kv     = leftPart(line, ";;")                                      'kv      example: a,b,c==top1r!1,2,3
+    k1     =atom(kv,1,"=="): if notInside(icoma,k1) then return line   'k1      example: a,b,c
+    v1     =atom(kv,2,"=="): v1=replace(v1,"top1r!" , "")              'v1      example: 1,2,3
+    if ubound(kks)<>ubound(vvs) then errstop(2069, "see a,b,c,d==top1r!x,y,z with parameter numbers dismatch")
+    sumc=glu2v(k1,v1, "[ui]==top1r![vi]", ";;")
+    'sumc="":for i=0 to ubound(kks)  
+    ' sumc=sumc & kks(i) & "==top1r!" &  vvs(ii) & ";;"   
+    'next : sumc=cutLastGlue(sumc,";;")
     return sumc & another
   end function
   
-  function build_few_line_vs_ifiii(line as string) as string       'line    example: if==ifeq!a!b;; some_another_word
-    dim another,vari,sumc as string  : dim i,ii as int32
-    another=atom(line,299, ";;" )                      'another example: some_another_word
-    line   =atom(line,  1, ";;" )                      'line    becomes: if==ifeq!a!b
-    vari   =atom(line,  2, "==" )                      'vari    example: ifeq!a!b
+  
+  function build_few_line_vs_ifiii(line as string) as string     'line    example: if==ifeq!a!b;; some_another_word
+    dim kv,another,rightP as string   
+    another=rightPart(line, ";;" )                               'another example: some_another_word
+    kv     = leftPart(line, ";;" )                               'kv      example: if==ifeq!a!b
+    rightP =     atom(kv  ,  2, "==" )                           'rightP  example: ifeq!a!b
     seeElse=0: forLoopTH=forLoopTH+1 
-    return "jumpto==" &vari & "!!bulkElse" & forLoopTH & ";;" & another
+    return "jumpto==" & rightP & "!!bulkElse" & forLoopTH & ";;" & another
   end function
   
-  function build_few_line_vs_elsei(line as string) as string       'line    example: else==. ;; some_another_word
-    dim another,vari,sumc as string  : dim i,ii as int32
-    another=atom(line,299, ";;" )                      'another example: some_another_word
-    line   =atom(line,  1, ";;" )                      'line    becomes: else==.
+  function build_few_line_vs_elsei(line as string) as string     'line    example: else==. ;; some_another_word
+    dim kv,another as string   
+    another=rightPart(line, ";;" )                               'another example: some_another_word
+    kv     = leftPart(line, ";;" )                               'kv      example: else==.
     seeElse=1
-    sumc=sumc & "jumpto==bulkEnd" & forLoopTH & ";;label==bulkElse" & forLoopTH
+    return "jumpto==bulkEnd" & forLoopTH & ";;label==bulkElse" & forLoopTH & ";;" & another
+  end function
+  
+  function build_few_line_vs_endif(line as string) as string     'line    example: endif==. ;; some_another_word
+    dim kv,another,vari,sumc as string  
+    another=rightPart(line, ";;" )                               'another example: some_another_word
+    kv     = leftPart(line, ";;" )                               'kv      example: endif==.
+    if seeElse=0 then sumc="label==bulkElse" & forLoopTH   else   sumc="label==bulkEnd" & forLoopTH 
     return sumc & ";;" & another
   end function
   
-  function build_few_line_vs_endif(line as string) as string       'line    example: endif==. ;; some_another_word
-    dim another,vari,sumc as string  : dim i,ii as int32
-    another=atom(line,299, ";;" )                      'another example: some_another_word
-    line   =atom(line,  1, ";;" )                      'line    becomes: endif==.
-    if seeElse=0 then sumc="label==bulkElse" & forLoopTH    else    sumc="label==bulkEnd" & forLoopTH 
-    return sumc & ";;" & another
-  end function
-  
-  function build_few_line_vs_forii(line as string) as string       'line    example: for==i,1,3 ;; another
-    dim another,v1,vari,begi,endi, sumc as string  
-    another=atom(line,299, ";;" )                                  'another example: some_another_word
-    line   =atom(line,  1, ";;" )                                  'line    becomes: for==i,1,2  
-    v1     =atom(line,  2, "==" )                                  'v1      example: i,1,2
-    vari   =atom(v1  ,  1, ","  )                                  'vari    example: i
-    begi   =atom(v1  ,  2, ","  )                                  'begi    example: 1
-    endi   =atom(v1  ,  3, ","  )                                  'endi    example: 2
+  function build_few_line_vs_forii(line as string) as string     'line    example: for==i,4,64,2 ;; some_another_word
+    dim kv,another,v1,vari,begi,endi,stpi, sumc as string
+    another=rightPart(line, ";;" )                               'another example: some_another_word
+    kv     = leftPart(line, ";;" )                               'kv      example: for==i,4,64,2
+    v1     =atom(kv,  2, "==" )                                  'v1      example: i,4,64,2
+    vari   =atom(v1  ,  1, ","  )                                'vari    example: i
+    begi   =atom(v1  ,  2, ","  )                                'begi    example: 4
+    endi   =atom(v1  ,  3, ","  )                                'endi    example: 64
+    stpi   =atom(v1  ,  4, ",",  "1")                            'stpi    example: 2
     forLoopTH=forLoopTH+1
-    sumc="vari==add!begi!-1;; label==for2beg;; vari==add!vari!1;; jumpto==ifgt!vari!endi!for2out"
-    return replaces(sumc, "vari",vari, "begi",begi, "endi",endi,   "for2",  "loop" & forLoopTH) & another
+    sumc="Vari==add!Begi!-Stpi;; label==lop2beg;; Vari==add!Vari!Stpi;; jumpto==ifgt!Vari!Endi!lop2out;;"
+    return replaces(sumc, "Vari",vari, "Begi",begi, "Endi",endi,  "Stpi",stpi,   "lop2",  "loop" & forLoopTH) & another
   end function
 
-  function build_few_line_vs_nexti(line as string) as string       'line    example: next==i;; another
-    dim another,vari,sumc as string  : dim i,ii as int32
-    another=atom(line,299, ";;" )                      'another example: some_another_word
-    line   =atom(line,  1, ";;" )                      'line    becomes: next==i
-    vari   =atom(line,  2, "==" )                      'vari    example: i
-    sumc="jumpto==for2beg;; label==for2out"
-    return replaces(sumc, "for2",  "loop" & forLoopTH) & another
+  function build_few_line_vs_forch(line as string) as string     'line    example: foreach==ii!aa,bb,cc ;; some_another_word
+    dim kv,another,v1,vari,vect, sumc as string
+    another=rightPart(line, ";;" )                               'another example: some_another_word
+    kv     = leftPart(line, ";;" )                               'kv      example: foreach==ii!aa,bb,cc
+    v1     =atom(line,  2, "==" )                                'v1      example: ii!aa,bb,cc
+    vari   =atom(v1  ,  1, "!"  )                                'vari    example: ii
+    vect   =atom(v1  ,  2, "!"  )                                'vect    example: aa,bb,cc
+    forLoopTH=forLoopTH+1
+    sumc="wwvTH==0;; label==lop2beg;; wwvTH==add!wwvTH!1;; Vari==atom!Vect!wwvTH!,!#EOV# ;; jumpto==ifeq!Vari!#EOV#!lop2out"
+    return replaces(sumc, "Vari",vari,   "Vect",vect,   "lop2",  "loop" & forLoopTH) & another
+  end function
+
+  function build_few_line_vs_nexti(line as string) as string     'line    example: next==.;; another
+    dim kv,another,vari,sumc as string 
+    another=rightPart(line, ";;" )                               'another example: some_another_word
+    kv     = leftPart(line, ";;" )                               'kv      example: next==.
+    sumc="jumpto==lop2beg;; label==lop2out"
+    return replaces(sumc, "lop2",  "loop" & forLoopTH) & another
   end function
   
   Sub wash_UparUpag_exec() 'with Upar,upag ready
@@ -2132,15 +2174,16 @@ end sub
     try
     for i=0 to Ubound(lines)
       ctmp=replace(lines(i), " " , "") ' so this is a stronger replacement than trim
-      if ctmp<>""                    then ctmp=ctmp.toLower                         else  continue for
-      if leftIs(ctmp, "/"        ) then lines(i)=""                                  :  continue for
-      if leftIs(ctmp, "include==") then lines(i)=loadFromFile(codDisk, mid(ctmp,10)) :  continue for
-      if leftIs(ctmp, "if=="     ) then lines(i)=build_few_line_vs_ifiii(ctmp)       :  continue for
-      if leftIs(ctmp, "else=="   ) then lines(i)=build_few_line_vs_elsei(ctmp)       :  continue for
-      if leftIs(ctmp, "endif=="  ) then lines(i)=build_few_line_vs_endif(ctmp)       :  continue for
-      if leftIs(ctmp, "for=="    ) then lines(i)=build_few_line_vs_forii(ctmp)       :  continue for
-      if leftIs(ctmp, "next=="   ) then lines(i)=build_few_line_vs_nexti(ctmp)       :  continue for
-      if inside("==top1r!", ctmp ) then lines(i)=build_few_kv_from_top1r(ctmp)       :  continue for
+      if ctmp<>""                   then ctmp=ctmp.toLower                         else  continue for
+      if isLeftOf("/"        ,ctmp) then lines(i)=""                                  :  continue for
+      if isLeftOf("include==",ctmp) then lines(i)=loadFromFile(codDisk, mid(ctmp,10)) :  continue for
+      if isLeftOf("if=="     ,ctmp) then lines(i)=build_few_line_vs_ifiii(ctmp)       :  continue for
+      if isLeftOf("else=="   ,ctmp) then lines(i)=build_few_line_vs_elsei(ctmp)       :  continue for
+      if isLeftOf("endif=="  ,ctmp) then lines(i)=build_few_line_vs_endif(ctmp)       :  continue for
+      if isLeftOf("for=="    ,ctmp) then lines(i)=build_few_line_vs_forii(ctmp)       :  continue for
+      if isLeftOf("foreach==",ctmp) then lines(i)=build_few_line_vs_forch(ctmp)       :  continue for
+      if isLeftOf("next=="   ,ctmp) then lines(i)=build_few_line_vs_nexti(ctmp)       :  continue for
+      if inside("==top1r!"   ,ctmp) then lines(i)=build_few_kv_from_top1r(ctmp)       :  continue for
     next
     catch ex as exception
       wwbk5(2085,ctmp,i,lines(i),ex.message): dumpend
@@ -2170,9 +2213,8 @@ end sub
     cmN12=0    :Call textToPair("toExec",1,  Upar, keys,vals,cmN12) 'in sub wash_UparUpag_exec
     cmN12=cmN12:Call textToPair("toExec",2,  Upag, keys,vals,cmN12) 'in sub wash_UparUpag_exec
 		
-    'parse_step[5.1] add "exit" command, set hot() vbks()
-    cmN12=cmN12+1: i=cmN12: keys(i)="exit." : vals(i)="done"
-    For i = 1 To cmN12 : hot(i)=false: vbks(i)=vals(i):next
+    'parse_step[5.1] add "exit" command, set mayReplaceOther() vbks()
+    cmN12=cmN12+1: keys(cmN12)="exit." : vals(cmN12)="done" : For i = 1 To cmN12 : mayReplaceOther(i)=false: vbks(i)=vals(i):next
     
     'parse_step[5.2] execute many commands
     For i = 1 To cmN12		
@@ -2181,7 +2223,7 @@ end sub
       'begin wash: replace vbks(j=1..i-1) into vbks(i); except when vbks(j) like "matrix%"  
         valFocus=vals(i): vals(i)=vbks(i)  'set value to the backuped initial value
         For j =1 to cmN12
-            if hot(j) then 
+            if mayReplaceOther(j) then 
                if j=i then 
                   vals(i)=replace(vals(i),     keys(j), valFocus)  
                   'suppose one line looks like: k==add!k!1  then
@@ -2193,7 +2235,7 @@ end sub
             end if
         Next
                   vals(i) = Replace(vals(i),     "[]"   ,  ""    )  '[] is a mask, take it out
-        hot(i)=true: if Left(keys(j),6)="matrix" then hot(i)=false
+        mayReplaceOther(i)=true: if Left(keys(j),6)="matrix" then mayReplaceOther(i)=false
       'end wash    
       
 
@@ -2209,7 +2251,19 @@ end sub
       
 	  select case keyLower  'when see verb==some_description , then execute this verb
       case "label"   'no work to do, but I list it here to prevent it be recognized as [programmer defined var]
-      case "jumpto"  : i3 = label_location(vals(i), i) : i = i3 : seeJump=seeJump+1 : if seeJump>20 then errstop(2149,"too many jump")
+      case "jumpto", "gosub"  
+                       if keyLower="gosub" then 
+                          callerAdrN=callerAdrN+1 
+                          try
+                            callerAdrs(callerAdrN)=i
+                          catch ex as Exception
+                            errstop(2236, callerAdrN & ".." & i & ".." & ex.message)
+                          end try
+                       end if
+                       i3 = label_location(vals(i), i) : i = i3 : seeJump=seeJump+1 : if seeJump>40 then errstop(2149,"you jump too many times")
+      case "return"  
+                       ' if not(vals(i)="" or vals(i)="0") then 
+                       i=callerAdrs(callerAdrN) : callerAdrN=callerAdrN-1 : if callerAdrN<0 then errstop(2234, "you return too many times")                       
       case "conndb"  : Call switchDB(vals(i))
       case "sqlcmd"  'see sql, might be single sql or doloop sql
        if  inside("T", vals(i).toUpper) then  'if pvals contains selecT updaT deleT   ; if not contains then do nothing 
@@ -2280,6 +2334,7 @@ end sub
       case "showschema"  : needSchema = vals(i)
       case "colorlist"   : Call doColorList(vals(i))
       case "convertcode" : Call perlConvertCode(vals(i)) ' infile,big5, oufile,utf8
+      case "setfunctionbracket": fcBeg=atom(vals(i),1,icoma): fcEnd=atom(vals(i),2,icoma)
       case "setxmlroot"  : XMLroot = vals(i)
       case "sleepy"      : Call sleepy(vals(i))
       case "headlist"    : headlistRepeat = tryCint(keyAdj1) : headlist = noSpace(vals(i))
@@ -2299,7 +2354,7 @@ end sub
            'this is [programmer defined var] 'if previously this key has value then set that sentence as not hot
            keyFocus=keys(i)
            for j=1 to i-1 ' or maybe to cmN12
-               if j<>i and keys(j)=keyFocus then hot(j)=false
+               if j<>i and keys(j)=keyFocus then mayReplaceOther(j)=false
            next      
 	  end select
            
@@ -2342,21 +2397,94 @@ end sub
      'wwbk5(2284,nowMa,findingBracket,cms(1))    
    next   
    errstop(2282, "calla working too long")
-  end function
-
-      
-
+  end function 'dat1 --------------------------------------
   
-  function datetime_parse(ww as string) as string
-      if ww.trim="" then return "null"
-  	  try
-       return "'" & DateTime.Parse(ww)  & "'" 
-	  catch ex as exception
-	   wwbk3("err when transform this word to date:", ww , ex.Message)                                
-	  end try
-      return "'2000/01/01'"                              
-  end function                             
+  function myTryParse(das1 as string, byref dat1 as dateTime) as boolean
+    try
+      dat1=dateTime.parse(das1)         : return true
+    catch ex as exception
+      dat1=dateTime.parse("1911/01/01") : return false
+    end try
+  end function
+  
+  function forymd(fmt as string) as string
+    fmt=   replaces(fmt.toLower,"yy","y"   ,   "mm","m" ,   "dd","d"  , "yy","y")
+    return replaces(fmt,        "y" ,"yyyy",   "m" ,"MM",   "d" ,"dd"           )
+  end function
+  function dateConvUSA(das1 as string,     formatt as string, byref outs as string) as string  
+    dim dat1 as dateTime :                 formatt=forymd(formatt)
+    das1=Any_to_usaSlash(das1)
+    if myTryParse(das1,dat1) then outs=dat1.toString(formatt) else outs=""
+    return outs
+  end function
+  
+  function dateAddUSA(das1 as string, more as int32, formatt as string) as string  
+    dim dat1 as dateTime :                          formatt=forymd(formatt)
+    das1=Any_to_usaSlash(das1)
+    if myTryParse(das1,dat1) then return dateadd("d",more, dat1).toString(formatt) else return "bad-dateAdd"    
+  end function 
+  
+  function dateRangeUSA(das1 as string, das2 as string) as int32  ' days range: from das1 to at2
+    dim dat1,dat2 as dateTime
+    das1=Any_to_usaSlash(das1)
+    das2=Any_to_usaSlash(das2)
+    if myTryParse(das1,dat1) andAlso myTryParse(das2,dat2) then return dateDiff("d",dat1,dat2) else return "bad-dateRange"    
+  end function 
+  
+  function any_to_usaSlash(das1 as string) as string
+           if isNumeric(das1) andAlso len(das1)=8  then return         left(das1,4)  & "/" & mid(das1,5,2) & "/" & mid(das1,7)
+           if isNumeric(das1) andAlso len(das1)=7  then return c3A1911(left(das1,3)) & "/" & mid(das1,4,2) & "/" & mid(das1,6)
+           if isNumeric(das1) andAlso len(das1)=6  then return c3A1911(left(das1,2)) & "/" & mid(das1,3,2) & "/" & mid(das1,5)
+           return das1
+  end function
+  
+  function c3A1911(y4  as string) as string
+    if   isNumeric(y4) andAlso (len(y4)=3 or len(y4)=2) then return (cint(y4) +1911) & ""
+    return         y4
+  end function
+    
+  function dateConvROC(das1 as string,     formatt as string, byref outs as string) as string  'only for yyymmdd, yyy/mm/dd, yyy-mm-dd   
+    dim dat1 as dateTime, daa1 as string : formatt=forymd(formatt)
+    das1=Any_to_usaSlash(das1)
+    'wwbk3(2458,"dateConvROC-usaSlash:", das1)
+    if myTryParse(das1,dat1) then 
+       daa1=dateadd("yyyy",-911,dat1).toString(formatt)
+       'if das1=2019.0101 then   daa1=1108.0101
+       'if das1=2009.0101 then   daa1=1098.0101
+       'if das1=1999.0101 then   daa1=1088.0101
+                                 outs=daa1 
+       if left(daa1,2)="10" then outs=mid(daa1,3) 
+       if left(daa1,2)="11" then outs=mid(daa1,2) 
+       'wwbk3(2459,"dateConvROC-out:", outs)
+       return outs
+    else 
+       return ""
+    end if
+  end function
+  
+  function dateAddROC(das1 as string, more as int32, formatt as string) as string  
+    dim dat1 as dateTime, daa1 as string :           formatt=forymd(formatt)
+    das1=Any_to_usaSlash(das1)
+    'wwbk3(2487,"dateAddROC-das1:",das1)
+    if myTryParse(das1,dat1) then 
+       dat1=dateadd("d",more, dat1)
+       'wwbk4(2491,dat1,daa1,more)
+       daa1=dateadd("yyyy",-911,dat1).toString(formatt)
+       if left(daa1,2)="10" then return mid(daa1,3) else return mid(daa1,2)
+    else
+       wwbk3(2492,dat1,daa1)
+       return "bad-dateAdd"    
+    end if
+  end function
+  
+  function dateRangeROC(das1 as string, das2 as string) as int32  ' days range: from das1 to at2
+     dim dat1,dat2 as dateTime
+     das1=Any_to_usaSlash(das1)
+     das2=Any_to_usaSlash(das2)
+    if myTryParse(das1,dat1) andAlso myTryParse(das2,dat2) then return dateDiff("d",dat1,dat2) else return "bad-dateRange"    
+  end function 
 
+                            
   Function ffMatch(tb1 as string,  tb2 as string,  ff1s as string,  ff2s as string,  glu2 as string) as string
     Dim gg1s(), gg2s(), rr as string : dim i as int32
     gg1s = Split(ff1s, ",")
@@ -2575,10 +2703,10 @@ end sub
     If IsNumeric(a1) Then inta = CLng(a1) Else inta = 0
   End Function
   Function NumGT(a1, a2)
-    If IsNumeric(a1) And IsNumeric(a2) Then NumGT = (CLng(a1) > CLng(a2)) Else NumGT = (a1 > a2)
+    If IsNumeric(a1) And IsNumeric(a2) Then NumGT = (CDbl(a1) > CDbl(a2)) Else NumGT = (a1 > a2)
   End Function
   Function NumGE(a1, a2)
-    If IsNumeric(a1) And IsNumeric(a2) Then NumGE = (CLng(a1) >= CLng(a2)) Else NumGE = (a1 >= a2)
+    If IsNumeric(a1) And IsNumeric(a2) Then NumGE = (CDbl(a1) >= CDbl(a2)) Else NumGE = (a1 >= a2)
   End Function
 
   Function fn_eval(expp as string) as string
@@ -2586,40 +2714,37 @@ end sub
     return Convert.ToString(tbl.Compute(expp, Nothing))
   End Function
   
+  function andRange(vary as string, inpu as string, deff as string) as string
+    dim met as int32 : dim con, inpu1, inpu2, deff1, deff2 as string
+    if inpu=""           then        return ""
+                                         met=0
+    if inside(":", inpu) then  con=":" : met=1
+    if inside("~", inpu) then  con="~" : met=1
+    if inside("-", inpu) then  con="-" : met=1
+    if met=0                   then return string.format(" and ( {0}='{1}') ", vary, inpu)
+    inpu1=atom(inpu,1,con) : deff1=atom(deff & "-",1,"-"): inpu1=ifneq(inpu1,"", inpu1, deff1)
+    inpu2=atom(inpu,2,con) : deff2=atom(deff & "-",2,"-"): inpu2=ifneq(inpu2,"", inpu2, deff2)
+    if inpu1<>"" and inpu2<>"" then return string.format(" and ( {0} between '{1}' and '{2}')" , vary, inpu1, inpu2)
+    errstop(2699,"you give wrong input for [" & vary & "]")
+  end function
 
       
 Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!x2
 'purpose: after previous keys() are wahsed into rightHandPart, and see there is a @{translateFuncName!para1!para2} in rightHandPart, then translate it
     Dim j as int32
-    dim ftxt, i1ftxt, i2ftxt, cifhay,  ftxta, ftxtb, ftxtc, str333, kmcader, dott as string
-    dim targ,  ausL4, ausR3,  newSymbol, oldSymbol as string
-	dim verb2, info3, wallTH, arr0L, patt as string
+    dim ftxt, i1ftxt, i2ftxt, cifhay,  ftxta, ftxtb,   ftxtc, str333, kmcader, cutt, dval as string
+    dim targ,  idle, newSymbol, oldSymbol ,   verb2, info3, wallTH, arr0L, patt as string
     dim wordvs(), arr() as string
+    dim datetime22 as datetime
         
     arr = Split(rightHandPart & astoni6, astoni) : For j = 0 To UBound(arr) : arr(j) = Trim(arr(j)) : Next 
     arr0L=LCase(arr(0))
   try
 	select case arr0L
-    case "ifv"  'means if_valueful or means if_not_empty_string
-      If arr(1) <> "" Then return arr(2) Else return arr(3)
     case "add"  
-      return CLng(arr(1)) + CLng(arr(2))
-    case "x*y"  
-      return CLng(arr(1)) * CLng(arr(2))
+      return CDbl(arr(1)) + CDbl(arr(2))
     case "eval" 
       return fn_eval(arr(1))
-    case "ifnum"  
-      If IsNumeric(arr(1)) Then return arr(2) Else return arr(3)
-    case "ifposi"   ' if positive number
-      If IsNumeric(arr(1)) andAlso arr(1) > 0 Then return arr(2) Else return arr(3)
-    case  "cookiew" 'cookie  write
-            Response.Cookies(arr(1)).value = arr(2) : return ""  ' session(arr(1))=arr(2) : return ""
-    case  "cookier" 'cookie  read
-      return Request.Cookies(arr(1)).toString                 ' session(arr(1))
-    case "ifusa"  
-      If IsNumeric(arr(1))  andalso 19201123< arr(1) andalso arr(1)< 20391123 Then return arr(2) Else return arr(3)
-    case "ifroc"  
-      If IsNumeric(arr(1))  andalso 111123< arr(1) andalso arr(1)< 1281123      Then return arr(2) Else return arr(3)
     case "ifeqs" 
       targ = arr(1)
       For j = 2 To UBound(arr) - 1 Step 2
@@ -2630,71 +2755,39 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
         End If
       Next
       return ""
-    case "ifLLeq" ' if lcase(x1)=lcase(x2)
-	  arr(1)=lcase(arr(1))
-	  arr(2)=lcase(arr(2))
-	  if arr(2)=arr(1) then return arr(3) else return arr(4)
-    case "ifeq"    :If arr(1) = arr(2)            Then return arr(3) Else return arr(4)
-    case "ifleneq" :If Len(arr(1)) = CInt(arr(2)) Then return arr(3) Else return arr(4)
-    case "ifne"    :If arr(1) <> arr(2)           Then return arr(3) Else return arr(4)
-    case "ifgt"    :If NumGT(arr(1), arr(2))      Then return arr(3) Else return arr(4)
-    case "ifge"    :If NumGE(arr(1), arr(2))      Then return arr(3) Else return arr(4)
-    case "iflt"    :If NumGT(arr(2), arr(1))      Then return arr(3) Else return arr(4)
-    case "ifle"    :If NumGE(arr(2), arr(1))      Then return arr(3) Else return arr(4)
-    case "ifbetween"  
+    case "ifeq"     ,"seeeq"    :If arr(1) =      arr(2)       Then return arr(3) Else return arr(4)
+    case "ifne"     ,"seene"    :If arr(1) <>     arr(2)       Then return arr(3) Else return arr(4)
+    case "ifgt"     ,"seegt"    :If NumGT(arr(1), arr(2))      Then return arr(3) Else return arr(4)
+    case "ifge"     ,"seege"    :If NumGE(arr(1), arr(2))      Then return arr(3) Else return arr(4)
+    case "iflt"     ,"seelt"    :If NumGT(arr(2), arr(1))      Then return arr(3) Else return arr(4)
+    case "ifle"     ,"seele"    :If NumGE(arr(2), arr(1))      Then return arr(3) Else return arr(4)
+    case "iflceq"   ,"seelceq"  :if lcase(arr(1))=lcase(arr(2))Then return arr(3) else return arr(4) ' if lcase(x1)=lcase(x2)
+    case "ifleneq"  ,"seeleneq" :If Len(arr(1)) = len(arr(2))  Then return arr(3) Else return arr(4)
+    case "ifin"     ,"seein"    :If InStr(arr(2), arr(1)) > 0  Then return arr(3) Else return arr(4) ' ifin a b --> if a in b
+    case "ifnum"    ,"seenum"   :If IsNumeric(arr(1))          Then return arr(2) Else return arr(3)
+    case "ifposi"   ,"seeposi"  :If IsNumeric(arr(1)) andAlso        0<arr(1)                          Then return arr(2) Else return arr(3) ' if positive number
+    case "ifbetween","seebetween"  
       If IsNumeric(arr(2)) Then
         If inta(arr(2)) <= inta(arr(1)) And inta(arr(1)) <= inta(arr(3)) Then return arr(4) Else return arr(5)
       Else
         If arr(2) <= arr(1) And arr(1) <= arr(3) Then return arr(4) Else return arr(5)
       End If
-    case "ifin"   ' ifin a b --> if a in b
-      If InStr(arr(2), arr(1)) > 0 Then return arr(3) Else return arr(4)
-    case "a2z.a"  
-	  arr(1)=replace(arr(1), ":", "-")
-      If arr(1) <> "" Then wordvs = Split(arr(1), "-") : str333 = wordvs(0)
-      If str333 = "" Then return arr(2) else return str333
-    case "a2z.z"  
-	  arr(1)=replace(arr(1), ":", "-")
-      If arr(1) <> "" Then wordvs = Split(arr(1), "-") : str333 = wordvs(UBound(wordvs))
-      If str333 = "" Then return arr(2) else return str333
-    case "inner"
-      return inner(arr(1), arr(2), arr(3))
-    case "chkroc"  
-      If arr(1) = "" And arr(2) = "" Then
-        return ""
-      ElseIf Not (IsNumeric(arr(1)) And IsNumeric(arr(2))) Then
-        return "err 日期未給數字"
-      ElseIf CLng(arr(1)) > CLng(arr(2)) Then
-        return "err 起迄日相反了"
-      ElseIf arr(1) < 600101 Then
-        return "err 你輸入的是太古早的民國年月日:" & arr(1)
-      ElseIf arr(2) > 1180101 Then
-        return "err 你輸入的是太未來的民國年月日:" & arr(1)
-      Else
-        return ""
-      End If
-    case "chkymdhn" 
-      If arr(1) = "" And arr(2) = "" Then
-        return ""
-      ElseIf Not (IsNumeric(arr(1)) And IsNumeric(arr(2))) Then
-        return "err 時間應給數字"
-      ElseIf CLng(arr(1)) > CLng(arr(2)) Then
-        return "err 起迄時相反了"
-      ElseIf arr(1) < 101010101 Then
-        return "err 你想查民國101年以前的資料嗎 太古早了"
-      ElseIf arr(2) > 912312359 Then
-        return "err 你想查民國109年以後的資料嗎 尚未發生"
-      Else
-        return ""
-      End If
+    case "ifv"      ,"seev"              : If arr(1) <> "" Then return arr(2) Else return arr(3) 'means if_not_empty_string then
+    case "andrange"                      : return andRange(   arr(1), arr(2)   ,arr(3) ) 'andRange! 1=some_table_ColumnName! 2=inputx !3=defaultBegin-defaultEnd
+    case "ifvaliddateusa", "ifvaliddate" : if     dateConvUSA(arr(1),"yyyymmdd",targ)<>"" andalso isBetween(left(targ,len(targ)-4),1900,2040) then return arr(2) else return arr(3)  ' you may write idle==ifvalidDate!20113344  or jumpto==ifvalidDate!20113344!LB1!LB2
+    case "ifvaliddateroc"                : if     dateConvROC(arr(1),"yyyymmdd",targ)<>"" andAlso isbetween(left(targ,len(targ)-4),   0, 150) then return arr(2) else return arr(3)
+    case "dateconvusa", "dateconv"       : return dateConvUSA(arr(1),arr(2)    ,targ)
+    case "dateconvroc"                   : return dateConvROC(arr(1),arr(2)    ,targ)
+    case "cookiew" :Response.Cookies(arr(1)).value = arr(2) : return ""  ' session(arr(1))=arr(2) : return "" 'cookie  write
+    case "cookier" :return Request.Cookies(arr(1)).toString              ' session(arr(1)) 'cookie  read
+    case "inner"   :return inner(arr(1), arr(2), arr(3))
     case "mobiletel"
       if left(arr(1),1)="9" then return "0" & arr(1) else return arr(1)
-    case "datediff"  
-      return fnymdDiff(arr(1), arr(2))
-    case "dateadd"  
-      return fnymd(arr(1), arr(2), arr(3), "usa")  ' arr(3) is ym or ymd
-    case "dateaddroc" 
-      return fnymd(arr(1), arr(2), arr(3), "roc")  ' arr(3) is ym or ymd
+    case "mytryparse" : if myTryParse("881122", dateTime22) then return "22" else return "bad"
+    case "daterangeusa", "daterange" :return dateRangeUSA(arr(1), arr(2))
+    case "daterangeroc"              :return dateRangeROC(arr(1), arr(2))
+    case "dateaddusa", "dateadd" : return dateAddUSA(arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd
+    case "dateaddroc"            : return dateAddROC(arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd
     case "condin"   '0 condIn! 1 trdt! 2 某日期! 3 n3dt
       'arr(2)=ucase(arr(2))
       If arr(2) = "" Then
@@ -2756,7 +2849,7 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
          targ=arr(1)
          for j=1 to cmN12 
           if typs(j)="mmbx" then exit for
-          if hot(j) then targ=replace(targ, keys(j), vals(j))
+          if mayReplaceOther(j) then targ=replace(targ, keys(j), vals(j))
          next
          return targ
     case "maxi"        ' replace!abcd_is_arr(1)!pqrs_is_arr(2)    
@@ -2773,17 +2866,23 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
         return convert_to_cLang(arr(1))
     case "glu1v" 'glue one vector => glu1v!vector[vi]! pattern    !       ,
                                     '    0     1           2              3
-        return                   glu1v(   arr(1),     arr(2),        arr(3)             )                                                                                
-    case "glu2v" 'glue two vectors =>glu2v!vector[vi]! vector[wi] !  pattern  !      ,
-        return                  glu2v(   arr(1)    , arr(2)     ,   arr(3)  ,  arr(4)  )                                                                                
-	case "glu1m" 'glue one matrix => glu1m!matrix    ! patt2      !       ,   !      4s 
-                              return glu1m(arr(1)    , arr(2)     ,   arr(3)  ,  arr(4)  )
+        return                   glu1v(   arr(1),      arr(2),        arr(3)             )     
+        
+    case "glu2v" 'glue two vector => glu2v!vector[ui]! vector[vi]!  pattern   !   glue
+                                    '    0    1            2              3          4
+        return                   glu2v(   arr(1),      arr(2),        arr(3)  ,  arr(4)  )          
+    case "mglu2v" 'Matrixlized Glu 2 vec 
+        return                  mglu2v(   arr(1),      arr(2) ,       arr(3)  ,  arr(4)  , arr(5) )  
+        
+	case "glu1m" 'glue one matrix => glu1m!matrix    ! patt2     !        ,   !      4s 
+                              return glu1m(arr(1)    , arr(2)    ,    arr(3)  ,  arr(4)  )
     case "atom"         ' format: atom!a,b,c!2!,    so to pick array element out
-      targ=arr(1): if leftIs(targ,"matrix") then targ=getvalue(targ) 
+      targ=arr(1): if isLeftOf("matrix",targ) then targ=getvalue(targ)
       targ=split(targ,ienter)(0)
       patt=arr(2)
-      dott=arr(3): If dott = "" Then dott =bestDIT(arr(1))
-      return atom(targ, patt, dott)  
+      cutt=arr(3): If cutt = "" Then cutt =bestDIT(targ)
+      dval=arr(4)  'dval means default value if such atom not exists
+      return atom(targ, patt, cutt, dval)
     case "sumvxxx"          ' example  sumv!11,22,33,44,55!c[ith]=f([vi])
 	  return glu1v(arr(1), arr(2), arr(3))	  
     case "ucase" 
@@ -2869,11 +2968,11 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
       end if	
       return targ      
     case "quote" ' 0:quote!  1:dataType ! 2:value
-      if                                  arr(2)="" then return "null"                              
-      select case                         arr(1)
+      if          arr(2)="" then return "null"                              
+      select case arr(1)
       case "i", "r" : targ=               arr(2)
       case "c"      : targ="'"  &         arr(2) & "'" 
-      case "d"      : targ=datetime_parse(arr(2))
+      case "d"      : targ=dateConvUSA(arr(2),"yyyy/mm/dd", idle)
       case "nc"     : targ="N'" &         arr(2) & "'"
       case else     : targ="N'" &         arr(2) & "'"
       end select 								 
@@ -2881,7 +2980,7 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
     case "red"   '0:Red  !    1:value123
       return "'<font color=red>'+convert(nvarchar," & arr(1) & ")+'</font>'"
     case "cdate"  '0:Date      1:(Jul  6, 1991) or (28-Aug-79)
-      return datetime_parse(arr(1))      
+                    dateAdd(arr(2),0,"yyyy/MM/dd")  
     case else ' kk==myLongParagraph!yy1!yy2
       return replaceParam(arr)
     End select
@@ -2908,33 +3007,46 @@ function replaceParam(arr() as string) as string 'note: I suppose arr() are alre
   return mother
 end function
 
-function glu1v(vectorU, pattU, glueU) as string 'glu1v
-      dim jj,j as int32   
-      dim patt, patty, glue, cifhay as string    
-      dim wordvs() as string
-	  if inside(itab, vectorU) then wordvs = Split(vectorU, itab) else wordvs = Split(vectorU, ",")
-	  
-      jj = UBound(wordvs)
-      patt = pattU
-      glue = Replaces(glueU, "#enter", ienter,  "#space", " ").trim  : If glue = "" Then glue = ","
-      
-      If jj < 0 Then return ""
-      If wordvs(jj).trim = "" Then jj = jj - 1
-      If jj < 0 Then return ""
-
-      cifhay = ""
-	  For j = 0 To jj
-	    wordvs(j)=trim(wordvs(j)) : patty=patt
-        patty = Replace(patty, "[vi]"    , wordvs(j)                 ) 
-        patty = Replace(patty, "[vi$L]"  , dollarSign_LeftRightSide(wordvs(j),1)   )
-        patty = Replace(patty, "[vi$R]"  , dollarSign_LeftRightSide(wordvs(j),2)   )
-        patty = Replace(patty, "[vith]"  , ""&(j+1)  )        
-        cifhay = cifhay & patty & iflt(j,jj,glue)
+function glu1v(vectorU as string, patt as string, glue as string) as string 
+      dim i, UBi as int32   
+      dim patty, sum2,vvs() as string    
+      if vectorU.trim="" then return ""
+	  trimSplit(vectorU, ibest, vvs) 
+      UBi= UBound(vvs)
+      glue = Replaces(trim(glue), "#enter", ienter,    "#space", ispace)  : If glue = "" Then glue = ","
+      sum2 = ""
+	  For i=0 to UBi
+	                                    patty=patt
+                                        patty=Replace(patty, "[vi]"    , vvs(i)              ) 
+                                        patty=Replace(patty, "[vith]"  , ""&(i+1)               )        
+        if inside("[vi$L]", patty) then patty=Replace(patty, "[vi$L]"  , atom(vvs(i),1,"$")  )   
+        if inside("[vi$R]", patty) then patty=Replace(patty, "[vi$R]"  , atom(vvs(i),2,"$")  )
+        sum2=sum2 & patty & iflt(i,UBi,glue)
       Next  
-	  return cifhay
+	  return sum2
 end function
 
-function glu2v(a1v as string,  a2v as string,   pattU as string,   optional g1U as string=",",  optional g2U as string=";") as string 
+function glu2v(vectorU as string, vectorV as string, patt as string, glue as string) as string 
+      dim i, ubu, ubv, UBi as int32   
+      dim patty, sum2, uus(), vvs() as string    
+      if vectorU.trim="" orelse vectorV.trim="" then return ""
+	  trimSplit(vectorU, ibest, uus) 
+	  trimSplit(vectorV, ibest, vvs) 
+      ubu= UBound(uus) : ubv= UBound(vvs) : UBi=min(ubu,ubv)
+      glue = Replaces(trim(glue), "#enter", ienter,    "#space", ispace)  : If glue = "" Then glue = ","
+      sum2 = ""
+	  For i=0 to UBi
+	                                    patty=patt
+                                        patty=Replace(patty, "[ui]"    , uus(i)              ) 
+                                        patty=Replace(patty, "[vi]"    , vvs(i)              ) 
+                                        patty=Replace(patty, "[uith]"  , ""&(i+1)            )        
+                                        patty=Replace(patty, "[vith]"  , ""&(i+1)            )        
+        sum2=sum2 & patty & iflt(i,UBi,glue)
+      Next  
+	  return sum2
+end function
+
+function mglu2v(a1v as string,  a2v as string,   pattU as string,   optional g1U as string=",",  optional g2U as string=";") as string 'func name=matrixlized-glu
       dim i1,ni1, i2,ni2 as int32   
       dim patty, g1,g2, colly,c1,c2 as string    
       dim a1vs(), a2vs() as string
@@ -2957,7 +3069,7 @@ function glu2v(a1v as string,  a2v as string,   pattU as string,   optional g1U 
        Next  
         colly = colly & iflt(i1,ni1,g2)
       next
-      if g1="<td>" then colly="<table border=2 class=cdata><tr><td>" & colly & "</table>"
+      if g1="<td>" then colly="<table class=cdata><tr><td>" & colly & "</table>"
 	  return colly
 end function
 
@@ -3053,17 +3165,8 @@ end function
            cols(j)=cols(j).trim 
           next j
 
-              if InStr(patt1, "[vi") > 0  Then  
-                 For j = 0 To ubMaxj
-                   patty = patt1  
-                   patty = Replace(patty, "[vi]"    , cols(j)                   )
-                   patty = Replace(patty, "[vi$L]"  , dollarSign_LeftRightSide(cols(j),1)     )
-                   patty = Replace(patty, "[vi$R]"  , dollarSign_LeftRightSide(cols(j),2)     )
-                   patty = Replace(patty, "[vith]"  , ""&(j+1)  )
-                   cifhay = cifhay & patty & glue
-                 Next		
-			    return cutLastGlue(cifhay, glue) 'only eidt the first record, no more on next records
-              end if
+          if Inside("[vi", patt1) Then  return glu1v(oneline,patt1,glue) 'only treat the first line of this matrix
+
                
           if (selectedCOL<0) orelse ((selectedCOL>=0) andAlso inside(selectedSYMB,cols(selectedCOL)) ) then selected=1 else goto nextLine ' thus ignore this line because symbol not matched
           
@@ -3128,10 +3231,10 @@ end function
         result = stm.ReadToEnd() : stm.Close() : response.Close()
         Return string3tb(result)
       Catch e As WebException
-        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & divi & "db say err2:" + e.Message) : Return ans
+        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & pip & "db say err2:" + e.Message) : Return ans
         'If e.Status = WebExceptionStatus.ProtocolError Then ...
       Catch e As Exception
-        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & divi & "db say err3:" + e.Message) : Return ans
+        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & pip & "db say err3:" + e.Message) : Return ans
       End Try	  
   End Function
   function string3tb(aa as string) as string 'correspond to string2tb
@@ -3155,83 +3258,6 @@ end function
     midstring = Mid(ss, i, j - i + 1)
   End Function
 
-  Function fnymdDiff(x1, x2)
-    Dim y1, y2, m1, m2, d1, d2
-    y1 = CInt(x1 / 10000) : y2 = CInt(x2 / 10000)
-    m1 = CInt((x1 - y1 * 10000) / 100) : m2 = CInt((x2 - y2 * 10000) / 100)
-    d1 = x1 - y1 * 10000 - m1 * 100 : d2 = x2 - y2 * 10000 - m2 * 100
-    fnymdDiff = DateDiff("d", DateSerial(y1 + 11, m1, d1), DateSerial(y2 + 11, m2, d2))
-  End Function
-
-  Function fnymd(nowa0, delta, datetimeFormat, nationType)
-    Dim nowa, nowa0s, now1, kks, y3, m3, d3, h3, n3, s3, w3, z3
-    If isNumeric(nowa0) AndAlso Len(nowa0) = 7 Then nowa0 = "" & (CLng(nowa0) + 19110000) ' change rocyymmdd into yyyymmdd
-    
-    If nowa0 = "" Then
-      nowa = DateTime.Now
-    ElseIf InStr(nowa0, "/") > 0 Then  'such date format  must be yyyy/mm/dd
-      nowa0s = Split(Trim(nowa0), " ")
-      kks = Split(nowa0s(0), "/")
-      nowa = DateSerial(kks(0), kks(1), kks(2))
-    ElseIf InStr(nowa0, "-") > 0 Then  'such date format  must be yyyy-mm-dd
-      nowa0s = Split(Trim(nowa0), " ")
-      kks = Split(nowa0s(0), "-")
-      nowa = DateSerial(kks(0), kks(1), kks(2))
-    Else
-      nowa = DateSerial(nowa0 \ 10000, nowa0 \ 100 - (nowa0 \ 10000) * 100, nowa0 Mod 100)
-    End If
-
-    If delta = "" Then delta = 0
-    y3 = Year(nowa) : m3 = Month(nowa) : d3 = Day(nowa) + delta
-    now1 = DateSerial(y3, m3, d3)
-    y3 = Year(now1) : m3 = Month(now1) : d3 = Day(now1) : w3 = Weekday(now1) : h3 = Hour(Now) : n3 = Minute(Now) : s3 = Second(Now)
-    z3 = ""
-    If nationType = "roc" Then
-      y3 = y3 - 1911
-      If y3 <= 99 Then z3 = " "
-    End If
-
-    Select Case datetimeFormat
-      Case "yyyy" : fnymd = "" & y3
-      Case "yyyy-mm-dd" : fnymd = "" & y3 & "-" & Mid("" & (100 + m3), 2) & "-" & Mid("" & (100 + d3), 2)
-      Case "yyyy/mm/dd" : fnymd = "" & z3 & y3 & "/" & Mid("" & (100 + m3), 2) & "/" & Mid("" & (100 + d3), 2) 'z3乃 字串前加一空白
-      Case "ym" : fnymd = y3 * 100 + m3
-      Case "yymm" : fnymd = y3 * 100 + m3
-      Case "ymmdd" : fnymd = Right("" & y3, 1) & Mid("" & (100 + m3), 2) & Mid("" & (100 + d3), 2)
-      Case "md" : fnymd = m3 * 100 + d3
-      Case "y" : fnymd = y3
-      Case "yy" : fnymd = y3
-      Case "m" : fnymd = m3
-      Case "mm" : fnymd = Mid("" & (100 + m3), 2)
-      Case "d" : fnymd = d3
-      Case "dd" : fnymd = Mid("" & (100 + d3), 2)
-      Case "h" : fnymd = h3
-      Case "hh" : fnymd = Mid("" & (100 + h3), 2)
-      Case "w" : fnymd = w3 - 1
-      Case "ymdhn"
-        fnymd = Right("" & y3, 1) & Right("" & ((100 + m3) * 100 + d3), 4) & Right("00" & h3, 2) & Right("00" & n3, 2)
-        'if nationType="roc" then fnymd=fnymd-1100000000
-      Case "ymdhns"
-        fnymd = "" & y3 & Right("" & ((100 + m3) * 100 + d3), 4) & Right("00" & h3, 2) & Right("00" & n3, 2) & Right("00" & s3, 2)
-      Case "ymd-hns"
-        fnymd = "" & y3 & "-"  & Right("00" & m3, 2) &  "-" & Right("00" & d3, 2)  & " " & Right("00" & h3, 2) & ":" & Right("00" & n3, 2) & ":" & Right("00" & s3, 2)
-      Case "dhns"
-        fnymd = Right("" & (100 + d3), 2) & String.Format("{0:hhmmss}"      , dateTime.now)
-      Case "mdhns"
-        fnymd = Right("" & ((100 + m3) * 100 + d3), 4) & Right("00" & h3, 2) & Right("00" & n3, 2) & Right("00" & s3, 2)
-      Case "hhnnss"       : fnymd = String.Format("{0:HHmmss}"      , dateTime.now)
-      Case "hh:nn"        : fnymd = String.Format("{0:HH:mm}"       , dateTime.now)
-      Case "hh:nn:ss"     : fnymd = String.Format("{0:HH:mm:ss}"    , dateTime.now)
-      Case "hh:nn:ss.sss" : fnymd = String.Format("{0:HH:mm:ss.fff}", dateTime.now)
-      Case Else 'ymd
-        fnymd = y3 * 10000 + m3 * 100 + d3
-    End Select
-  End Function
-
-
-
-
-
   Sub rstable_dataTu_somewhere(sqcmd)
     Dim dataTul, idle, idleMark, rstt
     dataTul = LCase(Trim(dataTu))
@@ -3254,11 +3280,11 @@ end function
                                     'Upar=Upar & rs_top1Record_cz(sqcmd,headlist,"par",52)
                                     Upar = rs_top1Record(sqcmd, headlist, "par", 52)
                                     'wwbk2(3209,upar)
-                                    Call show_UparUpag(52, Upar, Upag, spfily) 'in top1Write , so you cannot mix up upar and upag
+                                    Call show_UparUpag("for-top1w", Upar, Upag, spfily) 'in top1Write , so you cannot mix up upar and upag
     ElseIf dataTul = "top99w" Then  'display 99 records on screen in a <textarea>
                                     rstt = rstable_to_comaEnter_String(sqcmd, headlist, icoma, "noNeedHead", "")
                                     Upar = Upar & ienter & "matrix==" & ienter & rstt
-                                    Call show_UparUpag(59, Upar, Upag, spfily) 'in top9Write      
+                                    Call show_UparUpag("for-top9w", Upar, Upag, spfily) 'in top9Write      
     ElseIf Right(dataTul, 3) = "xml" Then
                                     Call rstable_to_xmlFile(sqcmd, headlist)
     ElseIf Left(dataTul, 6) = "matrix" Then
@@ -3380,11 +3406,11 @@ end function
       dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
 	if imax<0 then return ""
 	
-	Response.Write(preWord & top1h & jj12 & top1T & jj12)
+	Response.Write(preWord & top1h & j1j2 & top1T & j1j2)
 	for i=0 to min(imax, const_maxrc_fil)
       cn = cn + 1 : line = ""
       For j = 0 To jmax - 1
-             line = line & rs3.rows(i).item(j) & divi
+             line = line & rs3.rows(i).item(j) & pip
       Next : line = line & rs3.rows(i).item(j) & entery
       Response.Write(line)
 	
@@ -3403,7 +3429,7 @@ end function
 
   Sub batch_loop(cmdtyp, ELE)
     Dim cn, j as int32
-    dim line, linez, sumhtma, ELE2, wds() as string
+    dim line, linez, sumhtma, ELE2,cutter, wds() as string
     cn = 0 : data_from_cn = 0 : sumhtma = ""
     dump(): If dataTu = "screen"   Then wwqq(table0) 'LB3045A
 
@@ -3412,26 +3438,17 @@ end function
     Do
       line = SRCget()
       If line = "was.eof" Then Exit Do
+      if cn=0 then cutter=bestDIT(line) 'decide cutter only at the first line      
       cn = cn + 1
       If record_cutBegin <= cn And cn <= record_cutEnd And line <> "" Then 
         linez = line
         line = Replace(line.trim, "'", "`")  '有這一行可以使insert 'fdv01'且文字內有單撇時正常灌入
-        If line <> Chr(26) And line <> "" Then ' chr(26) is EOF
-          If InStr(line, dataToDIL) > 0 Then
-                                             wds = Split(line, dataToDIL)        
-          ElseIf InStr(line, divi) > 0 Then                                      
-                                             wds = Split(line, divi)             
-          ElseIf InStr(line, itab) > 0 Then                                      
-                                             wds = Split(line, itab)             
-          ElseIf InStr(line, ",") > 0 Then                                       
-                                             wds = Split(line, ",")             
-          Else
-                                             wds = Split(line & ienter, ienter)  
-          End If
+        If line <> "" andAlso line <> Chr(26)  Then ' chr(26) is EOF
+          trimSplit(line, cutter, wds)
           data_from_cn = data_from_cn + 1
           ELE2 = ELE
           For j = 0 To UBound(wds)
-            ELE2 = Replace(ELE2, "fdv" & digi2(j + iniz), Replace(Trim(wds(j)), "vbNL", ienter)) '要預先把 data block裡的vbNL 改為 ienter 
+            ELE2 = Replace(ELE2, "fdv" & digi2(j + iniz), Replace(wds(j), "vbNL", ienter) ) '要預先把 data block裡的vbNL 改為 ienter 
           Next
           ELE2 = Replace(ELE2, "fdv0I", "" & (cn + iniz - 1)) 'the ith of this line, if iniz=1 then it=cn else it=cn-1
           ELE2 = Replace(ELE2, "fdv0Z", Replace(linez, dataToDIL, ",")) 'populate linez, but if linez contains dataToDIL, then replace it to ,
@@ -3528,22 +3545,18 @@ end function
     Return tt
   End Function
 
-  function valida(pg as string, px as string) as boolean
-    'dim dd as int32 = day(now())
-	return 1
-  end function
-Function getMd5Hash(ByVal input As String) As String    'MD5計算Function,取自MSDN	
-	Dim md5Hasher As MD5 = MD5.Create() ' 建立一個MD5物件
+Function getMd5Hash(ByVal input As String) As String    ' MD5計算Function,取自MSDN	
+	Dim md5Hasher As MD5 = MD5.Create()                 ' 建立一個MD5物件
 	Dim data As Byte() = md5Hasher.ComputeHash(Encoding.Default.GetBytes(input)) ' 將input轉換成MD5，並且以Bytes傳回，由於ComputeHash只接受Bytes型別參數，所以要先轉型別為Bytes
-	Dim sBuilder As New StringBuilder() ' 建立一個StringBuilder物件
-	Dim i As Integer ' 將Bytes轉型別為String，並且以16進位存放
+	Dim sBuilder As New StringBuilder()                 ' 建立一個StringBuilder物件
+	Dim i As Integer                                    ' 將Bytes轉型別為String，並且以16進位存放
 	For i = 0 To data.Length - 1
 		sBuilder.Append(data(i).ToString("x2"))
 	Next i
 	Return sBuilder.ToString()
 End Function
 
-function convert_to_clang(mass as string) as string
+function convert_to_cLang(mass as string) as string
   mass=replaces(mass, "adrof "    , "&"     ,   "valof "    , "*"     ) ' so you can write        : call ss(adrof i)
   mass=replaces(mass, "adrofint " , "int* " ,   "adrofchar" , "char* ") ' so you can write declare: adrofint i
   mass=replaces(mass, "byadr "    , "*"                               ) ' so you can write sub    : sub ss(int a, int byadr b)
@@ -3557,17 +3570,16 @@ function findi_or_add(keyName as string) as int32
     k1=0:k2=0
     for k=1 to cmN12
       if keys(k)=keyName            then k1=k
-      if keys(k)=keyName and hot(k) then k2=k
+      if keys(k)=keyName and mayReplaceOther(k) then k2=k
     next
     if k2>0 then return k2
     if k1>0 then return k1
     
     'else then add one key:
-    cmN12=cmN12+1 : k=cmN12: keys(k)=keyName : vals(k)="" : hot(k)=true
+    cmN12=cmN12+1 : k=cmN12: keys(k)=keyName : vals(k)="" : mayReplaceOther(k)=true
 end function
   
-  '//vb将unicode转成汉字，如：\u8033\u9EA6，转后为：耳麦  
-  Public Function udd(strCode As String) As String 'UnicodeDecode
+  Public Function unicodeTR(strCode As String) As String 'UnicodeDecode, translate unicode into chinese，如：\u8033\u9EA6 means：耳麥  
     Dim outp As String =""
     dim i as int32
     strCode = Replace(strCode, "U", "u")  
@@ -3575,9 +3587,9 @@ end function
     outp=arr(0)
     For i = 1 To UBound(arr)  
         If Len(arr(i)) > 0 Then  
-            If Len(arr(i)) = 4 Then ' //长度是4刚好是一个字  
+            If Len(arr(i)) = 4 Then                                 ' len=4 is a word 
                 outp = outp & ChrW( "&H" & Mid(CStr(arr(i)), 1, 4))  
-            ElseIf Len(arr(i)) > 4 Then ' //长度>4说明有其它字符  
+            ElseIf Len(arr(i)) > 4 Then                             ' len>4 means it is combination with more string
                 outp = outp & ChrW("&H" & Mid(CStr(arr(i)), 1, 4)) 
                 outp = outp & Mid(CStr(arr(i)), 5)  
             End If  

@@ -2,30 +2,35 @@
   本軟體是一個程式語言MIP(macro interactive processing)及其操作介面，
   所以本軟體稱為MIP builder.
   它幫你處理巨集、轉換二維資料表、快速生產程式給公司各員工使用。
-  它幫助你傳遞資料，例如從這機器這資料庫傳到另一機器另一資料庫。
-  它幫助你寫出圖形辨認的程式，用來自動下圍棋。
-  本軟體的整個目的是縮短程式碼，提升資訊人員的生產力。
+  它幫你傳遞資料，例如從這機器這資料庫傳到另一機器另一資料庫。
+  它幫你寫出圖形辨認的程式，用來自動下圍棋。
+  本軟體目的是縮短程式碼，提升資訊人員的生產力。
   
 ### 適用場合  
   在十幾年前，我看到某資訊人員每天都在下SQL指令，來應付user的各種需求，
   他說user的需求變來變去很難寫成程式，要是有一個網頁型的SQL輸入框，
-  讓他任意調整參數，調到滿意存起來就自動成為user的功能，這樣才能容易過日子。
-  於是我作了一個產出程式的母機，這就是MIP的出發點，也是MIP最主要的應用。
-  本文將以四個軟體系統，做為MIP的應用範例: 
-  進銷退存系統，倉庫撿貨系統，問卷系統，資料傳輸系統。
+  讓他任意調整參數，調到滿意存起來就自動成為user的功能，這樣才好過日子。
+  於是我作了一個產出程式的母機，這就是MIP的原型，也是MIP最主要的應用。
+  本文將以三個軟體系統，做為MIP的應用範例: 
+  倉庫撿貨系統，問卷系統，資料傳輸系統。
 
   這十幾年來，資訊界流行一些越來越長的程式語言，寫一個動作就很費字，
-  寫到哪一天才能寫出個應用系統? 以c#或java為例，為了一句SQL要先寫一大堆字，
+  寫個應用系統要幾天? 以c#或java為例，為了一句SQL要先寫一大堆字，
   這些都是固定字，等於是一串固定的咒語，既是咒語，難道不能簡化成短語嗎?
-  我只好把長咒語視為低階機器語言，利用MIP內含的特性(巨集、宏、macro)把它們改成短語。
-  一次產生幾十個長程式，這樣MIP就是一個程式產生器。
+  我們把長咒語視為低階機器語言，利用MIP內含的巨集、宏的特性把它們改成短語，
+  一次產生幾十個長程式，形成應用系統。這樣MIP就是一個程式產生器。
+  
+  又以C語言為例，紐結的&怎麼發音，星號*怎麼發音，為甚麼紐結丟卻由星號收呢?
+  若我們把 &x     改寫為 adrOf x     ， 把 (int *x) 改寫為 (int byAdr x)，
+  接著再把 int* x 改寫為 adrOf int x ， 順便把case自由落體，每層自動加break，
+  是不是瞬間它就清楚多了? 糾正它固有的發音不良，這樣MIP就是一個程式矯正器。
 
   這幾年流行的程式語又更長了，程式中不斷宣告物件的屬性。
   1個屬性佔1行，1個物件有9個屬性，5個物件就45行， 
   這些物件都長得很像，整篇程式看起來就幾個字不斷的繞口令。
   難道我們不能把它排成9乘5的矩陣，讓表達簡潔嗎?所以我讓MIP有操作矩陣的能力。
-  若進一步把圍棋的點位視為矩陣，叫MIP來幫忙，那麼寫圍棋圖形辨認的程式就容易了，
-  使用MIP不必掛一堆黑箱library，也不必用昂貴的機器。
+  助你從一行一行寫程式的一維寫作方式，轉為一矩陣一矩陣的二維寫作方式。
+  若進一步把圍棋的點位視為矩陣，叫MIP來描述它成為程式，寫圖形辨認就容易多了。
   本文從MIP的基本指令開始說明，延伸談到高級應用。
   
 ### 安裝  
@@ -68,7 +73,7 @@
   於下框寫
     uuuu==1,2,3,4
     vvvv==4,5
-    show==glu2v!uuuu!vvvv![ui]x[vi]=@{eval![ui]*[vi]}!td 
+    show==mglu2v!uuuu!vvvv![ui]x[vi]=@{eval![ui]*[vi]}!td 
   按[確定]即可看到九九乘法表之一部份:
     1x4=4  2x4=8  3x4=12  4x4=16
     1x5=5  2x5=10 3x5=15  4x5=20
@@ -85,7 +90,7 @@
     echo 456 > c:\tmp\test3.txt
   按[確定]即可在 c:\tmp 看結果
    
-### 輸入、計算、輸出、工程畫面、使用畫面
+### 輸入、計算、輸出
   所有的電腦程式都可分解為(輸入、計算、輸出)三段，在MIP如何表達呢?
  
   於上框寫 who==John        這就是輸入
@@ -98,15 +103,15 @@
   按[確定]就會輸出到檔案c:/MIP/webt/a123.txt 。 
   若螢幕回報說有錯 說不能寫入，則要叫起IIS或檔案總管去修改權限，請看安裝說明段。
   
-  (輸入、計算、輸出)三段都有了，想把以上的程式變成功能給其他人使用，怎麼做?
+  (輸入、計算、輸出)三段都有了，想把以上的程式變成一般人使用的功能，怎麼做?
   看到螢幕最下方還有兩個細細的輸入框，分別填上 test2.mip 和 測試2，
-  再按[save new]，網頁顯示儲存完成
-  再按[see spList]，網頁顯示功能列表，
+  再按[save new  ]，網頁顯示 儲存完成，
+  再按[see spList]，網頁顯示 功能列表，
   以上這些操作畫面叫做 "工程畫面"
   
   選擇[登出]按下去，網頁顯示請登入的畫面，
   輸入帳號密碼(0800,0809) 按[登入]，網頁就有一個[測試2]的超連結給使用者了
-  現在你看到的畫面叫做 "使用畫面"， 你可以像其它使用者一樣開始操作功能了。
+  現在你看到的畫面叫做 "使用畫面"， 你可以像一般使用者一樣的操作功能了。
     
 ### 呼叫更多功能
   從上面的例子可以看到==是指定符號，
@@ -119,7 +124,7 @@
 
   要充分發揮MIP的功能，
   還需瞭解3清單設定:(功能清單、 使用者清單、 資料庫清單)，
-  還需瞭解:(自定關鍵字、既定關鍵字、自定函數、既定函數、@函數)，
+  還需瞭解:(自定關鍵字、既定關鍵字、自定函數、既定函數)，
   最後瞭解:(洗染、解函、擦罩)，
   這樣MIP就介紹完整了，它簡短，卻能幫助你寫作及管理幾百個複雜的程式。
   以下就從 "編輯功能清單" 開始說明。
@@ -166,49 +171,43 @@
       x3==3
       show==x2+x3
   其中x2和x3就是自定關鍵字，MIP原本不認識x2和x3，你定義了它們，MIP就記住了。
-  其中show  就是既定關鍵字，MIP執行show既定的動作，也就是顯示，顯示了 2+3
-  另外還有留幾個既定關鍵字，純粹是預先定義好的字，例如 #userid 就是你的帳號。
-      show== #userid
-  又例如 #enter 這個字， 實際運行起來就是換行符號 
-  
+  其中show  就是既定關鍵字，MIP執行show既定的動作，也就是顯示，顯示了 2+3 
   上述畫面只顯示2+3 ，MIP不會加在一起嗎，會
       show==add!x1!x2      
   畫面會顯示5 這裏用到了一個既定函數add。
 
 ### 自定函數、既定函數
-  既定函數就是預先定義好的函數，除了add之外還有很多，例如通用的計算函數有eval:
+  既定函數就是預先定義好的函數，除了add之外還有很多，例如通用型的計算函數eval:
       show==eval!2*3+1  
   畫面會顯示7 
-  又例如 比較等不等於的函數 ifeq:
+  又例如 比較相等與否的函數 ifeq:
       x2==2
       show==ifeq!x2!2!yes2 !not2  
   這樣會顯示yes2  
   從例子看得出來，函數的參數用驚嘆號隔開。
   函數也可以夾雜在字裏行間使用，例如:
       show== Hi, I was happy in recent @{eval!2*3+1} days 
-  也就是整個函數用  @{}括住。 這串字在口語怎麼唸呢?
-  @看起來像是ca ， 所以 @{}唸作call
+  也就是整個函數用@{}括住。 
+  @{}在口語怎麼唸呢?  @看起來像是ca ， 所以@{} 唸作call ， 把@當動詞。
   @{function3!parameter1!parameter2} 唸作call fucntion3
-  @{function3!parameter1!parameter2} 也可以簡稱為@函數
+  @{function3!parameter1!parameter2} 整串也可以簡稱為@函數，把@當形容詞。 
   
-  對上面那行程式按下[確定]，於是畫面顯示 
+  在show==...之後按下[確定]，於是畫面顯示 
       Hi, I was happy in recent 7 days    
-  有了既定函數，你也可以自己定義函數，例如:
+  除了既定函數，你也可以自己定義函數，例如:
       myFunc==I have someOne
       show==@{myFunc!have=love!someOne=Mary}
   畫面會顯示            I love Mary 
-  你不用宣告自定函數的開始與結束，也不用宣告參數。自定函數就是字，一串字。
-  更不用宣告既定函數，因為既定函數早就內建在MIP裏了。
+  你不用宣告自定函數開始結束，也不用宣告參數。自定函數就是字，一串字。
   
   有些程式語言例如c或java，特別喜歡用{}
-  為了讓MIP可以好好操控並生產這類的程式，稍微改一下@函數的括號，例如:
+  為了讓MIP可以好好操控並生產這類的程式，可以改變@函數的括號，例如:
      aa==@{func3!p1!p2}@ 
   用兩個@ ，像是兩個耳朵，把函數括住。欲達此，你必須先寫明:
      setFunctionBracket==@{ , }@
-  經過幾行程式，你不喜歡這種括號了，可以再改回來 
+  你不喜歡這種括號了，可以再改回來 
      setFunctionBracket==@{ , }
-  如果你都不喜歡也可以隨時自定括號，例如:
-     setFunctionBracket==@[ , ]
+  如果你都不喜歡也可以隨時自定括號，連@都不要，例如:
      setFunctionBracket==begg , endd
      
    
@@ -219,7 +218,7 @@
       再看到;; 則改為換行符號 但若這;;所在那一行有uvar則不要改   
       再看到某行是if== ， 下面又有一行endif== ， 則MIP知道這是一個區塊。
 ### 單一行程式運作順序: 洗染、解函、擦罩
-  (1)洗染:
+  (一行程式內部動作1)洗染:
      程式從第一行開始往下跑，當看到一行 A==B ，MIP就記住了(關鍵字,它的值)=(A,B)
      當看到一行aa==
                    bb,123
@@ -273,7 +272,7 @@
      矩陣不適合整塊往下丟，想要染誰? 適合染誰? 現在想不出來。
      矩陣有專用的提示字[mi...]，能把矩陣分解為元素，再往下洗染，再去組合。
      
-  (2)解函:                      
+  (一行程式內部動作2)解函:                      
      當來到某一行kk==vv，文字vv洗染後，字面上有函數，則會解開函數，
      舉例一: 
              kk==hello @{ifeq!1!1! say y !say n},cc 
@@ -292,7 +291,7 @@
      再簡化為
              kk==see 2
     
-     這*應該*有例外，就是當@函數內的參數含有 [ui] , [vi] , [mi 這三個字時，
+     "應該" 就有例外，就是當@函數內的參數含有 [ui] , [vi] , [mi 這三個字時，
      MIP會先解開外層函數，再處理字裏行間的@函數
      舉例四:
              aa==1
@@ -305,15 +304,14 @@
              show==5 + 6 + 7
      於是顯示
                    5 + 6 + 7  
-     這種@函數讓外層先做完，它接在後面做的行為稱為: 後解。
-     為甚麼要後解? 就像一顆糖球外殼先溶解，裏面的小小球再溶解，
+     這種@函數讓外層先做完，它接在後面做的行為稱為: 後解開。
+     為甚麼要後解開? 就像一顆糖球外殼先溶解，裏面的小小球再溶解，
      瞬間在舌尖釋放出繽紛的味道。
-     只有後解才能瞬間釋放出繽紛多樣的程式碼，大量減低你的碼字寫作。
+     只有後解開才能瞬間釋放出繽紛的程式碼，大量減低你的碼字寫作。
      
-     
-     取個英文名給它吧: calling-function-after-vector-solved
+     給它取個英文名吧: calling-function-after-vector-solved 
                  
-  (3)擦罩
+  (一行程式內部動作3)擦罩
      當某個字不想被洗染，就故意把[]擠在字裏防止洗染，例如:     
         aa==2
         show==I say a[]a=aa
@@ -359,11 +357,100 @@
     addString,paragraph99_txt ==456
     saveToFile,paragraph99.txt==paragraph99_txt  
                    
-### 預先定義好的函數 全集 unfinish                 
-        若有程式碼如下
-          showHtm==add!1!2
-		畫面將顯示3
-		也就是說add是一個函數，函數的參數以!分隔，這樣設計是因為允許逗點也是參數的內容
+### 既定函數 全集 
+  MIP有區分大小寫的，自定函數有區分大小寫，但這樣有些僵硬，
+  所以讓既定函數的名稱可以任意大小寫，驚嘆號前後的空白都不計。
+  下面列出預先定義好的函數。
+ *f add                   例:  add !1!2
+ *f eval                  例:  eval!1!2
+ 
+ *f 二者擇一的一些函數:
+ *f ifEq                 例:  ifEq!2!2! is2 ! not2      ifEq 和 seeEq 是同義字
+ *f seeEq                例: seeEq!2!2! is2 ! not2     seeEq 和  ifEq 是同義字
+ *f ifEq     ,seeEq      若等於           例: ifEq     !2  !2   !is2!not2   
+ *f ifNe     ,seeNe      若不等於         例: ifNe     !1  !2   !ne !eq
+ *f ifGt     ,seeGt      若大於           例: ifGt     !1  !2   !no !yes
+ *f ifGe     ,seeGe      若大於等於       例: ifGe     !1  !2   !no !yes
+ *f ifLt     ,seeLt      若小於           例: ifLt     !1  !2   !yes!no       
+ *f ifLe     ,seeLe      若大於等於       例: ifLe     !1  !2   !yes!no   
+ *f iflcEq   ,seelcEq    若小寫後相等     例: iflcEq   !HH ! hh !yes!no
+ *f ifLenEq  ,seeLenEq   若字的長度相等   例: ifLenEq  ! ab! cd !yes!no
+ *f ifIn     ,seeIn      若內在於         例: ifIn     ! bc!abcd!yes!no
+ *f ifNum    ,seeNum     若為數字         例: ifNum    !1.2     !yes!no
+ *f ifPosi   ,seePosi    若為正數         例: ifPosi   !123     !yes!no
+ *f ifUsa    ,seeUsa     若是西元yyyymmdd 例: ifUsa    !20040102!yes!no
+ *f ifRoc    ,seeRoc     若是民國 yyymmdd 例: ifRoc    !  930102!yes!no
+ *f ifBetween,seeBetween 若界於           例: ifBetween!xy !aa  !dd !yes!no
+
+ *f 常用於串接SQL句子的函數: 
+ *f ifV      ,seeV       若有值          
+       例如:
+            inputx123==456
+            condition==ifv!inputx123!and xqty=inputx123
+            show     ==where 1=1 condition    將顯示:
+                       where 1=1 and xqty=456
+       又例如:         
+            inputx123==
+            condition==ifv!inputx123!and xqty=inputx123
+            show     ==where 1=1 condition    將顯示:
+                       where 1=1              也就是跳過此條件
+            也可以緊湊寫成一句:   
+            show==where 1=1 @{ifv! inputx123! and xqty=inputx123}
+                      
+           
+ *f andRange  製造一段字 常用於SQL的查詢條件  例: 
+      inputsR1R2==2004/01/02-2004/03/02
+      condition2==andRange!kdate!inputsR1R2
+      show      ==where 1=1 condition2        將顯示:
+                  where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
+      又例如:         
+      inputsR1R2==2004/01/02
+      condition2==andRange!kdate!inputsR1R2
+      show      ==where 1=1 condition2       將顯示:
+                  where 1=1 and( kdate = '2004/01/2' )
+      又例如:         
+      inputsR1R2==
+      condition2==andRange!kdate!inputsR1R2
+      show      ==where 1=1 condition2       將顯示空白 也就是忽略此條件:
+                  where 1=1         
+
+ *f 有關日期的一些函數:
+                  
+ *f ifValidDateROC 查輸入日期合理否 例: show==dateVerify!991301    將顯示錯誤  
+                   又且 若年份在00到150之間為合理，        在此之外則顯示錯誤 
+ *f ifValidDateUSA 查輸入日期合理否 例: show==ifValidDate!20041301 將顯示錯誤  
+                   又且  若年份在1900到2040間為合理，      在此之外則顯示錯誤 
+ *f ifValidDate    同ifValidDateUSA
+ 
+ 
+ *f dateConvROC    把各種日期表示法轉成你要的格式，輸出年份為民國，例如:
+                   show==dateConvROC!Jan 22, 1999!yyyy/mm/dd 將顯示  88/01/22
+ *f dateConvUSA    把各種日期表示法轉成你要的格式，輸出年份為西元，例如:
+                   show==dateConvUSA!Jan 22, 1999!yyyy/mm/dd 將顯示1999/01/22
+ *f dateConv       同dateConvUSA
+
+ 
+ *f dateAddROC     某西元日期或民國日期，加個幾天，輸出民國日期，例如:
+                   show==dateAddROC!19270101!3!yyyymmdd
+ *f dateAddUSA     某西元日期或民國日期，加個幾天，輸出西元日期                   
+ *f dateAdd        同dateAddUSA
+ 
+ 
+ *f dateRange      某西元日期或民國日期，二者相距幾天   例如: 
+                   show==dateRange! 20041130! 20041202  將顯示2               
+                   show==dateRange! 20041130!   931202  將顯示2               
+            
+
+ 
+ *f 以下是字串函數:                  
+ *f inner          取界內的值       例: show   ==inner!I Love Mary!I!M 將顯示 Love
+ *f mobileTel      電話號碼前面補0  例: show   ==mobileTEL!988112233   將顯示 0988112233
+                   
+ *f cookieW        對某cookie寫值   例: jobDone==cookieW!cook22   !v22
+ *f cookieR        對某cookie拿值   例: cook22V==cookieR!cook22   
+
+
+      
 		  
                          
 ###查詢資料庫資料
