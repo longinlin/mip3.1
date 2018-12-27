@@ -1873,7 +1873,7 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
       If ("enter"    =Dtyp)              Then elem=replace(elem, "onkeyx" , "onkeypress='return onEnter(event, this.f2)'" )
       
       'origin writes:  xx==yy $; say comment $; comb~y1$say1,y2$say2,y3$say3
-	  If ("comb"     =Dtyp)              Then DOPT=  glu1v(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "#space"        ) : elem=replace(elem,"cxDopt",DOPT)
+	  If ("comb"     =Dtyp)              Then DOPT=  gu1v(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "#space"        ) : elem=replace(elem,"cxDopt",DOPT)
       
       'element replacement step2/2
 	  elem=replaces(elem, "cxFkey",Dkey,  "cxFval",Dval,  "cxFmrk",Dmrk,    "cxTIT",      "$;" & mrks(i) & "$;" & typs(i)  )
@@ -2096,7 +2096,7 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
     k1     =atom(kv,1,"=="): if notInside(icoma,k1) then return line   'k1      example: a,b,c
     v1     =atom(kv,2,"=="): v1=replace(v1,"top1r!" , "")              'v1      example: 1,2,3
     if ubound(kks)<>ubound(vvs) then errstop(2069, "see a,b,c,d==top1r!x,y,z with parameter numbers dismatch")
-    sumc=glu2v(k1,v1, "[ui]==top1r![vi]", ";;")
+    sumc=gu2v(k1,v1, "[ui]==top1r![vi]", ";;")
     'sumc="":for i=0 to ubound(kks)  
     ' sumc=sumc & kks(i) & "==top1r!" &  vvs(ii) & ";;"   
     'next : sumc=cutLastGlue(sumc,";;")
@@ -2478,13 +2478,13 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
   end function 
   
                             
-  Function ffMatch(tb1 as string,  tb2 as string,  ff1s as string,  ff2s as string,  glu2 as string) as string
+  Function ffMatch(tb1 as string,  tb2 as string,  ff1s as string,  ff2s as string,  gu2 as string) as string
     Dim gg1s(), gg2s(), rr as string : dim i as int32
     gg1s = Split(ff1s, ",")
     gg2s = Split(ff2s, ",")
     rr = ""
-    For i = 0 To UBound(gg1s) : rr = rr & tb1 & "." & gg1s(i) & "=" & tb2 & "." & gg2s(i) & glu2 : Next
-    return cutLastGlue(rr,glu2)
+    For i = 0 To UBound(gg1s) : rr = rr & tb1 & "." & gg1s(i) & "=" & tb2 & "." & gg2s(i) & gu2 : Next
+    return cutLastGlue(rr,gu2)
   End Function
   Function joinlize(ss)
     joinlize = Replace(ss, "'", "^")
@@ -2519,7 +2519,7 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
   
   sub DosCmd_OneByOne(commands as String) 'run one line, if ok then run next else goto end
       dim fnbat, fnok, fnErr as string   :  dim LP,itime as int32 :  LP=intloopi()    :   fnbat=LP & ".bat"    : fnok=LP & ".ok"   : fnErr=LP & ".err"
-      commands=glu1m(commands, "set msgg=might err at cmd[mith] $$[mi1] || goto enda", ienter,"") 
+      commands=gu1m(commands, "set msgg=might err at cmd[mith] $$[mi1] || goto enda", ienter,"") 
       commands=replaces(commands, "$$", ienter) & replaces("$$exit $$:enda $$echo msgg > c:\tmp\" & fnErr , "$$", ienter)
       saveToFileD(queDisk , fnbat, commands )
       dosCmd(     queDisk & fnbat           )
@@ -2857,18 +2857,18 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
         return targ
     case "convert_to_clang"
         return convert_to_cLang(arr(1))
-    case "glu1v" 'glue one vector => glu1v!vector[vi]! pattern    !       ,
+    case "gu1v" 'glue one vector => gu1v!vector[vi]! pattern    !       ,
                                     '    0     1           2              3
-        return                   glu1v(   arr(1),      arr(2),        arr(3)             )     
+        return                   gu1v(   arr(1),      arr(2),        arr(3)             )     
         
-    case "glu2v" 'glue two vector => glu2v!vector[ui]! vector[vi]!  pattern   !   glue
+    case "gu2v" 'glue two vector => gu2v!vector[ui]! vector[vi]!  pattern   !   glue
                                     '    0    1            2              3          4
-        return                   glu2v(   arr(1),      arr(2),        arr(3)  ,  arr(4)  )          
-    case "mglu2v" 'Matrixlized Glu 2 vec 
-        return                  mglu2v(   arr(1),      arr(2) ,       arr(3)  ,  arr(4)  , arr(5) )  
+        return                   gu2v(   arr(1),      arr(2),        arr(3)  ,  arr(4)  )          
+    case "mgu2v" 'Matrixlized Glu 2 vec 
+        return                  mgu2v(   arr(1),      arr(2) ,       arr(3)  ,  arr(4)  , arr(5) )  
         
-	case "glu1m" 'glue one matrix => glu1m!matrix    ! patt2     !        ,   !      4s 
-                              return glu1m(arr(1)    , arr(2)    ,    arr(3)  ,  arr(4)  )
+	case "gu1m" 'glue one matrix => gu1m!matrix    ! patt2     !        ,   !      4s 
+                              return gu1m(arr(1)    , arr(2)    ,    arr(3)  ,  arr(4)  )
     case "atom"         ' format: atom!a,b,c!2!,    so to pick array element out
       targ=arr(1): if isLeftOf("matrix",targ) then targ=getvalue(targ)
       targ=split(targ,ienter)(0)
@@ -2877,7 +2877,7 @@ Function translateFunc(rightHandPart as string) as string 'translate yy=func!x1!
       dval=arr(4)  'dval means default value if such atom not exists
       return atom(targ, patt, cutt, dval)
     case "sumvxxx"          ' example  sumv!11,22,33,44,55!c[ith]=f([vi])
-	  return glu1v(arr(1), arr(2), arr(3))	  
+	  return gu1v(arr(1), arr(2), arr(3))	  
     case "ucase" 
       return UCase(arr(1))
     case "lcase" 
@@ -3004,7 +3004,7 @@ function userDefinedBlock_replaceParam(arr() as string, byref answ as string) as
                                                          answ=mother : return met
 end function
 
-function glu1v(vectorU as string, patt as string, glue as string) as string 
+function gu1v(vectorU as string, patt as string, glue as string) as string 
       dim i, UBi as int32   
       dim patty, sum2,vvs() as string    
       if vectorU.trim="" then return ""
@@ -3023,7 +3023,7 @@ function glu1v(vectorU as string, patt as string, glue as string) as string
 	  return sum2
 end function
 
-function glu2v(vectorU as string, vectorV as string, patt as string, glue as string) as string 
+function gu2v(vectorU as string, vectorV as string, patt as string, glue as string) as string 
       dim i, ubu, ubv, UBi as int32   
       dim patty, sum2, uus(), vvs() as string    
       if vectorU.trim="" orelse vectorV.trim="" then return ""
@@ -3043,7 +3043,7 @@ function glu2v(vectorU as string, vectorV as string, patt as string, glue as str
 	  return sum2
 end function
 
-function mglu2v(a1v as string,  a2v as string,   pattU as string,   optional g1U as string=",",  optional g2U as string=";") as string 'func name=matrixlized-glu
+function mgu2v(a1v as string,  a2v as string,   pattU as string,   optional g1U as string=",",  optional g2U as string=";") as string 'func name=matrixlized-glu
       dim i1,ni1, i2,ni2 as int32   
       dim patty, g1,g2, colly,c1,c2 as string    
       dim a1vs(), a2vs() as string
@@ -3120,8 +3120,8 @@ end function
     xmlhttp = nothing
   End Function
 
-  function glu1m(arrOne as string,   arr02 as string,   arr03 as string,   selectedRULE as string) as string  
-    'glue one matrix => glu1m!matrix!patt!,  !4c
+  function gu1m(arrOne as string,   arr02 as string,   arr03 as string,   selectedRULE as string) as string  
+    'glue one matrix => gu1m!matrix!patt!,  !4c
     '                       0     1    2  3   4    
     dim nthLine,j,j1,selected as int32
     dim selectedCOL,casesCOL, ubMaxj,UBmanyLines as int32                 
@@ -3143,7 +3143,7 @@ end function
       'wwbk4(2993, arrOne, patt1, glue)
       
       'stp4: matrix row Selector
-      if selectedRULE<>"" andAlso (not isnumeric(left(selectedRULE,1))) then errstop(2739, "the 4th paramter of glu1m command must begin by an integer:" & selectedRULE)
+      if selectedRULE<>"" andAlso (not isnumeric(left(selectedRULE,1))) then errstop(2739, "the 4th paramter of gu1m command must begin by an integer:" & selectedRULE)
 	                           selectedCOL =-1                            : selectedSYMB="" 
       if selectedRULE<>"" then selectedCOL =cint(left(selectedRULE,1)) -1 : selectedSYMB=mid(selectedRULE,2)
       
@@ -3162,7 +3162,7 @@ end function
            cols(j)=cols(j).trim 
           next j
 
-          if Inside("[vi", patt1) Then  return glu1v(oneline,patt1,glue) 'only treat the first line of this matrix
+          if Inside("[vi", patt1) Then  return gu1v(oneline,patt1,glue) 'only treat the first line of this matrix
 
                
           if (selectedCOL<0) orelse ((selectedCOL>=0) andAlso inside(selectedSYMB,cols(selectedCOL)) ) then selected=1 else goto nextLine ' thus ignore this line because symbol not matched
