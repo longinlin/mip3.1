@@ -21,8 +21,8 @@
   一次產生幾十個長程式，形成應用系統。這樣MIP就是一個程式產生器。
   
   講到C語言，紐結&怎麼發音，星號*怎麼發音，為甚麼紐結發射卻由星號接收呢?
-  若我們把 &x     改寫為 adrOf x     ，把 (int *x) 改寫為 (int byAdr x)，
-  接著再把 int* x 改寫為 adrOf int x ，順便把case自由落體，每層自動加break，
+  若我們把 &x     改寫為 adrOf x    ，把 (int *x) 改寫為 (int byAdr x)，
+  接著再把 int* x 改寫為 adrOf int x，順便把case自由落體，每層自動加break，
   是不是瞬間C就清楚多了? 這樣MIP就是一個程式矯正器。
 
   這幾年流行的程式語又更長了，程式中不斷宣告物件的屬性。
@@ -93,25 +93,28 @@
 ### 輸入、計算、輸出
   所有的電腦程式都可分解為(輸入、計算、輸出)三段，在MIP如何表達呢?
  
-  於上框寫 who==John        這就是輸入
-  於下框寫 show==hello who  這就是計算
-  按[確定]後，畫面出現 hello John 這就是輸出 輸出到螢幕上
+  於上框寫 who==John          這就是輸入
+  於下框寫 aa ==add!2!3       這就是計算
+  下框再寫 show==who, 2+3=aa  這就是輸出
+  按[確定]後，畫面出現 hello John 這就是輸出到螢幕上
   
   如果要輸出到檔案呢? 只要於下框寫:
-    answer==hello who
-    saveToFile, a123.txt ==answer 
+    answ==who, 2+3=aa
+    saveToFile, a123.txt ==answ
   按[確定]就會輸出到檔案c:/MIP/webt/a123.txt 。 
-  若螢幕回報說有錯 說不能寫入，則要叫起IIS或檔案總管去修改權限，請看安裝說明段。
+  若螢幕回報說有錯，說不能寫入，則要叫起IIS或檔案總管去修改權限，請看安裝說明段。
   
   (輸入、計算、輸出)三段都有了，想把以上的程式變成一般人使用的功能，怎麼做?
   看到螢幕最下方還有兩個細細的輸入框，分別填上 test2.mip 和 測試2，
   再按[save new  ]，網頁顯示 儲存完成，
-  再按[see spList]，網頁顯示 功能列表，
-  以上這些操作畫面叫做 "工程畫面"
+  再按[show spList]，網頁顯示 你剛剛製造的功能 [測試2]。
   
-  選擇[登出]按下去，網頁顯示請登入的畫面，
-  輸入帳號密碼(0800,0809) 按[登入]，網頁就有一個[測試2]的超連結給使用者了
-  現在你看到的畫面叫做 "使用畫面"， 你可以像一般使用者一樣的操作功能了。
+  你能看到上述這些操作畫面，因為當初你是用資訊工程師 admin 的身分登入。
+  admin登入的操作模式就是"工程師模式"。 
+  若想看看一般user的使用效果，你要先登出，換以某user的帳密登入。
+  請從功能列表中選擇[登出]，網頁顯示請輸入帳密的畫面，
+  輸入帳密(0800,0809) 按[登入]，就看到網頁有一個[測試2]的超連結。
+  現在你可以任意點選，現在叫做 "使用者模式"， 你可以像一般使用者操作它。
     
 ### 呼叫更多功能
   從上面的例子可以看到==是指定符號，
@@ -123,14 +126,15 @@
   本軟體在乎文字、向量、矩陣、文章的各種組合，目標是簡化程式寫作。
 
   要充分發揮MIP的功能，
-  還需瞭解3清單設定:(功能清單、 使用者清單、 資料庫清單)，
-  還需瞭解:(自定關鍵字、既定關鍵字、自定函數、既定函數)，
-  最後瞭解:(洗染、解函、擦罩)，
-  這樣MIP就介紹完整了，它簡短，卻能幫助你寫作及管理幾百個複雜的程式。
-  以下就從 "編輯功能清單" 開始說明。
+  還需瞭解: 編輯三個清單: 功能清單、 使用者清單、 資料庫清單，
+  接著瞭解: 自定關鍵字、既定關鍵字、自定函數、既定函數， 
+  接著瞭解: 洗染、解函、解罩，把函數當參數，
+  最後瞭解: 關鍵字for-next, if-else-endif, gosub
+  這樣MIP就介紹完整了，它能幫助你以簡短的文字表達意念，不用寫長程式。
+  以下就從編輯"功能清單" 開始說明。
   
   
-### 編輯功能清單
+### 編輯"功能清單"
   本軟體把一個公司需要的眾多功能顯示在一頁畫面上，讓使用者點選。
   要編輯功能清單就打開c:\MIP\webd\cSPlist.txt，看到如下內容:
     [td]  
@@ -144,7 +148,7 @@
   以[tf]開頭的這一行代表其下方一小段是一個功能段，
   將來在cusList.txt裏可以指定某人可以操作幾個功能段。
  
-### 編輯使用者清單
+### 編輯"使用者清單"
   本軟體可以管理使用者權限，
   打開c:\MIP\webd\cUSlist.txt
   每一行的欄位依序是姓名、帳號、密碼、 公司名稱、 部門名稱、 員工工號、 可允許使用的功能段
@@ -152,7 +156,7 @@
   若只允許某人僅能使用某3個功能段 則在 "可允許使用的功能段" 那欄寫上3個功能段名稱，例如 aa bb cc，
   若要允許某人可以使用全部功能段  則在 "可允許使用的功能段" 那欄寫上all
 
-### 編輯資料庫清單
+### 編輯"資料庫清單"
   MIP的基本運作不需資料庫，若你讓它連接到多個資料庫，它就如虎添翼。
   連接方式如下，打開 c:\MIP\webd\cDBlist.txt 看到如下內容
      HOME      : ms    : some connection string1
@@ -217,7 +221,7 @@
       再看到某一行以/開頭 則整行忽略 ， 例如 /a==1;;b==2 則這整行忽略
       再看到;; 則改為換行符號 但若這;;所在那一行有uvar則不要改   
       再看到某行是if== ， 下面又有一行endif== ， 則MIP知道這是一個區塊。
-### 單一行程式運作順序: 洗染、解函、擦罩
+### 單一行程式運作順序: 洗染、解函、解罩
   (一行程式內部動作1)洗染:
      程式從第一行開始往下跑，當看到一行 A==B ，MIP就記住了(關鍵字,它的值)=(A,B)
      當看到一行aa==
@@ -227,115 +231,171 @@
      MIP發現aa換行，就往下繼續找，直到下一個關鍵字，所以形成
                aa==bb,123[cr]cc,456  其中[cr]代表一個換行符號
                dd==ff                這dd的值只有兩個英文字母
-     MIP一行一行都記住了，就繼續往下跑，並進行置換，例如
+     MIP一行一行都記住了，繼續往下跑，對下方文字進行置換，例如
                aa==1
                b1==2
                show==baac ready 
-     aa置換這一行的右方，於是導致
+     aa置換這一行的右方，於是 
                show==b1c ready
-     接著b1置換這一行的右方，導致
+     接著b1置換這一行的右方，於是
                show==2c ready
      於是顯示
                      2c ready
-     程式往下跑，不斷發生文字置換。文字置換我常簡稱為洗染、洗字、染色。                      
-     寫長一點的程式:
-               aa==
-                   bb,123
-                   cc,456
-               dd==ff                 
-               aa==1               
-     當MIP第二次看到aa，MIP不管aa以前是什麼，aa現在就是1    
+     程式往下跑，文字被上方文字置換。文字置換稱為洗染。洗染有幾個特點: 
      
-     有一些關鍵字的值可能高達幾十萬個字母，
-     你想讓別的關鍵字洗染它，但你不想讓它洗染別的關鍵字，
-     這時要給它一個名字用matrix開頭，例如叫做matrix1或matrix2，舉例:
+     (洗染特點1)同一文字可以一再洗染，例如:
+               aa==1
+               dd==ff                 
+               aa==2               
+     當MIP第二次看到aa，MIP不管aa以前是什麼，aa現在就是2。
+     又例如:
+               aa==0
+               label==runway
+               aa==add!aa!1
+               show==aa,goto,
+               goto==runway
+
+     這裏讓aa一再重複洗染。這段程式將顯示               
+         1, 2, 3, ...40, 41, {jump too many times}    
+     這段程式本是無限迴圈，但MIP限制只能迴圈40次，所以MIP停下來。         
+               
+     (洗染特點2)有一些關鍵字的值可能含有幾十萬個英文字母，
+     你允許別的關鍵字洗染它，但你不想允許它洗染別的關鍵字，
+     這時你要給它取名字用matrix開頭，例如叫它matrix1或matrix2，請看這程式片段:
              kk==3
              matrix2==
               1,2,kk
               4,5,6
+             show==say(matrix2)
      則矩陣內儲值將會是
              matrix2==
               1,2,3
               4,5,6        
-     這樣就是矩陣內的值被洗染了。
-     反過來如果矩陣想去染別人例如
-             matrix2==
-               1,2,3
-               4,5,6
-             show==say(matrix2)
-                 
-     則螢幕會顯示 
-                  say(matrix2) 
-     不會顯示 
-                  say(1,2,3,4,5,6)
-
-     矩陣不適合整塊往下丟，想要染誰? 適合染誰? 現在想不出來。
-     矩陣有專用的提示字[mi...]，能把矩陣分解為元素，再往下洗染，再去組合。
+     矩陣內的值被洗染。而螢幕會顯示 say(matrix2)，螢幕不會顯示say(1,2,3,4,5,6)
      
   (一行程式內部動作2)解函:                      
-     當來到某一行kk==vv，文字vv洗染後，字面上有函數，則會解開函數，
-     舉例一: 
-             kk==hello @{ifeq!1!1! say y !say n},cc 
-     有夾雜於字裏行間的@函數，於是解開@函數，簡化成為
-             kk==hello say y, cc
-     舉例二:
-             kk==ifeq!1!1! say y !say n   
-     右方整個是一個函數，於是解開函數，簡化成為
-             kk==say y
+     當來到某一行kk==vv，文字被vv洗染後，字面上還有函數將會被解開，
+     舉例一:
+               say==said
+               kkk==ifeq!1!1! say y !say n   
+            右方整個是一個函數，於是解開函數，簡化成為
+               kk==said y
+     舉例二: 
+               kkk==hello @{ifeq!1!1! say y !say n},cc 
+            @函數夾雜於字裏行間，於是@函數被解開，簡化成為
+               kkk==hello say y, cc
      舉例三:
-     若某一行整個是一個函數，其參數是一個@函數， 應該先解開@函數，例如
-             aa==1
-             kk==ifeq! 2 !  @{add!aa!1}  ! see 2 ! see unknown
-     則簡化為
-             kk==ifeq! 2 !  2            ! see 2 ! see unknown
-     再簡化為
-             kk==see 2
+            若某一行整個是一個函數，其參數是一個@函數，應該先解開@函數:
+               aa==1
+               kk==ifeq! 2 !  @{add!aa!1}  ! see 2 ! see unknown
+            則簡化為
+               kk==ifeq! 2 !  2            ! see 2 ! see unknown
+            再簡化為
+               kk==see 2
     
-     "應該" 就有例外，就是當@函數內的參數含有 [ui] , [vi] , [mi 這三個字時，
-     MIP會先解開外層函數，再處理字裏行間的@函數
+            說"應該先解開@函數"， 就暗示說有時候應該"後解開" ，
+            當@函數內的參數含有 [ui , [vi , [mi 這三個字時 ，
+            MIP會先解開外層函數，再處理字裏行間的@函數
      舉例四:
-             aa==1
-             show==gu1v!4,5,6  !  @{add!aa![vi]}  !  +
-     它被洗染變成
-             show==gu1v!4,5,6  !  @{add!1 ![vi]}  !  +
-     再被解開外層變成
-             show==@{add!1!4} + @{add!1!5} + @{add!1!6} 
-     再被解開內層的@函數
-             show==5 + 6 + 7
-     於是顯示
+               aa==1
+               show==gu1v!4,5,6  !  @{add!aa![vi]}  !  +
+            它被洗染變成
+               show==gu1v!4,5,6  !  @{add!1 ![vi]}  !  +
+            再被解開外層變成
+               show==@{add!1!4} + @{add!1!5} + @{add!1!6} 
+            再被解開內層的@函數
+               show==5 + 6 + 7
+            於是顯示
                    5 + 6 + 7  
      這種@函數讓外層先做完，它接在後面做的行為稱為: 後解開。
      為甚麼要後解開? 就像一顆糖球外殼先溶解，裏面的小小球再溶解，
      瞬間在舌尖釋放出繽紛的味道。
      只有後解開才能瞬間釋放出繽紛的程式碼，大量減低你的碼字寫作。
-     
      給它取個英文名吧: calling-function-after-vector-solved 
                  
-  (一行程式內部動作3)擦罩
+  (一行程式內部動作3)解罩
      當某個字不想被洗染，就故意把[]擠在字裏防止洗染，例如:     
         aa==2
         show==I say a[]a=aa
      畫面應顯示 
         I say a[]a=2
      這個[]是一個既定關鍵字，我稱它為遮罩，用途是防止洗染。
-     但MIP會在顯示前一瞬間把[]擦掉，所以實際顯示為:
+     但MIP在顯示這句子的前一瞬間把[]去掉，所以實際顯示為:
         I say aa=2
-     在左方關鍵字收到右方值之前，MIP自動把遮罩擦掉，稱為擦罩。
+     在左方關鍵字收到右方值之前，MIP自動把遮罩去掉，稱為解罩。
      
-     總之，一行程式內的運作順序是:
-     凡是MIP看到 kk==vv...uu 這樣的句子，MIP把前面認識的關鍵字依序灌進去洗染，
+  (一行程式內部動作,總結) 一行程式內部的運作順序是:
+     凡是MIP看到 kk==vv 這樣的句子，MIP把前面認識的關鍵字依序灌進去洗染，
      染後裏面也許有函數，MIP就解函
-     解函後裏面也許有[]，MIP就擦掉它。
+     解函後裏面也許有[]，MIP就解罩。
      如此處理後的值傳給左方kk，
      若左方kk是一個既定關鍵字，MIP就按照既定的動作做事，
      然後MIP再跑下一行，程式就這麼一行一行運作。
                  
-### 程式跳躍
-  程式一行一行的運作，但可以跳躍。最基本的跳躍就是 goto 這個既定關鍵字   
+### 程式跳躍 goto, gosub
+  程式運作是一行一行依序往下，但可以跳躍。最基本的跳躍就是goto ，
   還有 if ... then ... else ... endif
   還有 for ... next
   還有 forEach ... next
   還有 gosub label ... label ... return
+  
+  (跳躍1)goto 舉例:
+                i==2
+                goto==ifeq! i! 2! work2
+                show==say1
+                exit==...
+                
+                label==work2
+                show==say2
+         這例子會顯示 say2 。 goto可以向下方的label跳也可以向上跳。
+         
+  (跳躍2)if 舉例:
+                 i==2
+                 if==ifEq!i!2
+                     show==say2
+                 else==
+                     show==say1
+                 endif==
+         這例子會顯示 say2 
+         if那一行的寫法一定要寫成 if==if*** ，一定要叫某個二擇一函數，
+         函數後只要寫想比較什麼，至於[比較成功]或[比較失敗]怎麼處理不要寫。
+         換行才開始寫[比較成功]做什麼事，再寫else做什麼事。     
+         
+  (跳躍3)for 舉例:
+                 for==ii ! 1 ! 9 !2
+                     show==sayii,
+                 next==
+         這例子會顯示 say1,say3,say5,say7,say9
+                        
+  (跳躍4)foreach 舉例:
+                 foreach==ii!9,11,88
+                     show==sayii,
+                 next==
+         這例子會顯示 say9,say11,say88
+                 
+  (跳躍5)gosub 舉例:
+           aa==1
+           gosub==ifeq!aa!1!work1!work2
+           aa==add!aa!1
+           gosub==ifeq!aa!1!work1!work2
+           aa==add!aa!2
+           gosub==work1
+           show==done,
+           exit==..
+
+           label==work1
+           show==do work1(aa),
+           return==
+
+           label==work2
+           show==do work2,
+           return==
+
+          按[確定]後 將顯示 do work1(1), do work2, do work1(4), done, ..  
+          
+           
+  
+  
 
 
 ###預先定義好的關鍵字 全集 unfinish   
@@ -365,22 +425,20 @@
  *f eval                  例:  eval!1!2
  
  *f 二者擇一的一些函數:
- *f ifEq                 例:  ifEq!2!2! is2 ! not2      ifEq 和 seeEq 是同義字
- *f seeEq                例: seeEq!2!2! is2 ! not2     seeEq 和  ifEq 是同義字
- *f ifEq     ,seeEq      若等於           例: ifEq     !2  !2   !is2!not2   
- *f ifNe     ,seeNe      若不等於         例: ifNe     !1  !2   !ne !eq
- *f ifGt     ,seeGt      若大於           例: ifGt     !1  !2   !no !yes
- *f ifGe     ,seeGe      若大於等於       例: ifGe     !1  !2   !no !yes
- *f ifLt     ,seeLt      若小於           例: ifLt     !1  !2   !yes!no       
- *f ifLe     ,seeLe      若大於等於       例: ifLe     !1  !2   !yes!no   
- *f iflcEq   ,seelcEq    若小寫後相等     例: iflcEq   !HH ! hh !yes!no
- *f ifLenEq  ,seeLenEq   若字的長度相等   例: ifLenEq  ! ab! cd !yes!no
- *f ifIn     ,seeIn      若內在於         例: ifIn     ! bc!abcd!yes!no
- *f ifNum    ,seeNum     若為數字         例: ifNum    !1.2     !yes!no
- *f ifPosi   ,seePosi    若為正數         例: ifPosi   !123     !yes!no
- *f ifUsa    ,seeUsa     若是西元yyyymmdd 例: ifUsa    !20040102!yes!no
- *f ifRoc    ,seeRoc     若是民國 yyymmdd 例: ifRoc    !  930102!yes!no
- *f ifBetween,seeBetween 若界於           例: ifBetween!xy !aa  !dd !yes!no
+ *f ifEq      若等於           例: ifEq     !2  !2   !is2!not2   
+ *f ifNe      若不等於         例: ifNe     !1  !2   !ne !eq
+ *f ifGt      若大於           例: ifGt     !1  !2   !no !yes
+ *f ifGe      若大於等於       例: ifGe     !1  !2   !no !yes
+ *f ifLt      若小於           例: ifLt     !1  !2   !yes!no       
+ *f ifLe      若大於等於       例: ifLe     !1  !2   !yes!no   
+ *f iflcEq    若小寫後相等     例: iflcEq   !HH ! hh !yes!no
+ *f ifLenEq   若字的長度相等   例: ifLenEq  ! ab! cd !yes!no
+ *f ifIn      若內在於         例: ifIn     ! bc!abcd!yes!no
+ *f ifNum     若為數字         例: ifNum    !1.2     !yes!no
+ *f ifPosi    若為正數         例: ifPosi   !123     !yes!no
+ *f ifUsa     若是西元yyyymmdd 例: ifUsa    !20040102!yes!no
+ *f ifRoc     若是民國 yyymmdd 例: ifRoc    !  930102!yes!no
+ *f ifBetween 若界於           例: ifBetween!xy !aa  !dd !yes!no
 
  *f 常用於串接SQL句子的函數: 
  *f ifV      ,seeV       若有值          
@@ -515,16 +573,23 @@
 	   ikey(cmNxy)  ival(cmNxy)    imrk(cmNxy)     ptyps(cmNxy) 
 	   
 ### 安裝問題集解  
-  可能問題:  看不到登入畫面， 看到 HTTP錯誤404.17  
-  解決方法:  應檢查ASP.NET有沒有安裝，也就是
-             控制面板》程序和功能》打開或關閉Windows功能> Internet信息服務> 網際網路服務> 應用程序開發功能> ASP.NET（把這個勾選起來）
+  可能問題:  找不到這電腦上的IIS管理員，
+             若有看到[伺服器管理員]這圖示，點它，進去看到角色，
+             角色下有網頁伺服器， 對它按右鍵新增角色服務，就可顯示IIS
     
-  可能問題:  若wbec目錄被設定共用，IIS報錯 說虛擬目錄不存在 說沒有web.config
-  解決方法:  不須添加web.config ，只要進iis-manager 按右鍵> 管理虛擬目錄> 進階設定> 實體路徑認證， 打入有存取權限的帳號密碼即可
+  可能問題:  輸入網址 MIP/MIP.aspx 看不到登入畫面， 卻看到 HTTP錯誤404.17  
+  解決方法:  應檢查ASP.NET有沒有安裝，也就是:
+             開始> 控制面板> 程序和功能> 打開或關閉Windows功能> 
+             Internet信息服務> 網際網路服務> 應用程序開發功能> ASP.NET
+             把這個勾起來
+    
+  可能問題:  若webc目錄被設定共用後，IIS卻說虛擬目錄不存在，說沒有web.config
+  解決方法:  不須添加web.config ，只要進iis-manager 按右鍵> 管理虛擬目錄> 
+             進階設定> 實體路徑認證， 打入有存取權限的帳號密碼即可
              順便的，IIS寫檔案不成功的問題也解了
     
   可能問題:  畫面說程式有錯，但不能顯示明確原因
-  解決方法:  在github檔案區還有一個小檔案web.config， 也複製到c:\MIP\webc即可。
+  解決方法:  在github檔案區還有一個小檔案web.config，複製到c:\MIP\webc即可。
     
   可能問題:  畫面說 c:\mip\webd 不能寫檔
   解決方法:  進iis-manager 按右鍵> 管理虛擬目錄> 進階設定> 實體路徑認證， 打入有存取權限的帳號密碼
