@@ -32,7 +32,7 @@
   Const webServerID = 41, vadj="$;" , j1j2 = "j1j2", defaultDIT="#!", pip="|"  
   const itab = Chr(9), ienter=vbNewLine, keyGlue="#$"  ,  tmpGlu="$*:" , icoma = "," , ispace=" " , iempty="" , ibest="best" , minKeyLen=4
   const fcBeg="@["     , fcBeg2="2@[", fcEnd="]#"      ,  fcComma="|"
-  const gcBeg="%fnBEg" ,               gcEnd="%fnENd"  ,  gcComma="!."
+  const gcBeg="%gcBEg" ,               gcEnd="%gcENd"  ,  gcComma="!."
 
   
 
@@ -136,8 +136,7 @@
     dim myff as HttpPostedFile  
     myff=Request.Files("toUpload")   ' myff=Request.Files("要上傳檔案")
     if (not(myff is nothing)) andalso (myff.ContentLength > 0) then 
-        myff.SaveAs(CCFD & "webT\" & myff.FileName)
-        Upar="toUpload==" & myff.FileName & ienter & Upar
+        myff.SaveAs(tmpDisk & atom(myff.FileName,999,"\") )
     end if
 
 if usjson="y" then 
@@ -1313,10 +1312,13 @@ end function
 	  buffW("                    if( typa=='checkbox'){ if(f2.elements[i].checked){c2chk='Y'}else{c2chk='N'};               ")
 	  buffW("                      f2p=f2p+ f2.elements[i].name+'=='+c2chk+ '$;$;checkbox;;'                                ")
 	  buffW("                    }                                                                                          ")
+	  buffW("                    if( typa=='file'){                                                                         ")
+	  buffW("                      f2p=f2p+ f2.elements[i].name+'==anyway.dat$;$;file;;'                                    ")
+	  buffW("                    }                                                                                          ")
 	  buffW("                  }                                                                                            ")
       buffW("         f2.Upar.value=f2p.replace(/\+/g, ' #add ');                                                           ")
-      buffW("         runnBG.style.display='';                                                                            ")
-      buffW("         //alert(f2p);                                                                                       ")
+      buffW("         runnBG.style.display='';                                                                              ")
+      buffW("         alert(f2p);                                                                                           ")
       buffW("         f2.submit();                                                                                        ")
       buffW("         }                                                                                                   ")
       buffW("  function bk2(){ alert('normal user no such func 2')}                                                       ")
@@ -1842,28 +1844,20 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
       If "select-one"=Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><select                                name='cxFkey'>cxDopt</select>                                                               cxFmrk"
       If "comb"      =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><select                                name='cxFkey'>cxDopt</select>                                                               cxFmrk"
 
-	  if "checkbox"  =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                                 name='cxFkey' type=checkbox><sup>                                             <font size=3> cxFmrk</font></sup>"
-      If "file"      =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                                 name='cxFkey' type=file    >                                                                cxFmrk"
+	  if "checkbox"  =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                                 name='cxFkey'   type=checkbox><sup>                                             <font size=3> cxFmrk</font></sup>"
+      If "file"      =Dtyp Then elem = "<tr drew><td align=right>cxFkey: <td align=left><input                                 name='toUpload' type=file    >                                                                cxFmrk"
       'elem=elem & "<input type=hidden name='cxFkey_h2' value='" & vadj & mrks(i) & vadj & typs(i) & "'>"
 	  
-      'element replacement step1/2
-      If ("iibx"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )
-      If ("iib2"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )
-                                                                                                                          
-      If ("enter"    =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )        
-      If ("readonly" =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )
-      If ("comment"  =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )     
-      If ("hidden"   =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=;" &        Dlen & "'"                  )    
-                                                                                                                          
+      'element replacement
+      If ("iibx"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=" &        Dlen                         )
+      If ("iib2"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "size=" &        Dlen                         )                                                                                                                   
       If ("textarea" =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "rows=" & replace(Dlen,"x", " cols=")         )    
       If ("mmbx"     =Dtyp) and Dlen<>"" Then elem=replace(elem, "cxFlen" , "rows=" & replace(Dlen,"x", " cols=")         )    
-      If ("enter"    =Dtyp)              Then elem=replace(elem, "onkeyx" , "onkeypress='return onEnter(event, this.f2)'" )
-      
+      If ("enter"    =Dtyp)              Then elem=replace(elem, "onkeyx" , "onkeypress='return onEnter(event, this.f2)'" )      
       'origin writes:  xx==yy $; say comment $; comb~y1$say1,y2$say2,y3$say3
 	  If ("comb"     =Dtyp)              Then DOPT=  gu1v(Dlen, "<option value='[vi$L]'>[vi$R]</option>", "$space"        ) : elem=replace(elem,"cxDopt",DOPT)
+	  elem=replaces(elem, "cxFkey",Dkey,  "cxFval",Dval,  "cxFmrk",Dmrk,    "cxTIT", "$;" & mrks(i) & "$;" & typs(i)  )
       
-      'element replacement step2/2
-	  elem=replaces(elem, "cxFkey",Dkey,  "cxFval",Dval,  "cxFmrk",Dmrk,    "cxTIT",      "$;" & mrks(i) & "$;" & typs(i)  )
       s2 = s2 & elem & ienter
     Next
     return s2
@@ -2172,7 +2166,7 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
     'pre-parse [2/3] , treat // and ;;  on Upag only
     lines=split(Upag, ienter) :tryERR=0
     for i=0 to Ubound(lines)
-      lines(i)=leftpart(lines(i),"//")
+      if inside("//", lines(i)) andAlso notinside("://",lines(i)) then lines(i)=leftpart(lines(i),"//")
       if inside(";;", lines(i)) andAlso inside("uvar=", lines(i)) then lines(i)=replace(lines(i), ";;", ";[];")
     next
     Upag=string.join(ienter, lines)
@@ -2420,9 +2414,9 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
             focus2=translateFunc(varTH, leftPart, focus2) :if tryERR=1 then dumpEnd
             rightHandQ=hh1 & focus2 & mm3
        end if             
-     elseif inside(fcComma,rightHandQ) then 'rightHandQ lookslike  func|p1|p2| %fnBeg fn2 %, q1 %, q2 %fnEnd
+     elseif inside(fcComma,rightHandQ) then 'rightHandQ lookslike  func|p1|p2| %gcBeg fn2 |. q1 |. q2 %gcEnd
             rightHandQ=translateFunc(varTH*100, leftPart, rightHandQ) :if tryERR=1 then dumpEnd
-     elseif inside(gcBeg, rightHandQ) then    'focus on this %fnBeg[...]
+     elseif inside(gcBeg, rightHandQ) then    'focus on this %gcBeg[...]
             rightHandQ=replaces(rightHandQ, gcBeg,fcBeg,  gcEnd,fcEnd, gcComma , fcComma)
             continue for
      else
@@ -2752,6 +2746,9 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
   try
 	select case arr0L
     case "add"  
+      if arr(1)="" then arr(1)="0"
+      if not isnumeric(arr(1)) then degStop("add 第一個參數只能是空白或數字，現在不是:",arr(1) )
+      if not isnumeric(arr(2)) then degStop("add 第二個參數只能是數字      ，現在不是:",arr(2) )
       return CDbl(arr(1)) + CDbl(arr(2))
     case "eval" 
       return fn_eval(arr(1))
