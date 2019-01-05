@@ -1,161 +1,166 @@
 ### 這是什麼
-  這是一個軟體，運行一個程式語言MIP(macro interactive processing)及其操作介面，
-  用來快速生產商用網頁，所以本軟體稱為MIP builder。  它內建幾十個動詞關鍵字，
-  也內建認識巨集(宏，macro)，所以它能操控主機，也能操控其他語言去操控主機。
-  它是一個程式解譯器，能產出互動式網頁，也能在背景運算，傳遞資料從這機到其他機；
-  它是一個程式產生器，能組合你的程式模板，跳躍式或鑲嵌式組合，形成你要的程式碼；
-  它是一個程式翻譯器，能翻譯你的變文成為標準的C語言或你要的語言。
-  也能翻譯抽象圖形成為程式碼，方便你寫圖形辨認的程式，用在自動下圍棋。
-  本軟體是一個語言，是一個工具，用來縮短程式碼，提升資訊人員的生產力。
+  這是一個軟體，運行一個程式語言MIP(macro interactive processing)， 
+  並自帶編輯界面，用來快速生產商用程式，所以本軟體稱為MIP builder。 
+  它認識幾十個既定動詞，所以它能操控電腦主機， 
+  也認得模板(巨集、宏、macro)，所以它能組合模板變成其他語言去操控主機。
+
+  它是一個script解譯器，能立即產出前景互動網頁，也能在背景連接資料庫；
+  也是一個macro 組合器，能組合模板輸出文字，不論程式執行前或執行中；
+  它是一個語言，是一個工具，用來縮短程式碼，提升資訊人員的生產力。
   
 ### 適用場合  
   在多年前，我看到某資訊人員每天都在下SQL指令，來應付user的各種需求，
   他說user的需求變來變去很難寫成程式，要是有一個網頁型的SQL輸入框，
   讓他任意調整參數，調到滿意存起來就自動成為user的功能，這樣才好過日子。
-  於是我作了一個生產程式的母機，這就是MIP的原型，也是MIP的第一功能。
-  本文將舉例三個用MIP寫出來的軟體系統，當作應用範例: 
-  倉庫撿貨系統，問卷系統，資料傳輸系統。
+  於是我作了一個生產程式的母機，這就是MIP的前身，用在製作並管理幾個應用系統。
+  本文將舉一個MIP應用範例: 庫存撿貨系統。
 
-  這幾年來，資訊界流行一些越來越長的程式語言，表達一個微小動作就很費力，
-  以c#或java為例，為了一句SQL要先寫一大堆字，這些都是固定字，
-  等於是一串固定的長咒語，這麼長的咒語不能簡化成短語嗎?
-  我們把長咒語視為低階語言，利用MIP內含的巨集、宏、macro的特性把它們改為短語，
-  一次產生幾十個長程式，形成應用系統。這樣MIP的第二個應用場景。
-  
-  講到C語言，紐結&怎麼發音，星號*怎麼發音，為甚麼紐結發射卻由星號接收呢?
-  若我們把 &x     改寫為 adrOf x    ，把 (int *x) 改寫為 (int byAdr x)，
-  接著再把 int* x 改寫為 adrOf int x，順便把case自由落體，每層自動加break，
-  是不是瞬間C就清楚多了? 這樣MIP就是一個程式矯正器。
+  這幾年來，資訊界流行一些越來越長的程式語言，表達一個動作變得很費力，
+  以c#或java為例，為了一句SQL要先寫一大堆字，程式師無法直接說我要跑SQL，
+  要先念念有詞繞一圈長咒語，才說我要跑SQL。既是咒語就不是人說的話，
+  利用MIP能辨識巨集、宏、macro的特性，我們直接說人話，直接下SQL要求結果，
+  用MIP寫一個特定的資料查詢功能不會超過5行。
 
   這幾年流行的程式語又更長了，程式中不斷宣告物件的屬性。
-  1個屬性佔1行，1個物件有9個屬性，5個物件就45行， 
-  這些物件都長得很像，整篇程式看起來就幾個字不斷的繞口令。
-  難道我們不能把它排成9乘5的矩陣，讓表達簡潔嗎?所以我讓MIP有操作矩陣的能力。
-  助你從一行一行寫程式的一維視角，轉為一矩陣一矩陣寫程式的二維視角。
-  若進一步把圍棋的點位視為矩陣，叫MIP來描述它成為程式，寫圖形辨認就容易多了。
+  1個屬性佔1行，1個物件有9個屬性，5個物件就45行，這些物件都長得很像，
+  整篇程式看起來就幾個字不斷的繞口令。難道我們不能把它排成9乘5的矩陣，
+  讓表達簡潔嗎?所以我們應該讓MIP有操作矩陣的能力，
+  助你從一行一行寫程式的一維視角，轉為一矩一矩寫程式的二維視角，程式變短。
+  再推廣之，把圍棋的棋子點位描述成二維矩陣，用MIP 來寫圖形比對，程式更短。
+  
+  MIP用途不僅在縮短一支程式，而是縮短幾十支程式。當你有幾十支程式要寫，
+  你找出這幾十支程式共同的部份，分離出相異的部份，把相異的部份排成矩陣，
+  呼叫MIP，它就幫你組合，寫完這幾十支程式，實現軟體微縮術。
+
   本文將從MIP的基本指令開始說明，延伸談到高級應用。
 
-### 多於其它巨集語言的特點
-  MIP語言最核心功能是文字置換，歸類它是巨集語言沒錯。但它有幾個特別的長處。
-  
- (特點1 網頁輸入輸出)它的預設操作環境是網頁，輸入從網頁輸入，輸出也是網頁。
+### 語言的特點
+ (特點1 網頁輸入輸出)它的預設操作環境是網頁，輸入是網頁，輸出也是網頁。
     輸出網頁裏還可以有輸入框，讓你再輸入下一波，得到下一波的網頁輸出。
-    所以它運作起來就是一個完整的應用功能，不是把文字置換完畢就結束了。
+    所以它運作起來就是一個完整的應用功能。如果你想要輸出文字檔也可以，
+    例如輸入SQL， 它可以輸出查詢結果到檔案，方便讓你把結果灌入另一電腦。
+    例如輸入你自定的方言，它就翻譯成目標語言，存成檔案，方便下一波執行。
   
- (特點2 執行)文字置換遇到關鍵字，會執行關鍵動作，例如操作資料庫，讀寫檔案，
-    發email，發FTP，發http訊號給其它電腦。它特別設計來搭配資料庫，
-    方便你組合SQL語句，跨主機讀寫SQL產出的結果
-  
- (特點3 跳躍指令)一般的巨集語言(宏語言)都是依序往下，偶爾有簡單的goto跳躍。
-    本語言除了goto 還有gosub跳去又跳回，也有if-then，也有for-next
+ (特點2 巨集變數)凡是"短字 == 一串字(包含換行符號)"， 就是賦值給一個短字，
+    若短字是既定關鍵字，MIP執行既定動作，例如操作SQL，發http給其它電腦。
+    若短字非既定關鍵字，那就是定義了一個巨集符號代表了一串字。
+    一般的巨集編程一旦值定義了，值就固定。在MIP裏值可以變動，值也可以是函數。
+    一般的巨集編程指令只能往下，不能goto跳躍。MIP除了goto 還有gosub跳去返回，
+    還有if-then-endif，以及for-next，所以MIP不只是一個巨集語言(宏語言)，
+    而是一個描述語言(script language)。
 
- (特點4 向量式指令)本語言可以置換一字一詞，更可利用不定詞來置換一整個向量，
-    或置換一整個矩陣，使一行MIP程式代表終端幾十行程式。若你要寫幾十支程式，
-    你找出這幾十支程式共同的部份，抽出相異的部份，把相異的部份排成矩陣，
-    呼叫MIP，它就寫完這幾十支程式，實現軟體微縮術。+
+ (特點3 向量式指令)變數只能置換一字一詞，利用不定詞可以置換一整個向量，
+    或置換一整個矩陣，使一行MIP程式代替幾十行程式，一支程式代替幾十支程式，
+    實現軟體微縮術。
  
 ### 安裝  
-  本軟體由1個程式檔以及3個參數設定檔構成。
+  本軟體目前只能在windows+IIS作業環境下使用，由1個程式檔以及3個資料檔構成。
   (MIP.aspx,     cDBlist.txt, cSPlist.txt, cUSlist.txt)
-  請到 https://github/longinlin/MIP3.1 點畫面上的[view code]下載
-  本軟體只能在windows+IIS作業環境下使用。
-  
-  打開你要安裝的電腦，
+  請到 https://github/longinlin/MIP3.1 點畫面上的[view code]下載。
+    
+  然後打開你要安裝的電腦，
   建子目錄c:\MIP\webc ，貼入MIP.aspx，
-  建子目錄c:\MIP\webd ，貼入上述後面3個檔案， 
+  建子目錄c:\MIP\webd ，貼入上述的後面3個檔案， 
   建子目錄c:\MIP\webt ，備用，此目錄要允許IIS寫入資料，
   建子目錄c:\MIP\webq ，備用，此目錄要允許IIS寫入資料，
-  接著尋找這電腦上該有的IIS管理員，
-    若看不到IIS卻看到伺服器管理員，點進去看到角色，
-    角色下有網頁伺服器， 按右鍵新增角色服務，就可顯示IIS
-  接著在IIS裡建立虛擬目錄MIP，使實際位置指向 c:\MIP\webc
-  接著打開瀏覽器，網址打localhost/MIP/MIP.aspx，
-  看到請你登入的畫面即安裝完成。
-  微軟各版常讓人安裝受挫，若遇安裝不順，淡定，參看文末的: ### 安裝問題集解
+  打開IIS管理員，在IIS裡建立虛擬目錄MIP，令其實際位置指向 c:\MIP\webc
+  打開瀏覽器，網址打localhost/MIP/MIP.aspx，出現畫面 請輸入帳密 即安裝完成。
+  微軟各版常讓人安裝受挫，若遇安裝不順，冒火之餘，請看文末的'安裝問題集解'。
 
-### 寫 Hello world
-  打開瀏覽器，網址打localhost/MIP/MIP.aspx，看到登入畫面
-  輸入帳密(admin,admin9)，看到出現了上下兩個輸入框，
+### 寫簡單的程式
+  (例一)打開瀏覽器，網址打localhost/MIP/MIP.aspx，看到請你輸入帳密的登入畫面，
+  輸入帳密(admin,admin9)，看到有上下兩個網頁型輸入框，
   於下框寫 
-    show== Hello world
+    show== Hello world !
   按[確定] 即可看到結果
   
-### 寫一個簡單的加法
+  (例二)寫一個簡單的加法
   於下框寫
-    aabb==eval! 10+5
-    ccdd==dateadd!!5
+    aabb==eval| 10+5
+    ccdd==dateadd||5
     show==aabb , ccdd
   按[確定]即可看到 15 逗點 今天加5天的日期
+  其中eval是一個任意加減乘除函數， 直線符號後面是函數的參數
   
-    show==eval!3*5
+  (例三)乘法
+  於下框寫
+    show==eval|3*5
   按[確定]即可看到 15 
   
-### 顯示九九乘法表
+  (例四)九九乘法表
   於下框寫
-    uuuu==1,2,3,4
-    vvvv==4,5
-    show==mgu2v!uuuu!vvvv![ui]x[vi]=@{eval![ui]*[vi]}!td 
+    uuuu==1,2,3
+    vvvv==4,5,6
+    show==gu2vx|uuuu|vvvv| [ui]x[vi]=@[eval|[ui]*[vi]]# |td 
   按[確定]即可看到九九乘法表之一部份:
     1x4=4  2x4=8  3x4=12  4x4=16
     1x5=5  2x5=10 3x5=15  4x5=20
+  其中 @[...]# 是把函數放在字裏行間的表達法。
+  @  這個符號看起來像ca， 此處可以唸作call, 
+  ]# 用來表示函數結束
      
-### 寫一個簡單的SQL 或呼叫DOS指令
+### 呼叫資料庫(SQL)， 或呼叫作業系統(DOS指令)
   於下框寫
     conndb==db36
-    sqlcmd==select * from tbyy
-  按[確定]即可看到 tbyy 的內容。
+    sqlcmd==select * from tb2
+  按[確定]即可看到 tb2 的內容。
 
   要呼叫DOS指令，則於下框寫
   doscmd==
     echo 123 > c:\tmp\test2.txt
     echo 456 > c:\tmp\test3.txt
-  按[確定]即可在 c:\tmp 看結果
+  exit==done    
+  按[確定]即執行兩行echo，讀者可以到 c:\tmp 看結果
+  這裏看到'等於等於'右方沒有字，於是MIP往下集字
    
 ### 輸入、計算、輸出
   所有的電腦程式都可分解為(輸入、計算、輸出)三段，在MIP如何表達呢?
  
-  於上框寫 who==John          這就是輸入
-  於下框寫 aa ==add!2!3       這就是計算
-  下框再寫 show==who, 2+3=aa  這就是輸出
-  按[確定]後，畫面出現 hello John 這就是輸出到螢幕上
+  於上框寫 name2==John             這就是輸入
+  於下框寫 add99==add|2|3          這就是計算
+  下框再寫 show==name2, 2+3=add99  這就是輸出
+  按[確定]後，畫面出現 John, 2+3=5 輸出到螢幕上
   
-  如果要輸出到檔案呢? 只要於下框寫:
-    answ==who, 2+3=aa
+  如果要輸出到檔案呢? 
+  於上框寫 name2==John           
+  於下框寫 
+    add99 ==add|2|3       
+    answ  ==name2, 2+3=add99
     saveToFile, a123.txt ==answ
   按[確定]就會輸出到檔案c:/MIP/webt/a123.txt 。 
-  若螢幕回報說有錯，說不能寫入，則要叫起IIS或檔案總管去修改權限，請看安裝說明段。
+  若螢幕回報說檔案不能寫入，則要叫起IIS或檔案總管去增加寫入權限，請看安裝說明段。
   
   (輸入、計算、輸出)三段都有了，想把以上的程式變成一般人使用的功能，怎麼做?
   看到螢幕最下方還有兩個細細的輸入框，分別填上 test2.mip 和 測試2，
-  再按[save new  ]，網頁顯示 儲存完成，
-  再按[show spList]，網頁顯示 你剛剛製造的功能 [測試2]。
-  
-  你能看到上述這些操作畫面，因為當初你是用資訊工程師 admin 的身分登入。
-  admin登入的操作模式就是"工程師模式"。 
-  若想看看一般user的使用效果，你要先登出，換以某user的帳密登入。
-  請從功能列表中選擇[登出]，網頁顯示請輸入帳密的畫面，
-  輸入帳密(0800,0809) 按[登入]，就看到網頁有一個[測試2]的超連結。
-  現在你可以任意點選，現在叫做 "使用者模式"， 你可以像一般使用者操作它。
+  再按[save new   ]，網頁就會顯示'儲存完成'，
+  再按[show spList]，網頁就會顯示'測試2' 就是你剛剛製造的功能。
+ 
+  你能操作這些畫面，因為當初你是用工程師 admin 的身分登入。
+  admin身分的操作模式就是"工程師模式"。 
+  若想看一般user的使用效果，你要換成某user的帳密登入。
+  請從功能列表中選擇[登出]，網頁請你輸入帳密，輸入帳密(0800,0809) 
+  就看到網頁有一個[測試2]的超連結。現在你可以任意點選，現在就是 "使用者模式"。
     
-### 呼叫更多功能
+### 充分發揮MIP的功能
   從上面的例子可以看到==是指定符號，
-  不要在乎指定符號左右方的空白，那些空白都會切掉。也不要在乎其左右方是數字或文字，
+  符號左右方可以任意空白，空白都會切掉不要在乎。也不要在乎左右方是數字或文字，
   因為本軟體裏面只有一種資料型態，那就是文字。
-  本軟體在乎文字之上可以建立文字的序列，也就是向量，
-  在乎文字可以建立二維序列，也就是矩陣，
-  在乎文字可以組成一段文章，也就是程式。
-  本軟體在乎文字、向量、矩陣、文章的各種組合，目標是簡化程式寫作。
+  你要在乎文字往上可以建立一維序列，就是向量，往上可以建立二維序列，就是矩陣，
+  幾十行文字可以組成一段文章，就是程式模板。
+  本軟體在乎文字、向量、矩陣、程式模板的各種組合，目標是簡化寫作。
 
-  要充分發揮MIP的功能，
+  要發揮MIP的功能，
   還需瞭解: 編輯三個清單: 功能清單、 使用者清單、 資料庫清單，
-  接著瞭解: 自定關鍵字、既定關鍵字、自定函數、既定函數， 
-  接著瞭解: 洗染、解函、解罩，把函數當參數，
-  最後瞭解: 關鍵字for-next, if-else-endif, gosub
-  這樣MIP就介紹完整了，它能幫助你以簡短的文字表達意念，不用寫長程式。
-  以下就從編輯"功能清單" 開始說明。
+  接著瞭解: 變數、關鍵字、函數
+  接著瞭解: 洗染、解函、解罩，
+  接著瞭解: 跳躍關鍵字: gosub, if-else-endif, generally-butif
+  接著瞭解: 不定詞函數: gu1v, gu2v, gu2vx, gu1m, sqlcmd, show
+  進階瞭解: 資料庫輸出直轉橫(在Excel稱為樞紐分析), 矩陣直轉橫
+  這樣MIP就能幫助你以簡短的文字表達意念，不用寫長程式。
   
+  以下就從編輯'功能清單' 開始說明。
   
-### 編輯"功能清單"
+### 編輯'功能清單'
   本軟體把一個公司需要的眾多功能顯示在一頁畫面上，讓使用者點選。
   要編輯功能清單就打開c:\MIP\webd\cSPlist.txt，看到如下內容:
     [td]  
@@ -169,7 +174,7 @@
   以[tf]開頭的這一行代表其下方一小段是一個功能段，
   將來在cusList.txt裏可以指定某人可以操作幾個功能段。
  
-### 編輯"使用者清單"
+### 編輯'使用者清單'
   本軟體可以管理使用者權限，
   打開c:\MIP\webd\cUSlist.txt
   每一行的欄位依序是姓名、帳號、密碼、 公司名稱、 部門名稱、 員工工號、 可允許使用的功能段
@@ -177,7 +182,7 @@
   若只允許某人僅能使用某3個功能段 則在 "可允許使用的功能段" 那欄寫上3個功能段名稱，例如 aa bb cc，
   若要允許某人可以使用全部功能段  則在 "可允許使用的功能段" 那欄寫上all
 
-### 編輯"資料庫清單"
+### 編輯'資料庫清單'
   MIP的基本運作不需資料庫，若你讓它連接到多個資料庫，它就如虎添翼。
   連接方式如下，打開 c:\MIP\webd\cDBlist.txt 看到如下內容
      HOME      : ms    : some connection string1
@@ -190,95 +195,119 @@
       sqlcmd==select * from tb2
   就可看到資料表 tb2 了
   
-### 自定關鍵字、既定關鍵字 
+### 變數、關鍵字 
   在工程畫面寫:
-      x2==2
-      x3==3
-      show==x2+x3
-  其中x2和x3就是自定關鍵字，MIP原本不認識x2和x3，你定義了它們，MIP就記住了。
-  其中show  就是既定關鍵字，MIP執行show既定的動作，也就是顯示，顯示了 2+3 
-  上述畫面只顯示2+3 ，MIP不會加在一起嗎，會
-      show==add!x1!x2      
-  畫面會顯示5 這裏用到了一個既定函數add。
+      x002==2
+      x003==3
+      show==x002+x003
+  其中x002和x003就是自定變數，MIP原本不認識x002和x003，由你定義了它們。
+  其中show  就是關鍵字，MIP執行show預定的動作，也就是顯示，顯示了 2+3
+　上數變數x002能寫成x2嗎，不行，MIP會警示變數名太短，為了防錯至少要4個字母。
+  上述畫面只顯示2+3 ，MIP不會加在一起嗎，會，請使用add函數
+      show==add|x002|x003
+  畫面會顯示5 ， 下一節再說明add函數。
+  show是最常用的關鍵字，另外sqlcmd也很常用到，本文後半段'關鍵字全集'再說明。
 
-### 自定函數、既定函數
-  既定函數就是預先定義好的函數，除了add之外還有很多，例如通用型的計算函數eval:
-      show==eval!2*3+1  
-  畫面會顯示7 
-  又例如 比較相等與否的函數 ifeq:
-      x2==2
-      show==ifeq!x2!2!yes2 !not2  
-  這樣會顯示yes2  
-  從例子看得出來，函數的參數用驚嘆號隔開。
+  (變數性質一)變數可以更換其值
+       例如下面這程式:
+                 aaaa==1
+                 dddd==2
+                 aaaa==3               
+       當MIP第二次看到aaaa，不管aaaa以前是什麼，aaaa現在就是3。
+       又例如:
+                 aaaa==0
+                 label==runway
+                        aaaa==add|aaaa|1
+                        show==aaaa,
+                 goto==runway      
+       這裏讓aaaa一再更換其值。這段程式將顯示               
+           1, 2, 3, ...40, 41, jump too many times   
+       這段程式是無限迴圈，但MIP限制只能迴圈40次，所以MIP停下來。  
+
+  (變數性質二)變數可以含換行符號
+       例如下面這程式:
+               c001==
+                     bb,123
+                     cc,456
+               d001==ff
+       MIP發現 c001==後面沒東西，就往下繼續找，直到下一個==出現，所以形成
+               c001==bb,123[cr]cc,456  其中[cr]代表一個換行符號
+       如果你寫:
+               c001==
+               d001==ff       
+       則c001就是空字串，就是長度為0的字串。
+  
+### 函數
+  函數會做預先定義好的動作，函數很多，請看函數全集。舉例加法計算add:
+      show==add| 1 | 2  
+  畫面會顯示3。 
+  為了程式師寫作方便，函數不分大小寫，函數的參數用直線號隔開。
+  
+  又例如eval是任意加減乘除 :
+      show==eval | 1+2*3
+  畫面會顯示7。   
+  
+  又例如ifeq是比較相等與否的函數 :
+      x002==2 
+      show==ifeq|x002|2|yes2 |not2  
+  畫面會顯示yes2。
+  
+  又例如ifeq搭配goto :
+      x002==2 
+      goto==ifeq|x002|2|yes2 |not2  
+  這樣程式會跳到標號yes2的那一行繼續往下跑。
+  
   函數也可以夾雜在字裏行間使用，例如:
-      show== Hi, I was happy in recent @{eval!2*3+1} days 
-  也就是整個函數用@{}括住。 
-  @{}在口語怎麼唸呢?  @看起來像是ca ， 所以@{} 唸作call ， 把@當動詞。
-  @{function3!parameter1!parameter2} 唸作call fucntion3
-  @{function3!parameter1!parameter2} 整串也可以簡稱為@函數，把@當形容詞。 
+      show== Hi, I was happy in recent @[eval|2*3+1]# days 
+  畫面將顯示 Hi, I was happy in recent 7 days    
+  也就是整個函數可以用 @[...]# 括住。 
+  @[...]#口語上怎麼唸呢? @看起來像ca，所以@[...]# 唸作call，或簡稱為@函數。
+  記得 @和[ 要緊連在一起，而 [...]內各參數則可鬆散，其前後空白將被忽略。
   
-  在show==...之後按下[確定]，於是畫面顯示 
-      Hi, I was happy in recent 7 days    
-  除了既定函數，你也可以自己定義函數，例如:
-      myFunc==I have someOne
-      show==@{myFunc!have=love!someOne=Mary}
+  除了既定函數，變數也可以當成自定函數，但自定函數只能作文字變換，例如:
+      myFunc==I like someOne
+      show==@[myFunc|like=love|someOne=Mary]#
   畫面會顯示            I love Mary 
-  你不用宣告自定函數開始結束，也不用宣告參數。自定函數就是字，一串字。
+  既定函數不區分大小寫，自定函數或是變數有區分大小寫。
+  自定函數的參數用法是 舊字=新字將取代之 ， 各參數用直線號隔開。
   
-  有些程式語言例如c或java，特別喜歡用{}
-  為了讓MIP可以好好操控並生產這類的程式，可以改變@函數的括號，例如:
-     aa==@{func3!p1!p2}@ 
-  用兩個@ ，像是兩個耳朵，把函數括住。欲達此，你必須先寫明:
-     setFunctionBracket==@{ , }@
-  你不喜歡這種括號了，可以再改回來 
-     setFunctionBracket==@{ , }
-  如果你都不喜歡也可以隨時自定括號，連@都不要，例如:
-     setFunctionBracket==begg , endd
-     
-   
+  函數和參數是以平等的身份居住在[...]裏，所以可以讓函數名稱居住在第二格。
+    show==result is @2[ abc   | inside |abcde | in | not in ]# , see ?
+  這句話等效於:
+    show==result is @[ inside | abc    |abcde | in | not in ]# , see ?
+  函數名稱在第一格不符人類習慣，但電腦喜歡它，於是叫起 inside函數，得到
+    show==result is in , see ?
     
+  又例如
+    x002==2
+    show==answ is @2[x002   |between| 1 | 4 |ok| not ok]# , see ?
+  這句話等效於:
+    x002==2
+    show==answ is  @[between|x002   | 1 | 4 |ok| not ok]# , see ?
+  於是叫起 between函數，得到 
+    show==result is ok , see ?
+  
 ### 程式預解
       MIP跑起你的程式，當看到include==*** 則載入這一行的內容成為程式的一部分
-      再看到某一行以/開頭 則整行忽略 ， 例如 /a==1;;b==2 則這整行忽略
-      再看到;; 則改為換行符號 但若這;;所在那一行有uvar則不要改   
-      再看到某行是if== ， 下面又有一行endif== ， 則MIP知道這是一個區塊。
+      若看到某一行有//則忽略其右方，例如  a001==1 //;;b002==2  等效於a001==1 
+      例如 //a001==1;;b002==2 則這整行忽略。但是若這一行有://  則整行都要。
+      
+      若看到;;連續兩個分號，則改為換行符號。但若這一行有'uvar'則不要改。   
+      若看到某行有'if==' ， 下面又有一行'endif==' ， 則MIP知道這是一個區塊。
 ### 單一行程式運作順序: 洗染、解函、解罩
   (一行程式內部動作1)洗染:
-     程式從第一行開始往下跑，當看到一行 A==B ，MIP就記住了(關鍵字,它的值)=(A,B)
-     當看到一行aa==
-                   bb,123
-                   cc,456
-               dd==ff
-     MIP發現aa換行，就往下繼續找，直到下一個關鍵字，所以形成
-               aa==bb,123[cr]cc,456  其中[cr]代表一個換行符號
-               dd==ff                這dd的值只有兩個英文字母
-     MIP一行一行都記住了，繼續往下跑，對下方文字進行置換，例如
-               aa==1
-               b1==2
-               show==baac ready 
-     aa置換這一行的右方，於是 
-               show==b1c ready
-     接著b1置換這一行的右方，於是
-               show==2c ready
+     MIP一行一行都記住了，繼續往下跑，並對下方文字進行置換，例如
+                                     a001==1
+                                     ccb1==2
+                                     show==hi ccba001y ready 
+     首先a001置換這一行==的右方，於是 
+                                     show==hi ccb1y ready
+     接著ccb1置換這一行==的右方，於是
+                                     show==hi 2y ready
      於是顯示
-                     2c ready
+                                           hi 2y ready
      程式往下跑，文字被上方文字置換。文字置換稱為洗染。洗染有幾個特點: 
-     
-     (洗染特點1)同一文字可以一再洗染，例如:
-               aa==1
-               dd==ff                 
-               aa==2               
-     當MIP第二次看到aa，MIP不管aa以前是什麼，aa現在就是2。
-     又例如:
-               aa==0
-               label==runway
-               aa==add!aa!1
-               show==aa,goto,
-               goto==runway
-
-     這裏讓aa一再重複洗染。這段程式將顯示               
-         1, 2, 3, ...40, 41, {jump too many times}    
-     這段程式本是無限迴圈，但MIP限制只能迴圈40次，所以MIP停下來。         
+         
                
      (洗染特點2)有一些關鍵字的值可能含有幾十萬個英文字母，
      你允許別的關鍵字洗染它，但你不想允許它洗染別的關鍵字，
@@ -295,35 +324,36 @@
      矩陣內的值被洗染。而螢幕會顯示 say(matrix2)，螢幕不會顯示say(1,2,3,4,5,6)
      
   (一行程式內部動作2)解函:                      
-     當來到某一行kk==vv，文字被vv洗染後，字面上還有函數將會被解開，
+     當來到某一行kk==vv，文字被vv洗染後，字面上有函數將會被解開，
      舉例一:
                say==said
-               kkk==ifeq!1!1! say y !say n   
+               kkk==ifeq|1|1| say y |say n   
             右方整個是一個函數，於是解開函數，簡化成為
                kk==said y
      舉例二: 
-               kkk==hello @{ifeq!1!1! say y !say n},cc 
+               kkk==hello @[ifeq|1|1| say y |say n]#,cc 
             @函數夾雜於字裏行間，於是@函數被解開，簡化成為
                kkk==hello say y, cc
      舉例三:
-            若某一行整個是一個函數，其參數是一個@函數，應該先解開@函數:
+            若遇@函數內層有@函數，應該先解開內層:
                aa==1
-               kk==ifeq! 2 !  @{add!aa!1}  ! see 2 ! see unknown
+               kk==see @[ifeq| 2 |  @[add|aa|1]# | two | unknown]# so what
             則簡化為
-               kk==ifeq! 2 !  2            ! see 2 ! see unknown
+               kk==see #[ifeq| 2 |  2            | two | unknown]# so what
             再簡化為
-               kk==see 2
+               kk==see two so what
     
-            說"應該先解開@函數"， 就暗示說有時候應該"後解開" ，
-            當@函數內的參數含有 [ui , [vi , [mi 這三個字時 ，
-            MIP會先解開外層函數，再處理字裏行間的@函數
+            說"應該先解開內層"， 就暗示說有時候應該"後解開":
+            當@gu函數內層有@函數，先解開@gu函數，後解開內層@函數
+            這一個小小的順序變化，會讓gu函數釋放繽紛的味道。
+
      舉例四:
                aa==1
-               show==gu1v!4,5,6  !  @{add!aa![vi]}  !  +
+               show==gu1v|4,5,6  |  @[add|aa|[vi]]#  |  +
             它被洗染變成
-               show==gu1v!4,5,6  !  @{add!1 ![vi]}  !  +
+               show==gu1v|4,5,6  |  @[add|1 |[vi]]#  |  +
             再被解開外層變成
-               show==@{add!1!4} + @{add!1!5} + @{add!1!6} 
+               show==@[add|1|4]# + @[add|1|5]# + @[add|1|6]# 
             再被解開內層的@函數
                show==5 + 6 + 7
             於是顯示
@@ -335,23 +365,30 @@
      給它取個英文名吧: calling-function-after-vector-solved 
                  
   (一行程式內部動作3)解罩
-     當某個字不想被洗染，就故意把[]擠在字裏防止洗染，例如:     
+     當某個字不想被洗染，程式師可以故意把[]擠在這個字裏，例如:     
         aa==2
         show==I say a[]a=aa
      畫面應顯示 
         I say a[]a=2
-     這個[]是一個既定關鍵字，我稱它為遮罩，用途是防止洗染。
-     但MIP在顯示這句子的前一瞬間把[]去掉，所以實際顯示為:
+     這個[]是一個關鍵字，我們可以把它唸作'遮罩'其用途是防止洗染。
+     當左方關鍵字要接收右方值之前，MIP自動把[]去掉，稱為'解罩'。
+     在這例中，當show要接收右方值之前，MIP自動把[]去掉，所以實際顯示為:
         I say aa=2
-     在左方關鍵字收到右方值之前，MIP自動把遮罩去掉，稱為解罩。
      
-  (一行程式內部動作,總結) 一行程式內部的運作順序是:
-     凡是MIP看到 kk==vv 這樣的句子，MIP把前面認識的關鍵字依序灌進去洗染，
-     染後裏面也許有函數，MIP就解函
-     解函後裏面也許有[]，MIP就解罩。
-     如此處理後的值傳給左方kk，
-     若左方kk是一個既定關鍵字，MIP就按照既定的動作做事，
-     然後MIP再跑下一行，程式就這麼一行一行運作。
+     在進入左方之前把字換掉的動作統稱為'解罩'，這樣的字只有幾個:
+     []      換成 無
+     $space  換成 一個空白格
+     $enter  換成 一個換行符號 ( ascii_10+ ascii_13 )
+     $fncall 換成 @
+     $fnpipe 換成 |
+     
+     
+  (一行程式內部動作,總結) MIP處理一行程式的動作順序是:
+     凡是看到 kk==vv 這樣的句子，把前面認識的關鍵字依序灌進去洗染，
+     洗染後裏面也許有函數，那就解函。
+     解函後裏面也許有遮罩，那就解罩。
+     處理後的值傳給左方kk，若左方kk是一個既定關鍵字，那就做既定的事，
+     然後再跑下一行，程式就這麼一行一行運作。
                  
 ### 程式跳躍 goto, gosub
   程式運作是一行一行依序往下，但可以跳躍。最基本的跳躍就是goto ，
@@ -362,7 +399,7 @@
   
   (跳躍1)goto 舉例:
                 i==2
-                goto==ifeq! i! 2! work2
+                goto==ifeq| i| 2| work2
                 show==say1
                 exit==...
                 
@@ -372,7 +409,7 @@
          
   (跳躍2)if 舉例:
                  i==2
-                 if==ifEq!i!2
+                 if==ifEq|i|2
                      show==say2
                  else==
                      show==say1
@@ -383,23 +420,23 @@
          換行才開始寫[比較成功]做什麼事，再寫else做什麼事。     
          
   (跳躍3)for 舉例:
-                 for==ii ! 1 ! 9 !2
+                 for==ii | 1 | 9 |2
                      show==sayii,
                  next==
          這例子會顯示 say1,say3,say5,say7,say9
                         
   (跳躍4)foreach 舉例:
-                 foreach==ii!9,11,88
+                 foreach==ii|9,11,88
                      show==sayii,
                  next==
          這例子會顯示 say9,say11,say88
                  
   (跳躍5)gosub 舉例:
            aa==1
-           gosub==ifeq!aa!1!work1!work2
-           aa==add!aa!1
-           gosub==ifeq!aa!1!work1!work2
-           aa==add!aa!2
+           gosub==ifeq|aa|1|work1|work2
+           aa==add|aa|1
+           gosub==ifeq|aa|1|work1|work2
+           aa==add|aa|2
            gosub==work1
            show==done,
            exit==..
@@ -438,95 +475,95 @@
     addString,paragraph99_txt ==456
     saveToFile,paragraph99.txt==paragraph99_txt  
                    
-### 既定函數 全集 
+### 函數 全集 
   MIP有區分大小寫的，自定函數有區分大小寫，但這樣有些僵硬，
-  所以讓既定函數的名稱可以任意大小寫，驚嘆號前後的空白都不計。
+  所以讓函數的名稱可以任意大小寫，驚嘆號前後的空白都不計。
   下面列出預先定義好的函數。
- *f add                   例:  add !1!2
- *f eval                  例:  eval!1!2
+ *f add                   例:  add |1|2
+ *f eval                  例:  eval|1|2
  
  *f 二者擇一的一些函數:
- *f ifEq      若等於           例: ifEq     !2  !2   !is2!not2   
- *f ifNe      若不等於         例: ifNe     !1  !2   !ne !eq
- *f ifGt      若大於           例: ifGt     !1  !2   !no !yes
- *f ifGe      若大於等於       例: ifGe     !1  !2   !no !yes
- *f ifLt      若小於           例: ifLt     !1  !2   !yes!no       
- *f ifLe      若大於等於       例: ifLe     !1  !2   !yes!no   
- *f iflcEq    若小寫後相等     例: iflcEq   !HH ! hh !yes!no
- *f ifLenEq   若字的長度相等   例: ifLenEq  ! ab! cd !yes!no
- *f ifIn      若內在於         例: ifIn     ! bc!abcd!yes!no
- *f ifNum     若為數字         例: ifNum    !1.2     !yes!no
- *f ifPosi    若為正數         例: ifPosi   !123     !yes!no
- *f ifUsa     若是西元yyyymmdd 例: ifUsa    !20040102!yes!no
- *f ifRoc     若是民國 yyymmdd 例: ifRoc    !  930102!yes!no
- *f ifBetween 若界於           例: ifBetween!xy !aa  !dd !yes!no
+ *f ifEq      若等於           例: ifEq     |2  |2   |is2|not2   
+ *f ifNe      若不等於         例: ifNe     |1  |2   |ne |eq
+ *f ifGt      若大於           例: ifGt     |1  |2   |no |yes
+ *f ifGe      若大於等於       例: ifGe     |1  |2   |no |yes
+ *f ifLt      若小於           例: ifLt     |1  |2   |yes|no       
+ *f ifLe      若大於等於       例: ifLe     |1  |2   |yes|no   
+ *f iflcEq    若小寫後相等     例: iflcEq   |HH | hh |yes|no
+ *f ifLenEq   若字的長度相等   例: ifLenEq  | ab| cd |yes|no
+ *f ifIn      若內在於         例: ifIn     | bc|abcd|yes|no
+ *f ifNum     若為數字         例: ifNum    |1.2     |yes|no
+ *f ifPosi    若為正數         例: ifPosi   |123     |yes|no
+ *f ifUsa     若是西元yyyymmdd 例: ifUsa    |20040102|yes|no
+ *f ifRoc     若是民國 yyymmdd 例: ifRoc    |  930102|yes|no
+ *f ifBetween 若界於           例: ifBetween|xy |aa  |dd |yes|no
 
  *f 常用於串接SQL句子的函數: 
  *f ifV      ,seeV       若有值          
        例如:
             inputx123==456
-            condition==ifv!inputx123!and xqty=inputx123
+            condition==ifv|inputx123|and xqty=inputx123
             show     ==where 1=1 condition    將顯示:
                        where 1=1 and xqty=456
        又例如:         
             inputx123==
-            condition==ifv!inputx123!and xqty=inputx123
+            condition==ifv|inputx123|and xqty=inputx123
             show     ==where 1=1 condition    將顯示:
                        where 1=1              也就是跳過此條件
             也可以緊湊寫成一句:   
-            show==where 1=1 @{ifv! inputx123! and xqty=inputx123}
+            show==where 1=1 @[ifv| inputx123| and xqty=inputx123]#
                       
            
- *f andRange  製造一段字 常用於SQL的查詢條件  例: 
-      inputsR1R2==2004/01/02-2004/03/02
-      condition2==andRange!kdate!inputsR1R2
+ *f andRange  製造一段SQL的查詢條件  例: 
+      input12==2004/01/02-2004/03/02
+      condition2==andRange|kdate|input12
       show      ==where 1=1 condition2        將顯示:
                   where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
       又例如:         
       inputsR1R2==2004/01/02
-      condition2==andRange!kdate!inputsR1R2
+      condition2==andRange|kdate|inputsR1R2
       show      ==where 1=1 condition2       將顯示:
                   where 1=1 and( kdate = '2004/01/2' )
       又例如:         
       inputsR1R2==
-      condition2==andRange!kdate!inputsR1R2
+      condition2==andRange|kdate|inputsR1R2
       show      ==where 1=1 condition2       將顯示空白 也就是忽略此條件:
                   where 1=1         
 
  *f 有關日期的一些函數:
                   
- *f ifValidDateROC 查輸入日期合理否 例: show==dateVerify!991301    將顯示錯誤  
+ *f ifValidDateROC 查輸入日期合理否 例: show==dateVerify|991301    將顯示錯誤  
                    又且 若年份在00到150之間為合理，        在此之外則顯示錯誤 
- *f ifValidDateUSA 查輸入日期合理否 例: show==ifValidDate!20041301 將顯示錯誤  
+ *f ifValidDateUSA 查輸入日期合理否 例: show==ifValidDate|20041301 將顯示錯誤  
                    又且  若年份在1900到2040間為合理，      在此之外則顯示錯誤 
  *f ifValidDate    同ifValidDateUSA
  
  
  *f dateConvROC    把各種日期表示法轉成你要的格式，輸出年份為民國，例如:
-                   show==dateConvROC!Jan 22, 1999!yyyy/mm/dd 將顯示  88/01/22
+                   show==dateConvROC|Jan 22, 1999|yyyy/mm/dd 將顯示  88/01/22
  *f dateConvUSA    把各種日期表示法轉成你要的格式，輸出年份為西元，例如:
-                   show==dateConvUSA!Jan 22, 1999!yyyy/mm/dd 將顯示1999/01/22
+                   show==dateConvUSA|Jan 22, 1999|yyyy/mm/dd 將顯示1999/01/22
  *f dateConv       同dateConvUSA
 
  
  *f dateAddROC     某西元日期或民國日期，加個幾天，輸出民國日期，例如:
-                   show==dateAddROC!19270101!3!yyyymmdd
+                   show==dateAddROC|19270101|3|yyyymmdd
  *f dateAddUSA     某西元日期或民國日期，加個幾天，輸出西元日期                   
  *f dateAdd        同dateAddUSA
  
  
- *f dateRange      某西元日期或民國日期，二者相距幾天   例如: 
-                   show==dateRange! 20041130! 20041202  將顯示2               
-                   show==dateRange! 20041130!   931202  將顯示2               
+ *f dateDiff       某西元日期或民國日期，二者相距幾天   例如: 
+                   show==dateDiff| 20041130| 20041202  將顯示2               
+                   show==dateDiff| 20041130|   931202  將顯示2               
             
 
  
  *f 以下是字串函數:                  
- *f inner          取界內的值       例: show   ==inner!I Love Mary!I!M 將顯示 Love
- *f mobileTel      電話號碼前面補0  例: show   ==mobileTEL!988112233   將顯示 0988112233
+ *f inner          取界內的值       例: show   ==inner|I Love Mary|I|M 將顯示 Love
+ *f mobileTel      電話號碼前面補0  例: show   ==mobileTEL|988112233   將顯示 0988112233
                    
- *f cookieW        對某cookie寫值   例: jobDone==cookieW!cook22   !v22
- *f cookieR        對某cookie拿值   例: cook22V==cookieR!cook22   
+ *f cookieW        對某cookie寫值   例: jobDone==cookieW|cook22   |v22
+ *f cookieR        對某cookie拿值   例: cook22V==cookieR|cook22   
 
 
       
@@ -548,18 +585,108 @@
 
 ###多維度靈活查詢
 
-### 操作DB的指令: 延伸的SQL指令
-       sqlcmd==select t='0922334455'              -- 這是常見的SQL 指令
-       sqlcmd==select t='SQLF{mobiTEL$922334455}' -- 這是延伸的SQL 指令
-               在執行SQL語句之前，本軟體發現 SQLF{***} ， 它開始解析這一字串
-               它會把SQLF{mobiTEL$922334455}  分解為 主詞mobiTEL 受詞922334455  ，最後轉換成 0922334455
-               它會把SQLF{mobiTEL$0922334455} 分解為 主詞mobiTEL 受詞0922334455 ，最後轉換成 0922334455
+### 庫存撿貨系統
+  想像你要建造一個庫存撿貨系統，軟體工程第一步收集需求。需求是:
+  (1)倉庫要有儲位，入庫時隨意放置，出庫時要顯示儲位引導人員撿貨。
+  (2)要能顯示存放最久的那些商品，進倉庫商品的平均存放時間是多久?
+  
+  軟體工程第二步 設計能顯示上述資料的記錄簿，也就是資料表格。
+  既然要看商品的進出時間，何不讓記錄的每一行就是記載著商品的入庫到出庫過程?
+  當入庫3顆蘋果，每顆出庫時間都不同，何不讓每一行就記載著單一顆商品的過程?
+  於是表格命名為 oplife 欄位如下:
+  每行流水號, flow int(1,1)    資料庫引擎會自動填入值，由1起，每行加1
+  入庫批號,   inno varchar(16) 
+  入庫日期,   indt varchar(16)
+  商品代號,   skno varchar(16)
+  放置儲位,   ceno varchar(16)
+  出庫批號,   ouno varchar(16)
+  出庫日期,   oudt varchar(16)   
+  
+  軟體工程第三步 列出各個場景，其中之一是入庫
+  有3顆蘋果5顆橘子要入庫，隨貨附有商品清單，清單上有採買編號。
+  人員帶著商品站到儲位A2，放上3顆蘋果，在貨單上蘋果那一行註記A2,3
+  人員帶著商品站到儲位B2，放上3顆橘子，在貨單上橘子那一行註記B2,3
+  人員帶著商品站到儲位C2，放上2顆橘子，在貨單上橘子那一行註記C2,2
+  人員回到辦公桌，要把註記輸入電腦。
+   
+  軟體工程第四步 寫這個入庫功能，編輯文字檔in02.mip，內容如下
+      採買編號==
+      以下填入商品,儲位,數量(填入前先把下框文字清掉) 
+      入庫明細==
+      蘋果,??,??
+      橘子,??,??
+      #1#2
+      opdt==dateadd||0
+      sqlcmd==
+           select inno,indt,skno,ceno, iqty=0 into #p from oplife where 1=2
+      sqlcmd,入庫明細==
+           insert into #p ('採買編號', 'opdt', 'fdv01','fdv02','fdv03')
+      sqlcmd==          
+           begin2:
+             insert into oplife (inno,indt,skno,ceno) from #p where iqty>0
+             update #p set iqty=iqty-1; delete #p where iqty<=0
+           if exists (select * from #p) goto begin2
+      show==入庫記錄完成
+  編輯文字檔完成，存起來。
+   
+  再列出另一個場景，是撿貨準備出庫
+  有2顆蘋果2顆橘子要撿貨準備出庫，出庫單編號Q33已印成紙，紙上有商品明細。
+  希望讓電腦顯示商品位置以方便人員撿貨。於是編輯文字檔in02.mip，內容如下
+      撿貨前請填入商品,數量。電腦會告訴你儲位
+      填入前請先把下框文字清掉
+      出庫明細==
+      蘋果,??
+      橘子,??  
+      #1#2
+      sqlcmd,出庫明細==
+      --最早入庫的 優先出庫 所以下一行寫order by flow
+      select top ftv02 skno,ceno from oplife where skno='fdv01' order by flow
+      show==應撿貨儲位如上
+  編輯文字檔完成，存起來。         
+  
+   
+  再列出另一個場景，是出庫完成後的登載。於是編輯文字檔ou02.mip，內容如下
+      出庫編號==
+      以下填入商品,儲位,數量(填入前先把下框文字清掉) 
+      出庫明細==
+      蘋果,??,??
+      橘子,??,??
+      #1#2
+      opdt==dateadd||0      
+      sqlcmd==
+        select inno,indt,skno,ceno, iqty=0 into #q from oplife where 1=2
+      sqlcmd,入庫明細==
+        insert into #p ('採買編號', 'opdt', 'fdv01','fdv02','fdv03')
+      sqlcmd==          
+        begin2:
+          declare @flow as int,   @skno as varchar(16)
+          select @flow=min(flow), @skno=min(skno) from oplife where
+            skno=(select top 1 skno from #q where iqty>0) and ouno is null
+          update oplife set ouno='出庫編號', oudt='opdt' where flow=@flow
+          update #q set iqty=iqty-1 where skno=@skno
+          delete #q where iqty<=0
+        if exists (select * from #q) goto begin2
+      show==出庫記錄完成
+  編輯文字檔完成，存起來。
+  
+   
+  再另一個功能，希望顯示商品平均放在倉庫多久。於是編輯文字檔LF01.mip，內容如下
+      #1#2
+      sqlcmd==
+       select 平均庫齡=convert(
+                               varchar, avg(  datediff(d,indt,getdate())  ) 
+                              )+'天'    from oplife where oudt is null
+  編輯文字檔完成，存起來。
        
-       SQLF{ifex$***}
-       SQLF{ifnex$***}
-       SQLF{equal$***}
-       SQLF{range$***}
-       SQLF{red$***} 將轉換成 <font color=red>***</font>
+       
+      
+  
+  
+  
+  
+  
+  
+ 
 
 ### 跨資料庫傳輸: 把文字檔轉入DB
             dataFrom
