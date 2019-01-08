@@ -1,5 +1,0 @@
-﻿姓名列表                            ,acct     , pswd       ,comp,  dept,   wkID  ,  nod              ,chid1  ,chid2
-程式管理員                          ,admin    , admin9     ,CMP ,  mis ,   W0700 ,  mis              ,c1     ,                                                                                                
-全部功能使用者                      ,0800     , 0809       ,CMP ,  HR  ,   W0800 ,  all              ,c1     ,                                                                                  
-部份功能使用者                      ,0801     , 22kk       ,CMP ,  HR  ,   W0801 ,  HR               ,c1     ,                                                                                  
-
