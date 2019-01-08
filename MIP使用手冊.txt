@@ -4,49 +4,49 @@
   它認識幾十個既定動詞，所以它能操控電腦主機， 
   也認得模板(巨集、宏、macro)，所以它能組合模板變成其他語言去操控主機。
 
-  它是一個script解譯器，能立即產出前景互動網頁，也能在背景連接資料庫；
+  它是一個script解譯器，能立即產出互動網頁，也能在背景連接資料庫；
   也是一個macro 組合器，能組合模板輸出文字，不論程式執行前或執行中；
   它是一個語言，是一個工具，用來縮短程式碼，提升資訊人員的生產力。
   
 ### 適用場合  
-  在多年前，我看到某資訊人員每天都在下SQL指令，在應付user的各種需求，
-  他說user的需求變來變去很難寫成程式，要是有一個網頁型的SQL輸入框，
-  讓他任意調整參數，調到滿意存起來就自動成為user的功能，這樣才好過日子。
-  於是我作了一個生產程式的母機，這就是MIP的前身，用在製作並管理幾個應用系統。
+  在多年前，我看到某資訊人員每天都在下SQL指令，在應付使用者的各種需求，
+  他說使用者的需求變來變去很難寫成程式，要是有一個網頁型的SQL輸入框，
+  讓他任意調整參數，調到滿意存起來就自動成為使用者的功能，這樣才好過日子。
+  於是我作了一個生產程式的母機，用在製作並管理幾個應用系統，這就是MIP的前身。
   本文將舉一個MIP應用範例: 庫存撿貨系統。
 
   這幾年來，資訊界流行一些越來越長的程式語言，表達一個動作變得很費力，
-  以c#或java為例，為了一句SQL要先寫一大堆字，程式師無法直接說我要跑SQL，
-  要先念念有詞繞一圈長咒語，才說我要跑SQL。既是咒語就不是人說的話，
-  利用MIP能辨識巨集、宏、macro的特性，我們直接說人話，直接下SQL要求結果，
-  用MIP寫一個特定的資料查詢功能不會超過5行。
+  以c#或java為例，為了一句SQL要先念念有詞繞一圈長咒語，才說我要跑SQL。
+  既是咒語就不是人說的話，利用MIP能辨識巨集、宏、macro的特性，
+  我們直接說人話，直接下SQL。用MIP寫一個特定的資料查詢功能不會超過5行。
+  所以MIP可以用為模板組合器、巨集組合器、巨集編程。
 
   這幾年流行的程式語又更長了，程式中不斷宣告物件的屬性。
   1個屬性佔1行，1個物件有9個屬性，5個物件就45行，這些物件都長得很像，
   整篇程式看起來就幾個字不斷的繞口令。難道我們不能把它排成9乘5的矩陣，
   讓表達簡潔嗎?所以我們應該讓MIP有操作矩陣的能力，
   助你從一行一行寫程式的一維視角，轉為一矩一矩寫程式的二維視角，程式變短。
-  再推廣之，把圍棋的棋子點位描述成二維矩陣，用MIP 來寫圖形比對，程式更短。
+  例如要寫個圍棋的圖形辨認很麻煩，但如果把圍棋的棋子點位描述成二維矩陣，
+  用MIP 來寫圖形比對，程式很短。
   
   MIP用途不僅在縮短一支程式，而是縮短幾十支程式。當你有幾十支程式要寫，
   你找出這幾十支程式共同的部份，分離出相異的部份，把相異的部份排成矩陣，
-  呼叫MIP，它就幫你組合，寫完這幾十支程式。
-
-  電腦語言非常多，MIP定位為實現軟體微縮術的語言，
-  本文將從MIP的基本指令開始說明，延伸談到高級應用。
+  呼叫MIP，它就幫你組合，一次寫完幾十支程式。把幾十支變一支，幾十行變一行，
+  程式師心存簡化語言的願望，MIP實現這願望。本說明手冊將從MIP的基本指令說起，
+  延伸談到高級應用。
 
 ### 語言的特點
  (特點1 網頁輸入輸出)
     它的預設操作環境是網頁，輸入是網頁，輸出也是網頁。
-    輸出網頁裏還可以有輸入框，讓你再輸入下一波，得到下一波的網頁輸出。
-    所以它運作起來就是一個完整的應用功能。如果你想要輸出文字檔也可以，
-    例如輸入SQL， 它可以輸出查詢結果到檔案，方便讓你把結果灌入另一電腦。
+    輸出網頁裏還可以有輸入框，讓你再輸入下一波，得到下一波的輸出。
+    所以它運作起來就是一個完整的應用功能。除此之外，你也可以把輸出改為文字檔，
+    例如輸入SQL， 它可以輸出結果到檔案，方便讓你把結果灌入另一電腦。
     例如輸入你自定的方言，它就翻譯成目標語言，存成檔案，方便下一波執行。
   
- (特點2 巨集變數)
-    凡是"短字 等於 一串字"， 就是賦值給一個短字，
-    若短字是既定關鍵字，MIP執行既定動作，例如操作SQL，發http給其它電腦。
-    若短字非既定關鍵字，那就是定義了一個巨集符號代表了一串字。
+ (特點2 巨集函數)
+    凡是MIP看到  "短字 等於 一串字"， 就認為是賦值給短字，
+    若短字是既定關鍵字，那麼MIP執行既定動作，像是操作SQL，或發http給其它電腦。
+    若短字非既定關鍵字，那就是定義了一個巨集符號代表那一串字。
     當這串字是篇文章，你說短字就是變數，當這串字是篇程式，你說短字就是巨集。
     一般的巨集編程一旦值定義了，值就固定。在MIP裏值可以變動。
     一般的巨集編程指令只能往下，不能goto跳躍。MIP除了goto 還有gosub跳去返回，
@@ -54,27 +54,31 @@
     而是一個描述語言(script language)。
 
  (特點3 向量式指令)
-    變數只能置換一字一詞，利用不定詞可以置換一整個向量，
-    或置換一整個矩陣，使一行MIP程式代替幾十行程式，一支程式代替幾十支程式，
-    實現軟體微縮術。
- 
-### 安裝  
-  本軟體目前只能在windows+IIS作業環境下使用，由1個程式檔以及3個資料檔構成。
-  (MIP.aspx,     cDBlist.txt, cSPlist.txt, cUSlist.txt)
-  請到 https://github/longinlin/MIP3.1 點畫面上的[view code]下載。
+    變數只能置換一字一詞，不定詞可以置換一整個向量，或置換一整個矩陣，
+    例如在SQL常寫 姓名=csName, 住宅電話=csTELE, 手機=csMobi, 地址=csAddr ...    
+    在MIP只要寫 ve( fdTiTL=fdName )er 。 這 ve(...)er 就是向量句。 
+    用了泛稱向量句，以後只要改實際向量值，一個程式模板可用於幾十支程式。
+
+ (特點4 外接任意引擎)
+    MIP擅於立即組合模板，把組合出來的文字傳給執行引擎，再接收結果顯示出來。
+    最常搭配的引擎是資料庫引擎，不管哪一種資料庫，傳SQL句子給它，接收結果。
+    顯示時你可以指定樣式，提供使用者最佳的視覺理解，並讓使用者接著輸入下一波。
+    MIP也可以搭配C編譯器，編譯文字立刻執行。這時MIP像是個預編巨集(宏)，但勝之。
+    MIP也可以搭配python引擎，呼叫它做事，接收結果，以你指定的樣式顯示結果。
+    MIP也內建就有http遞送句，傳訊給外機，接收結果，顯示結果。
     
-  然後打開你要安裝的電腦，
-  建子目錄c:\MIP\webc ，貼入MIP.aspx，
-  建子目錄c:\MIP\webd ，貼入上述的後面3個檔案， 
-  建子目錄c:\MIP\webt ，備用，此目錄要允許IIS寫入資料，
-  建子目錄c:\MIP\webq ，備用，此目錄要允許IIS寫入資料，
-  打開IIS管理員，在IIS裡建立虛擬目錄MIP，令其實際位置指向 c:\MIP\webc
-  打開瀏覽器，網址打localhost/MIP/MIP.aspx，出現畫面 請輸入帳密 即安裝完成。
-  微軟各版常讓人安裝受挫，若遇安裝不順，冒火之餘，請看文末的'安裝問題集解'。
+  
+### 安裝  
+  本軟體目前只能在windows+IIS作業環境下使用，
+  請到 https://github/longinlin/MIP3.1 點擊畫面上的[view code]下載全部檔案，
+  複製到你的電腦的一個資料夾裏面(舉例c:\MIP\webc)。
+  打開IIS管理員，在IIS裡建立虛擬目錄MIP，實際位置指向 c:\MIP\webc
+  微軟IIS換版常讓人安裝受挫，若安裝不順，冒火之餘，請看文末的'安裝問題集解'。
+  開瀏覽器，網址localhost/MIP/MIP.aspx ，看到畫面出現 請輸入帳密 即安裝完成。
 
 ### 寫簡單的程式
-  (例一)打開瀏覽器，網址打localhost/MIP/MIP.aspx，看到請你輸入帳密的畫面，
-  輸入帳密(admin,admin9)，看到有上下兩個網頁型輸入框，
+  (例一)打開瀏覽器，網址打localhost/MIP/MIP.aspx，看到 請輸入帳密，
+  打入帳密(admin,admin9)，網頁畫面變成上下兩個輸入框，
   於下框寫 
     show== Hello world !
   按[確定] 即可看到結果
@@ -116,7 +120,8 @@
     echo 456 > c:\tmp\test3.txt
   exit==done    
   按[確定]即執行兩行echo，讀者可以到 c:\tmp 看結果
-  這裏看到'等於等於'右方沒有字，於是MIP往下集字
+  這裏可以看到'等於等'右方沒有字，於是MIP往下收集字。
+  最後遇到exit就是顯示結束語並且結束。
    
 ### 輸入、運算、輸出
   所有的電腦程式都可分解為(輸入、運算、輸出)三段，在MIP如何表達呢?
@@ -134,7 +139,7 @@
     saveToFile, a123.txt ==answ
   按[確定]就會輸出到檔案c:/MIP/webt/a123.txt 。 
   
-### 編輯使用者看到的畫面
+### 編輯 使用者看到的畫面
   (輸入、運算、輸出)三段都有了，想把以上的程式變成一般人使用的功能，怎麼做?
   看到螢幕最下方還有兩個細細的輸入框，分別填上 test2.mip 和 測試2，
   再按[save new   ]，網頁就會顯示'儲存完成'，
@@ -148,121 +153,43 @@
     answ  ==name2, 2+3=add99
     saveToFile, a123.txt ==answ
   MIP自動加了一行#1#2，這意思是#1#2之上對應上框，之下對應下框。 
-  當這程式給user用時，上框文字將變成螢幕的輸入區，下框文字不顯示。
+  當這程式給使用者用時，上框文字將變成螢幕的輸入區，下框文字不顯示。
 
   你能操作這些畫面，因為當初你是用admin的身分登入，進入了'工程師模式'。 
-  若用一般user的身分登入，就進入'使用者模式'，使用者只看到功能，看不到程式。
+  若用一般使用者的身分登入，就進入'使用者模式'，使用者只看到功能，看不到程式。
   現在請你從功能列表中選擇[登出]，你看到網頁畫面 請你輸入帳密，
   輸入帳密(0800,0809) 你看到網頁畫面 有一個[測試2]的超連結。
   現在你可以任意操作功能，這就是 '使用者模式'。
   
-  在'使用者模式'下，程式裏的變數會形成輸入框，讓user填他想要的值。
-  用記事本編輯 test2.mip ，對輸入框可以作幾種變化:
-  輸入框基本型:
+  在'使用者模式'下，程式裏的變數會形成輸入框，讓使用者填他想要的值。
+  你用記事本編輯 test2.mip ，對輸入框做點變化，例如
         名字== 
+        電話==
         #1#2    
-        show==hello 名字
-            user看到的畫面就是 名字 冒號 一個輸入框 
-  輸入框後加字:
-        名字==  $; 請寫人名
-        #1#2    
-        show==hello 名字
-            user看到的畫面就是  名字 冒號 一個輸入框 請寫人名
+        show==知到了 名字 電話
+  多種輸入框變化請看 ###輸入畫面集解。
   
-  輸入框拉長:
-        名字==  $; 請寫人名 $; iibx~50
-        #1#2    
-        show==hello name2 
-            user看到的畫面就是  名字 冒號 一個輸入框 請寫人名
-            輸入框的長度變長了，可以容納50個字以上
-
-  框右之框:
-        x001==1 $;請寫數字 $; iibx
-        x002==2 $;請寫數字 $; iib2
-        #1#2
-        show==(x001,x002)
-               則user看到一個輸入框x001， 在其右方還有一個輸入框x002
-
-  框右之框:
-        x001==1 $;請寫數字 $; iibx
-        x002==2 $;請寫數字 $; iib2
-        x003==3 $;請寫數字 $; iib2
-        #1#2
-        show==(x001,x002,x003)
-               則user看到一框x001， 右方還有一框x002， 右方還有一框x003
-               這樣設計當然是為了佔滿螢幕，一框佔螢幕一行很浪費          
-  
-  多行輸入框:
-        name2==John $; 請寫人名 $; mmbx~20x80
-        #1#2    
-        show==hello name2 
-            畫面就是一個大型輸入框，框往下20行 往右80格，框右有字 請寫人名
-   
-  下拉選擇框:
-        name2== $; 請寫人名 $; comb~John$s1,Tony$s2,Jack$s3
-        #1#2    
-        show==hello name2 
-            畫面就是一個下拉選擇框。選一個人名，按確定後
-            畫面顯示  hello s1  (或是 hello s2 如果你選了Tony)
-     
-  勾選框:
-        answ==    $; yes or no  $; checkbox
-        #1#2    
-        show==hello answ 
-            則user看到的畫面就是一個勾選框。
-            不勾按確定 則顯示N
-            勾了按確定 則顯示Y
-  上傳框:
-        請選一檔案== $; $; file
-        你好嗎    ==
-        #1#2
-        show==你好嗎  
-            則user除了看到你好嗎，還會把檔案傳到主機的這資料夾 c:\MIP\webt\
-               
-  無框 純粹一行說明字:
-        name2==
-        give a boy name
-        #1#2    
-        show==hello name2 
-            輸入框下方有一行字: give a boy name
-   
-  無框 純粹一行說明字的第二種寫法，用comment開頭來命名變數
-        name2==John $; 請寫人名 $; mmbx~20x80
-        comment2==write something
-        #1#2    
-        show==hello name2 
-            畫面就是一個輸入框，下方有字 write something
-   
-  無框 純粹一行說明字的第三種寫法，用comment暗示
-        name2==John $; 請寫人名 $; mmbx~20x80
-        anything==write something $; $; comment
-        #1#2    
-        show==hello name2 
-            畫面就是一個輸入框，下方有字write something
-  
-    
-### 充分發揮MIP的功能
+### 發揮MIP的功能
   從上面的例子可以看到==是指定符號，
-  符號左右方可以任意空白，空白都會切掉不要在乎。也不要在乎左右方是數字或文字，
-  因為本軟體裏面只有一種資料型態，那就是文字。
+  符號左右方可以任意空白，前後空白都會切掉(trim)不要管它。
+  也不要在乎左右方是數字或文字，因為本軟體裏面只有一種資料型態，那就是文字。
   你要在乎文字往上可以建立一維序列，就是向量，往上可以建立二維序列，就是矩陣，
   幾十行文字可以組成一段文章，就是程式模板。
-  本軟體在乎文字、向量、矩陣、程式模板的各種組合，目標是簡化寫作。
+  本軟體在乎文字、向量、矩陣、程式模板的各種組合。
 
-  要發揮MIP的功能，讓我們看下去
+  要發揮MIP的功能，讓我們分幾個小段落逐步介紹。
   首先瞭解: 變數、關鍵字、函數
   接著瞭解: 洗染、解函、解罩，
   接著瞭解: 跳躍關鍵字: gosub, if-else-endif, generally-butif
-  接著瞭解: 不定詞函數: gu1v, gu2v, gu2vx, gu1m, sqlcmd, show
+  接著瞭解: 不定詞函數: gu1v, gu2v, gu2vx, gu1m, sqlcmd, show  
   進階瞭解: 跨資料庫傳輸、資料庫輸出直轉橫(在Excel稱為樞紐分析)
   進階瞭解: 管理程式群: 功能清單、 使用者清單、 資料庫清單
-  這樣MIP就能幫助你以簡短的文字表達意念，不用寫長程式。
-  
+ 
   以下就從變數開始說明。
 
   
 ### 變數、關鍵字 
-  在工程畫面寫:
+  在工程模式寫:
       x002==2
       x003==3
       show==x002+x003
@@ -279,7 +206,7 @@
        例如下面這程式:
            採購單號==
            sqlcmd==select * from pur1m where prno='採購單號'
-       用中文變數寫應用功能，不但程式好懂，user看到的輸入框也直接提示中文。
+       用中文變數寫應用功能，不但程式好懂，使用者看到的輸入框也直接提示中文。
 
   (變數性質二)變數可以更換其值
        例如下面這程式:
@@ -346,44 +273,48 @@
   自定函數的參數用法是 舊字=新字將取代之 ， 各參數用直線號隔開。
   
   函數和參數是以平等的身份居住在[...]裏，所以可以讓函數名稱居住在第二格。
-    show==result is @2[ abc  | inside|abcde | in | not in ]# , ok ?
+    show==result is 2@[ abc  | inside|abcde | in | not in ]# , ok ?
   這句話等效於:
-    show==result is @[ inside| abc   |abcde | in | not in ]# , ok ?
-  函數名稱在第一格不符人類習慣，但電腦喜歡它，於是叫起 inside函數，得到
+    show==result is  @[inside| abc   |abcde | in | not in ]# , ok ?
+  於是電腦解開inside函數，得到
     show==result is in , ok ?
     
   又例如
-    x002==2
-    show==answ is @2[x002   |between| 1 | 4 |ok| not ok]# , so ?
+    x002==3
+    show==answ is 2@[x002     |ifbetween| 1:4| ok | not ok]# , so ?
   這句話等效於:
-    x002==2
-    show==answ is  @[between|x002   | 1 | 4 |ok| not ok]# , so ?
-  於是叫起 between函數，得到 
+    x002==3
+    show==answ is  @[ifbetween|x002     | 1:4| ok | not ok]# , so ?
+  這句話等效於:
+    show==answ is  @[ifbetween|3        | 1:4| ok | not ok]# , so ?
+  於是電腦解開ifbetween函數，得到 
     show==result is ok , so ?
   
 ### 程式跑前預解
-     MIP跑你的程式前，看到include==*** 則載入這一行的內容成為程式的一部分
-     若看到某一行有//則忽略其右方，例如 a001==1 //;;b002==2 等效於a001==1 
-     例如 //a001==1;;b002==2 則這整行忽略。但是若這一行有:// 則整行都要。
+    (1)凡是跑起程式，先檢查有沒有提到include==*** ，有則載入成為程式的一部分。
+    (2)凡是看到某一行有//則忽略其右方
+        a001==1 //;;b002==2 等效於a001==1 
+        //a001==12;;b002==2 等效於則整行忽略。但是若這一行有:// 則整行都收。
      
-     若看到;;連續兩個分號，則改為換行符號。但若這一行有'uvar'則不要改。   
-     若看到某行有'if==' ， 下面又有一行'endif==' ， 則MIP知道這是一個區塊。
-### 程式一行運作: 洗染、解函、解罩
+    (3)凡是看到;;連續兩個分號，則改為換行符號。但若這一行有'uvar'則不要改。   
+    (3)凡是看到某行有'if=='  ，下面又有一行'endif==' ， 則MIP知道這是區塊。
+### 一行程式的運作: 洗染、解函、解罩
   (一行程式內部動作1)洗染:
-     MIP一行一行都記住了，繼續往下跑，並對下方文字進行置換，例如
-                                     a001==1
-                                     ccb1==2
-                                     show==hi ccba001y ready 
-     首先a001置換這一行==的右方，於是 
-                                     show==hi ccb1y ready
-     接著ccb1置換這一行==的右方，於是
-                                     show==hi 2y ready
+     MIP辨識每一行成為key=value型態，已記住的(key,value)將對下方文字置換，例如
+         a001==1
+         ccb1==2
+         show==hi ccba001y ready 
+     當程式焦點來到第二行，a001企圖置換它，但沒有符合的字。
+     當程式焦點來到第三行，a001企圖置換它，於是第三行變成
+         show==hi ccb1y ready
+     當程式焦點在於第三行，ccb1也企圖置換，於是第三行變成
+         show==hi 2y ready
      於是顯示
-                                           hi 2y ready
-     程式往下跑，文字被上方文字置換。文字置換稱為洗染。
+               hi 2y ready
+     程式往下跑，文字被上方文字置換，文字置換簡稱為洗染。
      實務上，有一些變數的值可能含有幾十萬個英文字母，
      你希望別的關鍵字可以洗染它，但你不想它去洗染別的關鍵字，
-     這時你要給它取名以matrix開頭，例如叫它matrix1或matrix2，請看這程式片段:
+     這時你要給它取名叫它matrix1或matrix2(以matrix開頭)，請看這程式片段:
              kkkk==3
              matrix2==
               1,2,kkkk
@@ -393,46 +324,46 @@
              matrix2==
               1,2,3
               4,5,6        
-     矩陣內的值被洗染。而螢幕會顯示 say(matrix2)，螢幕不會顯示say(1,2,3,4,5,6)
+     矩陣內的值被洗染。但矩陣不洗染show，
+     於是螢幕顯示 say(matrix2)
      
   (一行程式內部動作2)解函:                      
      洗染後，若字面上有函數將會被解開，
      舉例一:
-               say2==said
-               kkkk==ifeq|1|1| say2 y |say n   
-            kkkk等號右方是一個函數，於是解開函數，成為
-               kkkk==said y
+            say2==said
+            kkkk==ifeq|1|1| say2 y |say n   
+         這kkkk等號右方是一個函數，於是解開函數，成為
+            kkkk==said y
      舉例二: 
-               say2==said     
-               kkkk==hello @[ifeq|1|1| say2 y |say2 n]#,cc 
-            @函數夾雜於字裏行間，於是@函數被解開，成為
-               kkkk==hello said y, cc
+            say2==said     
+            kkkk==hello @[ifeq|1|1| say2 y |say2 n]#,cc 
+         這@函數夾雜於字裏行間，於是@函數被解開，成為
+            kkkk==hello said y, cc
      舉例三:
-            若遇@函數內層有@函數，應該先解開內層:
-               aa02==1
-               kk02==see @[ifeq| 2 |  @[add|aa02|1]# | two | unknown]# so what
-            則變化為
-               kk02==see #[ifeq| 2 |  2              | two | unknown]# so what
-            再變化為
-               kk02==see two so what
+         若遇@函數內層還有@函數，應該先解開內層:
+            aa02==1
+            kk02==see @[ifeq| 2 |  @[add|aa02|1]# | two | unknown]# so what
+         則變化為
+            kk02==see @[ifeq| 2 |  2              | two | unknown]# so what
+         再變化為
+            kk02==see two so what
     
-     有時候內層函數卻是延後解開，就是當外層是gu**函數時，
-     gu**函數先解，內層@函數後解。
+     有時候當外層是gu**函數時，內層函數卻是延後解開，就是gu**函數先解，內層@函數後解。
      舉例四:
-               aaaa==1
-               show==gu1v|4,5,6  |  @[add|aaaa|[vi]]#  |  +
-            它被洗染變成
-               show==gu1v|4,5,6  |  @[add|1   |[vi]]#  |  +
-            再被解開外層變成
-               show==@[add|1|4]# + @[add|1|5]# + @[add|1|6]# 
-            再被解開內層的@函數
-               show==5 + 6 + 7
-            於是顯示
-                   5 + 6 + 7  
+            aaaa==1
+            show==gu1v|4,5,6  |  @[add|aaaa|[vi]]#  |  +
+         它被洗染變成
+            show==gu1v|4,5,6  |  @[add|1   |[vi]]#  |  +
+         由於gu開頭的函數被設計成優先於內層，所以先解gu
+            show==@[add|1|4]# + @[add|1|5]# + @[add|1|6]# 
+         再後解@函數
+            show==5 + 6 + 7
+         於是顯示
+                5 + 6 + 7  
      為甚麼有時候內層函數要後解? 
-     就像一顆糖球外殼先溶解，裏面的小球再溶解，瞬間在舌尖釋放繽紛的味道。
+     就像一顆糖球外殼先溶解，裏面的小球再溶解，瞬間在舌尖釋放出繽紛的味道。
      只有後解開才能釋放出繽紛的程式碼，大量減低你的碼字寫作。
-     給它取個英文名吧: calling-function-after-vector-solved 
+     給它取個英文名吧: call-inside-function-after-vector-solved 
                  
   (一行程式內部動作3)解罩
      當某個字不想被洗染，程式師可以故意把[]擠在這個字裏，例如:     
@@ -441,7 +372,7 @@
      畫面應顯示 
         I say a[]aaa=2
      這個[]是一個關鍵字，我們可以把它唸作'遮罩'其用途是防止洗染。
-     當左方關鍵字要接收右方值之前，MIP自動把[]去掉，稱為'解罩'。
+     凡是當左方關鍵字要接收右方值之前，MIP自動把[]去掉，稱為'解罩'。
      在這例中，當show要接收右方值之前，MIP自動把[]去掉，所以實際顯示為:
         I say aaaa=2
      
@@ -449,12 +380,13 @@
      []      換成 無
      $space  換成 一個空白格
      $enter  換成 一個換行符號 ( ascii_10+ ascii_13 )
+     $and    換成 一個空白格and一個空白格
      $fncall 換成 @
      $fnpipe 換成 |
      
      
   (一行程式內部動作,總結) MIP處理一行程式的動作順序是:
-     凡是看到 kkkk==vvvv 這樣的句子，把前面認識的關鍵字依序灌進去右方洗染，
+     凡是遇到 kkkk==vvvv 這樣的句子，前面認識的關鍵字依序灌進去洗染右方，
      洗染後裏面也許有函數，那就解函。
      解函後裏面也許有遮罩，那就解罩。
      處理後的值傳給左方kkkk，若kkkk是一個既定關鍵字，那就做既定的事，
@@ -479,15 +411,15 @@
          
   (跳躍2)if 舉例:
                  iiii==2
-                 if==ifEq|iiii|2
+                 if==ifEq|iiii|2|then
                      show==say2
                  else==
                      show==say1
                  endif==
          這例子會顯示 say2 
          if那一行的寫法一定要寫成 if==if*** ，一定要叫某個二擇一函數，
-         函數後只要寫想比較什麼，至於[比較成功]或[比較失敗]怎麼處理不要寫。
-         換行才開始寫[比較成功]做什麼事，再寫else做什麼事。     
+         函數的參數寫將比較甚麼，比較後做什麼事不要寫，只寫then換行。
+         換行才開始寫比較後，若成功做什麼事，若不成功做什麼事。     
          
   (跳躍3)for 舉例:
                  for==i002 | 1 | 9 |2
@@ -549,25 +481,36 @@
   MIP有區分大小寫的，自定函數有區分大小寫，但這樣有些僵硬，
   所以讓函數的名稱可以任意大小寫，驚嘆號前後的空白都不計。
   下面列出預先定義好的函數。
+ 
+ 二者擇一的一些函數:
+   ifEq           若等於           例: ifEq          |2  |2    |is2|not2   
+   ifNe           若不等於         例: ifNe          |1  |2    |ne |eq
+   ifGt           若大於           例: ifGt          |1  |2    |no |yes
+   ifGe           若大於等於       例: ifGe          |1  |2    |no |yes
+   ifLt           若小於           例: ifLt          |1  |2    |yes|no       
+   ifLe           若大於等於       例: ifLe          |1  |2    |yes|no   
+   ifUUEq         若小寫後相等     例: ifUUEq        |HH |hh   |yes|no
+   ifLenEq        若字的長度相等   例: ifLenEq       |ab |cd   |yes|no
+   ifIn           若內在於         例: ifIn          |bc |abcd |yes|no
+   ifNum          若為數字         例: ifNum         |1.2      |yes|no
+   ifPosi         若為正數         例: ifPosi        |123      |yes|no
+   ifBetween      若介於某某之間   例: ifBetween     |xy |aa:dd|yes|no
+   ifv            若有值           例: ifv           |aaa      |yes|no                                  
+   ifValidDate    若是西元yyyymmdd 例: ifValidDate   |20040102 |yes|no
+   ifValidDateROC 若是民國 yyymmdd 例: ifValidDateROC|  930102 |yes|no
+ 日期函數:   
+   dateConv
+   dateConvROC
+   dateAdd
+   dateAddROC
+   dateDiff
+ 算術函數
+   add            加法             例:
+   eval           各種加減乘除     例:
+   ifeqs          多情況給值       例:
+
  *f add                   例:  add |1|2
  *f eval                  例:  eval|1|2
- 
- *f 二者擇一的一些函數:
- *f ifEq      若等於           例: ifEq     |2  |2   |is2|not2   
- *f ifNe      若不等於         例: ifNe     |1  |2   |ne |eq
- *f ifGt      若大於           例: ifGt     |1  |2   |no |yes
- *f ifGe      若大於等於       例: ifGe     |1  |2   |no |yes
- *f ifLt      若小於           例: ifLt     |1  |2   |yes|no       
- *f ifLe      若大於等於       例: ifLe     |1  |2   |yes|no   
- *f iflcEq    若小寫後相等     例: iflcEq   |HH | hh |yes|no
- *f ifLenEq   若字的長度相等   例: ifLenEq  | ab| cd |yes|no
- *f ifIn      若內在於         例: ifIn     | bc|abcd|yes|no
- *f ifNum     若為數字         例: ifNum    |1.2     |yes|no
- *f ifPosi    若為正數         例: ifPosi   |123     |yes|no
- *f ifUsa     若是西元yyyymmdd 例: ifUsa    |20040102|yes|no
- *f ifRoc     若是民國 yyymmdd 例: ifRoc    |  930102|yes|no
- *f ifBetween 若界於           例: ifBetween|xy |aa  |dd |yes|no
-
  *f 常用於串接SQL句子的函數: 
  *f ifV      ,seeV       若有值          
        例如:
@@ -584,22 +527,24 @@
             show==where 1=1 @[ifv| inputx123| and xqty=inputx123]#
                       
            
- *f andRange  製造一段SQL的查詢條件  例: 
-      input12==2004/01/02-2004/03/02
-      condition2==andRange|kdate|input12
-      show      ==where 1=1 condition2        將顯示:
-                  where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
-      又例如:         
-      inputsR1R2==2004/01/02
-      condition2==andRange|kdate|inputsR1R2
-      show      ==where 1=1 condition2       將顯示:
-                  where 1=1 and( kdate = '2004/01/2' )
-      又例如:         
-      inputsR1R2==
-      condition2==andRange|kdate|inputsR1R2
-      show      ==where 1=1 condition2       將顯示空白 也就是忽略此條件:
+ *f andRange  製造一段SQL的查詢條件   
+    例:input12==2004/01/02:2004/03/02
+       condition2==andRange|kdate|input12
+       show      ==where 1=1 condition2        將顯示:
+                   where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
+    又例如:         
+       inputsR1R2==
+       condition2==andRange|kdate|inputsR1R2
+       show      ==where 1=1 condition2       將顯示:
                   where 1=1         
-
+      方便於當使用者不填條件時，讓SQL也不提到這條件
+    又例如:         
+       inputsR1R2==2004/01/2
+       condition2==andRange|kdate|inputsR1R2
+       show      ==where 1=1 condition2       將顯示:
+                   where 1=1 and( kdate like '2004/01/2%' )
+       這裏採用相似比對而不是等於。
+      
  *f 有關日期的一些函數:
                   
  *f ifValidDateROC 查輸入日期合理否 例: show==dateVerify|991301    將顯示錯誤  
@@ -658,7 +603,7 @@
   
 ### 編輯'功能清單'
   本軟體把一個公司需要的眾多功能顯示在一頁畫面上，讓使用者點選。
-  要編輯功能清單就打開c:\MIP\webd\cSPlist.txt，看到如下內容:
+  要編輯功能清單就打開c:\MIP\webd\cSPlist.mip，看到如下內容:
     [td]  
     [tf]功能段代號A, 功能段名稱A
         程式檔名1,   程式名稱1  
@@ -672,7 +617,7 @@
  
 ### 編輯'使用者清單'
   本軟體可以管理使用者權限，
-  打開c:\MIP\webd\cUSlist.txt
+  打開c:\MIP\webd\cUSlist.mip
   每一行的欄位依序是姓名、帳號、密碼、 公司名稱、 部門名稱、 員工工號、 可允許使用的功能段
   本軟體可以允許多個公司多個部門的人員一起使用 所以要寫下 公司名稱 部門名稱 員工工號 
   若只允許某人僅能使用某3個功能段 則在 "可允許使用的功能段" 那欄寫上3個功能段名稱，例如 aa bb cc，
@@ -680,7 +625,7 @@
 
 ### 編輯'資料庫清單'
   MIP的基本運作不需資料庫，若你讓它連接到多個資料庫，它就如虎添翼。
-  連接方式如下，打開 c:\MIP\webd\cDBlist.txt 看到如下內容
+  連接方式如下，打開 c:\MIP\webd\cDBlist.mip 看到如下內容
      HOME      : ms    : some connection string1
      db123     : ms    : some connection string2
      db456     : ms    : some connection string3
@@ -811,41 +756,134 @@
 ### 被外界呼叫: URL get,post
 ### 被外界呼叫: 被VB, 被排程器
 
-### 顯示畫面的修飾
+### 輸入畫面集解  
+  輸入框基本型:
+        名字== 
+        #1#2    
+        show==hello 名字
+            使用者看到的畫面就是 名字 冒號 一個輸入框 
+            使用者填寫Mary
+            使用者看到hello Mary
+  輸入框後加字:
+        名字==  $, 請寫人名
+        #1#2    
+        show==hello 名字
+            使用者看到的畫面就是  名字 冒號 一個輸入框 請寫人名
+            使用者填寫Mary
+            使用者看到hello Mary
+  輸入框拉長:
+        名字==  $, 請寫人名 $, iibx~50
+        #1#2    
+        show==hello name2 
+            使用者看到的畫面就是  名字 冒號 一個輸入框 請寫人名
+            輸入框的長度變長了，可以容納50個字以上
+
+  框右之框:
+        x001==1 $,請寫數字 $, iibx
+        x002==2 $,請寫數字 $, iib2
+        #1#2
+        show==(x001,x002)
+               則使用者看到一個輸入框x001， 在其右方還有一個輸入框x002
+
+  框右之框:
+        x001==1 $,請寫數字 $, iibx
+        x002==2 $,請寫數字 $, iib2
+        x003==3 $,請寫數字 $, iib2
+        #1#2
+        show==(x001,x002,x003)
+               則使用者看到一框x001， 右方還有一框x002， 右方還有一框x003
+               這樣設計當然是為了佔滿螢幕，一框佔螢幕一行很浪費          
+  
+  多行輸入框:
+        name2==John $, 請寫人名 $, mmbx~20x80
+        #1#2    
+        show==hello name2 
+            畫面就是一個大型輸入框，框往下20行 往右80格，框右有字 請寫人名
+   
+  下拉選擇框:
+        name2== $, 請寫人名 $, comb~John$s1,Tony$s2,Jack$s3
+        #1#2    
+        show==hello name2 
+            畫面就是一個下拉選擇框。選一個人名，按確定後
+            畫面顯示  hello s1  (或是 hello s2 如果你選了Tony)
+     
+  勾選框:
+        answ==    $, yes or no  $, checkbox
+        #1#2    
+        show==hello answ 
+            則使用者看到的畫面就是一個勾選框。
+            不勾按確定 則顯示N
+            勾了按確定 則顯示Y
+  上傳框:
+        請選一檔案== $, $, file
+        你好嗎    ==
+        #1#2
+        show==你好嗎  
+            則使用者除了看到你好嗎，還會把檔案傳到主機的這資料夾 c:\MIP\webt\
+               
+  無框 純粹一行說明字:
+        name2==
+        give a boy name
+        #1#2    
+        show==hello name2 
+            輸入框下方有一行字: give a boy name
+   
+  無框 純粹一行說明字的第二種寫法，用comment開頭來命名變數
+        name2==John $, 請寫人名 $, mmbx~20x80
+        comment2==write something
+        #1#2    
+        show==hello name2 
+            畫面就是一個輸入框，下方有字 write something
+   
+  無框 純粹一行說明字的第三種寫法，用comment暗示
+        name2==John $, 請寫人名 $, mmbx~20x80
+        anything==write something $, $, comment
+        #1#2    
+        show==hello name2 
+            畫面就是一個輸入框，下方有字write something
    下面這一行 在應用模式下 會顯示成 a002: 後面帶一個輸入框，長度20
        a002==hello
 	   
    下面這一行 在應用模式下 會顯示成 a002: 後面帶一個輸入框，長度20，框右方有提示文字 say anything
-       a002==hello $; say anything 
+       a002==hello $, say anything 
 	   
    下面這一行 在應用模式下 會顯示成 a002: 後面帶一個輸入框，長度30，框之右方有提示文字 say anything 
-       a002==hello $; say anything $; 30
+       a002==hello $, say anything $, 30
 	   
    下面這一行 在應用模式下 會顯示成 a002: 後面帶一個輸入框  框之右方有提示文字 say anything 而框的長度拉長為30
-       a002       ==hello    $;  say anything $; iibx~30
-	   key        ==value    $;  explainWord  $; typeWord   ( typeWord could be   "epwd"    "iibx"    "iib2"    "entr"    "hidn"    "mmbx"    "comb"   "ckbx"  )
+       a002       ==hello    $,  say anything $, iibx~30
+	   key        ==value    $,  explainWord  $, typeWord   ( typeWord could be   "epwd"    "iibx"    "iib2"    "entr"    "hidn"    "mmbx"    "comb"   "ckbx"  )
 	   ikey(cmNxy)  ival(cmNxy)    imrk(cmNxy)     ptyps(cmNxy) 
 	   
 ### 安裝問題集解  
-  可能問題:  找不到這電腦上的IIS管理員，
-             若有看到[伺服器管理員]這圖示，點它，進去看到角色，
-             角色下有網頁伺服器， 對它按右鍵新增角色服務，就可顯示IIS
+  (問)找不到這電腦上的IIS管理員
+  (解)    若有看到[伺服器管理員]這圖示，點它，進去看到角色，
+          角色下有網頁伺服器， 對它按右鍵新增角色服務，就可顯示IIS
     
-  可能問題:  輸入網址 MIP/MIP.aspx 看不到登入畫面， 卻看到 HTTP錯誤404.17  
-  解決方法:  應檢查ASP.NET有沒有安裝，也就是:
-             開始> 控制面板> 程序和功能> 打開或關閉Windows功能> 
-             Internet信息服務> 網際網路服務> 應用程序開發功能> ASP.NET
-             把這個勾起來
+  (問)輸入網址 MIP/MIP.aspx 看不到登入畫面， 卻看到 HTTP錯誤404.17  
+  (解)    應檢查ASP.NET有沒有安裝，也就是:
+          開始> 控制面板> 程序和功能> 打開或關閉Windows功能> 
+          Internet信息服務> 網際網路服務> 應用程序開發功能> ASP.NET
+          把這個勾起來
     
-  可能問題:  若webc目錄被設定共用後，IIS卻說虛擬目錄不存在，說沒有web.config
-  解決方法:  不須添加web.config ，只要進iis-manager 按右鍵> 管理虛擬目錄> 
-             進階設定> 實體路徑認證， 打入有存取權限的帳號密碼即可
-             順便的，IIS寫檔案不成功的問題也解了
+  (問)當webc目錄被設定共用後，IIS卻說虛擬目錄不存在，說沒有web.config
+  (解)    不須添加web.config ，只要進iis-manager 按右鍵> 管理虛擬目錄> 
+          進階設定> 實體路徑認證， 打入有存取權限的帳號密碼即可
+          順便的，IIS寫檔案不成功的問題也解了
     
-  可能問題:  畫面說程式有錯，但不能顯示明確原因
-  解決方法:  在github檔案區還有一個小檔案web.config，複製到c:\MIP\webc即可。
+  (問)畫面說程式有錯，但不能顯示明確原因
+  (解)    在github檔案區還有一個小檔案web.config，複製到c:\MIP\webc即可。
     
-  可能問題:  畫面說 c:\mip\webd 不能寫檔
-  解決方法:  進iis-manager 按右鍵> 管理虛擬目錄> 進階設定> 實體路徑認證， 打入有存取權限的帳號密碼
-             或是用檔案總管
-	   
+  (問)畫面說 c:\mip\webd 不能寫檔
+  (解)    進iis-manager 按右鍵> 管理虛擬目錄> 進階設定> 實體路徑認證， 打入有存取權限的帳號密碼
+          或是用檔案總管
+
+    
+  (問)資料庫設定檔會被使用者看到，想隱蔽它
+  (解)    在c:\MIP\webc之旁另開資料夾 c:\MIP\webd, c:\MIP\webt, c:\MIP\webq
+          把c:\MIP\webc\*.mip移動到這 c:\MIP\webd
+          編輯c:\MIP\webc\mip.aspx大約第80行位置:
+          請把 codDisk=CCFD & "webc\" :tmpDisk=CCFD & "webc\" :queDisk=CCFD & "webc\" 
+          改成 codDisk=CCFD & "webd\" :tmpDisk=CCFD & "webt\" :queDisk=CCFD & "webq\"
+          這樣使用者就看不到了。
+          
