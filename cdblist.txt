@@ -1,7 +1,0 @@
-﻿HOME       : ms    : Data Source=(local)\SQLExpress    ;Initial Catalog=vini  ;User ID=sa        ;   Password=wusa;      Persist Security Info=True;Provider=SQLOLEDB.1
-vini       : ms    : Data Source=(local)\SQLExpress    ;Initial Catalog=vini  ;User ID=sa        ;   Password=wusa;      Persist Security Info=True;Provider=SQLOLEDB.1
-
-
-
-
-
