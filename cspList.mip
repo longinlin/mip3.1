@@ -1,0 +1,18 @@
+﻿[td]  
+[tf]common, 公用         
+  &act=showSPlist, 顯示功能列表
+  logout              , 登出   
+[tf]mkt, 行銷部 
+     m1-mapper.mip    , m1-mapper 
+            t4.mip    , t4 Q
+     testBoxes.mip    , test-Boxes
+    testBlocks.mip    , test-Blocks
+     m1-mapper.mip&act=run&uvar=wkii==askQcondi , m1-mapper run                
+     m1-opLife.mip&act=run&uvar=wkii==askQcondi , m1-opLife run                
+
+[td]
+[tf]mis, 資訊部    
+  dblistReload.q   , 重讀DBlist
+  tbInfo.txt       , 查資料表欄位
+  tbInfo-with-chinese-meaning.txt, 查資料表欄位及其說明
+ 
