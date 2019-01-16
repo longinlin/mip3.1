@@ -501,14 +501,15 @@
          var3==333               //這var3是全程變數，到主程式裏還是看得到。
        return==end work2
          
-   gosub 收到結果
-       這gosub跳去某處，最後會收到一個結果值，可以繼續使用，例如:
-           var2==gosub|work2 //把gosub當函數用，這樣可以由你自定函數
+   gosub 收回結果
+       讓gosub跳去某處，最後會收回一個結果值，可以繼續使用，例如:
+           var2==gosub|work2 //把gosub當做呼叫函數的動詞
            show==var2
-           exit==.ok
-           label==work3
-           return==2
-       甚麼是函數，甚麼是自定函數，或甚麼是函數的函數，下一章節說明。
+           exit==ok
+           label==work2
+           return==2,
+       將顯示 2,ok
+
        
        
          

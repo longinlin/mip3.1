@@ -33,6 +33,8 @@
   const csplist_mip="csplist.mip" , cuslist_mip="cuslist.MIP"  , cdblist_mip="cdblist.mip" , minKeyLen=4, maxKeyLen=20
   const gcBeg="%gcBEg" ,               gcEnd="%gcENd"  ,  gcComma="!."
   const cs23=2 '2 means go rs2( suit for usAdapt="n"), 3 means go rs3(suit for usAdapt="y")
+  const SQL_recordset_TH=2 '2 using recordset, 3 using datatable
+  const usAdapt="n"
 
   dim fcBeg as string="@["     , fcBeg2 as string="2@[",  fcEnd as string="]#"      ,  fcComma as string="|"
   dim  CCFD, runFord, codFord,  tmpFord, queFord, tmpy,   table0,table0End,tr0, th0, td0, thriz,tdriz, saying as string
@@ -43,20 +45,20 @@
 
   dim iisPermitWrite as int32            ' you must let c:\main\webT  not readonly
   dim uslistFromDB   as int32  =0        ' this=0:fromTxt, this=1:fromTxt+fromDB
-  dim usAdapt        as string ="n"      ' was n    ' use sqlAdapter, and  those subroutines of cz_**  , "y" is only for DB=CRON
+  'dim usAdapt        as string ="y"      ' was n    ' use sqlAdapter, and  those subroutines of cz_**  , "y" is only for DB=CRON
   dim usjson         as string ="n"      ' to parse uvar by JSON , when version="okMartSmallOD" then always use JSON
   dim XMLroot = "aaaa,bbbb,noneed", ram1 = "", spContent = "", nowDB = "", dbBrand = "ms", ghh = "", TailList = "", gccwrite as string   
   
   '這程式必須用utf8內碼存起來, 這程式讀檔也要讀utf8檔,  讀資料庫的資料內容是utf8, 然後這程式在下一行宣告產出是uft8,  browser也設定為顯示utf8 , 一切才會顯示正常
   dim keys(KVMX), vals(KVMX), mrks(KVMX), typs(KVMX), vbks(KVMX)   as string: dim mayReplaceOther(KVMX) as boolean
   dim keyys(KVMX),valls(KVMX) as string
-  dim gridLR(FDMX),    tdRights(FDMX),    top1hz(FDMX),       top1rz(FDMX)                   as string 
+  dim gridLR(FDMX),    tdRights(FDMX),    top1hz(FDMX),       top1rz(FDMX), tdDecorate(FDMX)                   as string 
   dim fdt_sumtotal(FDMX), fdt_needsum(FDMX) as string
   dim wkds(), digis() as string
   dim wkdsI, wkdsU as int32
   
   dim             top1T as string= "" ,      top1h as string= "",       top1r as string= "" : dim top1u as int32=0
-  'the above are: top1T=record.columnTypes;  top1h=record.columnNames;  top1h=record.value;       top1u=top 1 record.value's number of columns -1
+  'the above are: top1T=record.columnTypes;  top1h=record.columnNames;  top1r=record.value;       top1u=top 1 record.value's number of columns -1
 
   dim intflow,  headlistRepeat, needSchema, dataFromRecordN , cmN10, cmN12, record_cutBegin, record_cutEnd as int32
   dim seeJump, tryERR as int32
@@ -247,175 +249,6 @@ end if
     tdColor = tdColor & ">"
   End Function
 
-  function ca_rstable_to_htm(sql, headList2) 'response to screen
-    'on error resume next ' Frank say, don't add this line, while adding this line and sql no return then rs2 will wait and cpu busy
-    Dim cn, excc, fsa, fsb, rs2
-    excc = "" : rs2=""
-	try
-     rs2=objConn2c.Execute(sql) : if rs2.state=0 then return ""  ' rs.state=0 means rs is closed so this sql is a update,  rs2.state=1 means rs is opened so it carry recordset
-	catch ex as Exception
-	 ssddg("ca_rstable_to_htm", sql, ex.Message )
-	end try
-    vectorlizeHead(headList2, rs2, 84)
-
-    'prepare excel link 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    fsa = Nothing
-    fsb = Nothing
-    If showExcel Then
-      Dim ffsnameT = intloopi() & ".csv"
-      Dim ffsname2 = tmpFord & ffsnameT
-      Response.Write("此查詢結果也可以顯示於<a href='../" & tmpy & "/" & ffsnameT & "' target=eexx>Excel檔</a>, ")
-      fsa = CreateObject("scripting.FileSystemObject")
-      fsb = fsa.createTextFile(ffsname2, True)
-      excc = top1h & ienter
-    End If
-
-    Dim ftyp,j
-    Dim headline, td0Fashion  : headline=tr0 & "<th>" & Replace(top1h, ",", "<th>") : td0Fashion=td0    
-	if headlist="fashion2" then headline=""
-	if headlist="fashion2" then td0Fashion="<td width=50% >"
-	
-    'build tdRights()  to define td  align be left or right, build fdvSomeComa=sum(fdvii,)  
-    digis = Split(nospace(digilist), ",") : Dim fdvomeComa = ""
-    For j = 0 To top1u
-      ftyp = rs2.fields(j).type : tdRights(j) = td0
-      If ftyp = 3 Or ftyp = 4 Or ftyp = 5 Or ftyp = 131 Then tdRights(j) = "<td class=riz>" 'I did regard ftyp=129 as digit, but I encounter one exception:  (AS400)KNGDAT.stiqp.iqsuin ftyp=129 and it is 供應商名char
-      If j <= UBound(digis) Then
-        If digis(j) = "i" Then tdRights(j) = "<td class=riz>"
-      End If
-	  if td0Fashion<>td0 then  tdRights(j) =td0Fashion
-      fdvomeComa = fdvomeComa & "fdv" & digi2(j+1) & ".type=" & rs2.fields(j).type & ","
-    Next
-
-    If needSchema = 1 Then
-      wwi(top1h & "<br>" & fdvomeComa & "<br>")
-      wwi(table0 & headline & "<tr><td>" & Replace(fdvomeComa, ",", "<td>") & table0End)
-      wwi(top1T & "<br>" & top1h & "<br>" & top1r & "<br>")
-    End If
-
-    Dim local_rcSHOW = const_maxrc_htm
-    Dim local_rcALLL = const_maxrc_fil
-    For j = 0 To top1u : fdt_sumtotal(j) = 0 : Next
-
-    'prepare head end, scan rs2 begin 2222222222222222222222222222222222222222222222222222222222222222222222222222222222
-    cn = 0 : Response.Write("<br for=dataBlock>" & table0 & headline & ienter) 'for data block
-    While cn < local_rcALLL And Not rs2.eof
-      cn = cn + 1
-      If cn <= local_rcSHOW Then
-        Response.Write(tr0)
-		For j = 0 To top1u : Response.Write( COLUS(tdRights(j) & rs2(j).value)): Next
-      End If
-
-     For j = 0 To top1u  'preparing excel and sum_value
-       If showExcel Then excc = excc & vifhas("href", rs2(j).value, "", rs2(j).value) & ","
-       If fdt_needsum(j) = "y" Then fdt_sumtotal(j) = fdt_sumtotal(j) + numberize(rs2(j).value & "", 0)
-     Next
-
-      If cn <= local_rcSHOW And headlistRepeat>=10 Then
-        If ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(headline)
-      End If
-      If showExcel Then fsb.writeline(excc) : excc = ""
-      rs2.movenext() : End While : rs2.close()
-
-    'scan rs2 end, make tail  333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
-    If cn > local_rcSHOW Then wwi(tr0 & "<td>and more ...")
-    If cn > 60 Then wwi(headline) 'to add headline at bottom
-    If TailList <> "" Then wwi(TailListResult(cn, top1u, "htm"  ,tr0 & "<td style='color:blue;font-weight:bold'>", "<td class=riz  style='color:blue'>"))
-    If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : fsb.writeline(excc) : fsb.close()
-    wwi(table0End)
-	return ""
-  End function 'of ca_rstable_to_htm
-  
-  function COLUS(ax)
-   if instr(ax, ">colu2")>1 then return replace(ax, ">colu2" , " colspan=2>")
-   if instr(ax, ">colu3")>1 then return replace(ax, ">colu3" , " colspan=3>")
-   if instr(ax, ">colu4")>1 then return replace(ax, ">colu4" , " colspan=4>")
-   return ax
-  end function
-  
-'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-  function cz_rstable_to_htm(sql, headList2) 'response to screen
-    Dim cn, excc, fsa, fsb, rs2
-    excc = ""
-	
-	vectorlizeHead00 
-	  makeRS3(sql, rs3) : if rs3 is nothing then return ""
-      dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
-
-    If rs3.columns.count = 0 Then return "" ' 0 means rs is closed so this sql is a update,  1 means rs is opened so it carry recordset
-    vectorlizeHead(headList2, rs3, 84) 'rstable_to_htm
-	
-    'prepare excel link 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    fsa = Nothing
-    fsb = Nothing
-    If showExcel Then
-      Dim ffsnameT = intloopi() & ".csv"
-      Dim ffsname2 = tmpFord & ffsnameT
-      Response.Write("此查詢結果也可以顯示於<a href='../" & tmpy & "/" & ffsnameT & "' target=eexx>Excel檔</a>, ")
-      fsa = CreateObject("scripting.FileSystemObject")
-      fsb = fsa.createTextFile(ffsname2, True)
-      excc = top1h & ienter
-    End If
-
-    Dim ftyp
-    Dim headline, td0Fashion  : headline=tr0 & "<th>" & Replace(top1h, ",", "<th>") : td0Fashion=td0    
-	if headlist="fashion2" then headline=""
-	if headlist="fashion2" then td0Fashion="<td width=50% >"
-	
-    'build tdRights()  to define td  align be left or right, build fdvSomeComa=sum(fdvii,)  
-    digis = Split(nospace(digilist), ",") : Dim fdvomeComa = ""
-    For j = 0 To top1u
-      tdRights(j) = td0
-      If rs3.columns(j).dataType.ToString ="System.Int32" Then tdRights(j) = "<td class=riz>" 'I did regard ftyp=129 as digit, but I encounter one exception:  (AS400)KNGDAT.stiqp.iqsuin ftyp=129 and it is 供應商名char
-      If j <= UBound(digis) Then 
-        If digis(j) = "i" Then tdRights(j) = "<td class=riz>"
-      End If
-	  if td0Fashion<>td0  then tdRights(j) = td0Fashion	  
-      fdvomeComa = fdvomeComa & "fdv" & digi2(j) & ".type=" & rs3.columns(j).dataType.ToString & ","
-    Next
-
-
-    If needSchema = 1 Then
-      wwi(top1h & "<br>" & fdvomeComa & "<br>")
-      wwi(table0 & headline & "<tr><td>" & Replace(fdvomeComa, ",", "<td>") & table0End)
-      wwi(top1T & "<br>" & top1h & "<br>" & top1r & "<br>")
-    End If
-
-    Dim local_rcSHOW = const_maxrc_htm
-    Dim local_rcALLL = const_maxrc_fil
-    For j = 0 To top1u : fdt_sumtotal(j) = 0 : Next
-
-    'prepare head end, scan rs3 begin 2222222222222222222222222222222222222222222222222222222222222222222222222222222222
-    cn = 0 : Response.Write("<br for=dataBlock>" & table0 & headline & ienter) 'for data block
-	for i=0 to min(imax,local_rcALLL)
-      cn = cn + 1
-      If cn <= local_rcSHOW Then
-        Response.Write(tr0)
-  		  For j = 0 To top1u : Response.Write(  tdRights(j)  & rs3.rows(i).item(j) ): Next
-      End If
-
-      For j = 0 To top1u
-        If showExcel Then excc = excc & vifhas("href", rs3.rows(i).item(j),  "",   rs3.rows(i).item(j) ) & ","
-        If fdt_needsum(j) = "y" Then fdt_sumtotal(j) = fdt_sumtotal(j) + numberize(rs3.rows(i).item(j)   & "", 0)
-      Next
-
-      If cn <= local_rcSHOW And headlistRepeat Then
-        If ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(headline)
-      End If
-      If showExcel Then fsb.writeline(excc) : excc = ""
-      next i
-      'rs3.dispose() ': dapp.dispose() '=recordset close
-	  
-    'make tail  333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
-    If cn > local_rcSHOW Then wwi(tr0 & "<td>and more ...")
-    If cn > 60 Then wwi(headline) 'to add headline at bottom
-    If TailList <> "" Then wwi(TailListResult(cn, top1u, "htm"  , tr0 & "<td style='color:blue;font-weight:bold'>", "<td class=riz  style='color:blue'>"))
-    If showExcel   Then excc = TailListResult(cn, top1u, "excel", "", ","  ) : fsb.writeline(excc) : fsb.close()
-    wwi(table0End)
-	return ""
-  End function 'of cz_rstable_to_htm
-  
-
   Function intdiv(a, b)
     If b = "" Or b = 0 Then intdiv = 0 Else intdiv = Int(a / b + 0.5)
   End Function
@@ -478,21 +311,37 @@ end if
    return icoma
   end function
   
-  Function                               rstable_to_gridHTM(sql, headlist2, needTBma, needHDma) 'working for  [grid:]
-           if usAdapt="n" then return ca_rstable_to_gridHTM(sql, headlist2, needTBma, needHDma) 'else 
-		                       return cz_rstable_to_gridHTM(sql, headlist2, needTBma, needHDma)
-  end function
-  
+  function vectorlizeHead(head1,debugLine)
+    Dim head1s() as string : trimSplit(head1, ",", head1s)
+    Dim ffit = 0, ffic = "i"
+    Dim uuh1 = UBound(head1s)
+    Dim uuh2 as int32= rs4wk("fdnn","") 
+    Dim ele, elm,j
+    top1T = ""  ' column type
+    top1h = ""  ' column name
+    top1r = ""  ' top1 record data
+	top1u = -1  ' so top1u=columns.upperBound=columns.count-1
 
-  Function                               vectorlizeHead(head1, rs7, debugLine)
-           if usAdapt="n" then return ca_vectorlizeHead(head1, rs7, debugLine) 
-		                       return cz_vectorlizeHead(head1, rs7, debugLine)
-  end function
+    For j = 0 To uuh2
+      ele=If( (j<=uuh1) andAlso (head1s(j)<>"")  , head1s(j) , rs4wk("fdnm","",0,j)  )
+      ffit = rs2.fields(j).type 'see http://www.w3schools.com/asp/ado_datatypes.asp
+      ffic = rs4wk("gtyp","")
+      top1T = top1T & ffic & iflt(j,uuh2,",")  'top1T=top1T & ele & "." & ffit & ", "     'for detail debug  
+      top1h = top1h & ele  & iflt(j,uuh2,",")
+      top1hz(j) = ele 
+    Next
+
+    For j = 0 To uuh2 : elm = isnullMA(rs2(j).value, "") : top1r = top1r & elm & iflt(j,uuh2,defaultDIT) : top1rz(j) = elm : Next
+    top1u = uuh2  'upper bound
+	return ""
+  End function
+
   
  
   Function rs_top1Record(sql, headL1, outFormat) 'might return a html table, or a new Upar, or a vector string
     Dim eleU, rr, vecH3s, vecR3s,i
     if build_rs4_ok(cs23,sql, headL1) then else return ""
+    ssdd("in rs_top1Record",outFormat)
 
     
 
@@ -519,69 +368,96 @@ end if
     End If
   End Function
   
+  sub rstable_to_htm(sql, headList2) 'response to screen
+    Dim cn,j as int32
+    dim excc, oneL, rsij as string
+    dim fsa, fsb
+    Dim ftyp
+    Dim headline, td0Fashion 
+    excc = "" 
+    if rs4wk("build"  ,sql      )="xx" then exit sub
+    rs4wk("head",headlist2)   
 
-  Function                               rstable_to_htm(sql, headList2)
-           if usAdapt="n" then return ca_rstable_to_htm(sql, headList2) 
-		                       return cz_rstable_to_htm(sql, headList2) 'using adapter on mssql or mysql 
+    'prepare excel link 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    fsa = Nothing
+    fsb = Nothing
+    If showExcel Then
+      Dim ffsnameT = intloopi() & ".csv"
+      Dim ffsname2 = tmpFord & ffsnameT
+      Response.Write("此查詢結果也可以顯示於<a href='../" & tmpy & "/" & ffsnameT & "' target=eexx>Excel檔</a>, ")
+      fsa = CreateObject("scripting.FileSystemObject")
+      fsb = fsa.createTextFile(ffsname2, True)
+      excc = top1h & ienter
+    End If
+ 
+    headline=tr0 & "<th>" & Replace(top1h, ",", "<th>") : td0Fashion=td0    
+	if headlist="fashion2" then headline=""
+	if headlist="fashion2" then td0Fashion="<td width=50% >"
+	
+    'build tdRights()  to define td  align be left or right, build fdvSomeComa=sum(fdvii,)  
+    digis = Split(nospace(digilist), ",") : Dim fdvomeComa = ""
+    For j = 0 To top1u      
+      tdRights(j) = td0
+      fdvomeComa = fdvomeComa & "fdv" & digi2(j+1) & ".type=" & rs4wk("gtyp","",0,j) & ","
+    Next
+
+    If needSchema = 1 Then
+      wwi(top1h & "<br>" & fdvomeComa & "<br>")
+      wwi(table0 & headline & "<tr><td>" & Replace(fdvomeComa, ",", "<td>") & table0End)
+      wwi(top1T & "<br>" & top1h & "<br>" & top1r & "<br>")
+    End If
+
+    Dim local_rcSHOW = const_maxrc_htm
+    Dim local_rcALLL = const_maxrc_fil
+    For j = 0 To top1u : fdt_sumtotal(j) = 0 : Next
+
+    'prepare head end, scan rs begin 2222222222222222222222222222222222222222222222222222222222222222222222222222222222
+    cn = 0 
+    wwi("<br for=dataBlock>" & table0 & headline & ienter) 'for data block
+    'ssdd(3970, "[" & top1T & "]")
+    For j = 0 To top1u : tdDecorate(j)=if(mid(top1T,1+j*2,1)="c",  "<td>", "<td align=right>") :next j
+    do until rs4wk("empty", "",cn)="y"
+      cn = cn + 1 : oneL=tr0
+	  for j = 0 To top1u 
+          rsij=rs4wk("gval","",cn-1,j)
+          oneL=oneL & tdDecorate(j) & rsij  'colSpanx(tdRights(j) & rsij
+          If showExcel            Then excc = excc & vifhas("href", rsij, "", rsij) & ","
+          If fdt_needsum(j) = "y" Then fdt_sumtotal(j) = fdt_sumtotal(j) + numberize(rs2(j).value & "", 0)
+      Next : wwi(oneL)
+
+      If headlistRepeat>=10 Then
+        If ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(headline)
+      End If
+      If showExcel Then fsb.writeline(excc) : excc = ""
+      rs4wk("mov","") 'rs2.movenext() : 
+    loop : rs4wk("close","") 
+
+    'scan rs2 end, make tail  333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
+    If cn > local_rcSHOW Then wwi(tr0 & "<td>and more ...")
+    If cn > 60 Then wwi(headline) 'to add headline at bottom
+    If TailList <> "" Then wwi(TailListResult(cn, top1u, "htm"  ,tr0 & "<td style='color:blue;font-weight:bold'>", "<td class=riz  style='color:blue'>"))
+    If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : fsb.writeline(excc) : fsb.close()
+    wwi(table0End)
+  End sub 'of rstable_to_htm
+  
+  function colSpanx(tdValue as string) as string
+  'example: tdValue contains ">er! colspan=2>realValue"
+  'when     tdValue comes from tdrights(j) & rs(j).value    then     you must previously let rs(j).value="er! colspan=2>"+realValue
+  return replace(tdValue, ">er!" , "")
   end function
+  
   
 
   Function                        rstable_to_quick_Response(sql as string, preWord as string)
            if usAdapt="n" then ca_rstable_to_quick_Response(sql          , preWord)
 		                       cz_rstable_to_quick_Response(sql          , preWord) 'using adapter on mssql or mysql 
   end function
-  
-  
-  function vectorlizehead00
-      top1T = "" : top1h = "" : top1r = "" : top1u = -1 : return ""
-  end function
-  function ca_vectorlizeHead(head1, rs2, debugLine)
-    Dim head1s = Split(head1 & " ", ",")
-    Dim ffit = 0, ffic = "i"
-    Dim uuh1 = UBound(head1s)
-    Dim uuh2 = rs2.fields.count - 1
-    Dim ele, elm,i
-    top1T = ""  ' column type
-    top1h = ""  ' column name
-    top1r = ""  ' top1 record data
-
-    For i = 0 To uuh2
-      If i <= uuh1 Then
-        If Trim(head1s(i)) <> "" Then ele = head1s(i) Else ele = rs2.fields(i).name
-      Else
-        ele = rs2.fields(i).name
-      End If
-      ffit = rs2.fields(i).type 'see http://www.w3schools.com/asp/ado_datatypes.asp
-      Select Case ffit
-        Case 3, 20 : ffic = "i"
-        Case 4, 5, 131 : ffic = "f"
-        Case 6 : ffic = "f" 'money
-          'case 11      : ffic="b" 'boolean
-        Case Else : ffic = "c"
-      End Select
-      'if ffit=3 or  ffit=20  or  ffit=129 or  ffit=131  then ffic="i" else if ffit=5 then ffic="f" else ffit=6 then ffic="m" else ffic="c"
-
-      top1T = top1T & ffic & iflt(i,uuh2,",")  'top1T=top1T & ele & "." & ffit & ", "     'for detail debug  
-      top1h = top1h & ele  & iflt(i,uuh2,",")
-      top1hz(i) = ele 
-    Next
-
-    If rs2.eof Then
-      For i = 0 To uuh2 : elm = ""                         : top1r = top1r & elm & iflt(i,uuh2,defaultDIT) : top1rz(i) = elm : Next
-    Else
-      For i = 0 To uuh2 : elm = isnullMA(rs2(i).value, "") : top1r = top1r & elm & iflt(i,uuh2,defaultDIT) : top1rz(i) = elm : Next
-    End If
-    top1u = uuh2  'upper bound
-	return ""
-  End function
-
-  
 
   Function rstable_to_comaEnter_String(sql, headList2, dipi, needHeadMa, preWord)    
     Dim cn, j as int32
 	dim rr, ri as string
     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then  return ""  'no need to say rs2.close
-    vectorlizeHead(headList2, rs2, 338)
+    vectorlizeHead(headList2,338)
 
     rr = preWord & ifeq(needHeadMa, "needHead", top1h & ienter, "")
     cn = 0 : ri=""
@@ -601,7 +477,7 @@ end if
   sub ca_rstable_to_quick_Response(sql as string, preWord as string)
     Dim rs2, cn, line, j : cn = 0 : line = ""
     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then exit sub 'no need to say rs2.close
-    vectorlizeHead("", rs2, 338)
+    vectorlizeHead("",338)
     Response.Write(preWord & top1h & j1j2 & top1T & j1j2)
     While cn < const_maxrc_fil And Not rs2.eof()
       cn = cn + 1 : line = ""
@@ -625,7 +501,7 @@ sub rstable_to_freeCama(sql as string)
    Dim rs2
    dim cn, j  as int32 : dim line as string: cn = 0 : line = ""
    rs2=objConn2c.Execute(sql) :  if  rs2.state=0 then exit sub 'no need to say rs2.close
-   vectorlizeHead("",rs2,  534)
+   vectorlizeHead("",534)
    'response.write("<!DOCTYPE html><head><meta charset='UTF-8'></head>")
    cn=0  : line=""
    while cn<const_maxrc_fil and not rs2.eof
@@ -638,66 +514,89 @@ sub rstable_to_freeCama(sql as string)
    cnInFilm=cn
 end sub
 
-function rstable_to_top1r(sql)
+function    rstable_to_top1r(sql)
+   ssdd("in rstable_to_top1r ...",sql)
    rs2=objConn2c.Execute(sql) :  if  rs2.state=0 then exit function 'no need to say rs2.close
-   vectorlizeHead("",rs2,  567)      
+   vectorlizeHead("",567)      
    rs2.close
    rstable_to_top1r=""
 end function
 
 
-
-  Function ca_rstable_to_gridHTM(sql, headlist2, needTBma, needHDma) ' assemble recordSet to an html piece
-    Dim rs2
-    dim cn,  j as int32
-    dim rr,agg as string
-	try
-     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then return "" : Exit Function 'no need to say rs2.close
-	catch ex as Exception
-	 ssddg("sqL721", sql ,  ex.Message)
-	end try
-
-    vectorlizeHead(headlist2, rs2, 316)
+Function rstable_to_gridHTM(sql as string, headlist2 as string,   optional needTBma as boolean=true,   optional needHDma as boolean=false) as string' assemble recordSet to an html piece
+    dim cn,j as int32
+    dim result,rr,agg as string	 
+    if rs4wk("build"  ,sql      )="xx" then return ""
+    ssdd(6491,sql,needTBma,needHDma)
+       rs4wk("head",headlist2)   
+   ssdd(6492,sql,headlist2,top1u)       
+    For j = 0 To top1u : tdDecorate(j)="<td align=right>" :next j
     cn = 0
-    rr = ifeq(needTBma, 1, table0, "") &  ifeq(needHDma, 1, "<tr><th>" & Replace(top1h, ",", "<th>"), "")
-    While cn < const_maxrc_htm And Not rs2.eof
+    rr = if(needTBma, table0, "") & if(needHDma, "<tr><th>" & Replace(top1h, ",", "<th>"), "")
+    do until rs4wk("empty", "",cn)="y"
       cn = cn + 1 : rr = rr & "<tr>"
       For j = 0 To top1u ' the last u is done in next 3 lines
-        'agg = ifeq(gridLR(j), "c", "left", "right")
-        'agg = ifeq( digis(j), "c", "left", "right") 'debug
-		 agg="left"
-        rr = rr & "<td align=" & agg & COLUS(" >" & rs2(j).value)
+        rr = rr & tdDecorate(j) & rs4wk("gval","",cn-1,j)
       Next
       rr = rr & ienter
-      rs2.movenext()
-    End While
-    rs2.close()
-    if dataTu="top1r" then return "" else return rr & ifeq(needTBma, 1, table0End, "") & ienter
-  End Function
+      rs4wk("mov","")    
+    loop : rs4wk("close","") 
+    return rr & if(needTBma, table0End, "") & ienter 
+End Function 
 
-  
-  Function cz_rstable_to_gridHTM(sql, headlist2, needTBma, needHDma) ' assemble recordSet to an html piece
-    Dim cn, rr, agg
-	'below 4line==  rs3=objConn2c.Execute(sql) 'objconn2v= new SqlConnection(ddccss) was at very top
-	vectorlizeHead00 
-	  dim rs3 as new DataTable : makeRS3(sql, rs3) : if rs3 is nothing then return ""
-      dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
-	if imax<0 then return ""
-	    
-	vectorlizeHead(headlist2, rs3, 3160)
-    cn = 0
-    rr = ifeq(needTBma, 1, table0, "") & ifeq(needHDma, 1, "<tr><th>" & Replace(top1h, ",", "<th>"), "")
-    for i=0 to min(imax, const_maxrc_htm)
-      cn = cn + 1 : rr = rr & "<tr>"
-      For j = 0 To top1u ' the last u is done in next 3 lines
-        agg = ifeq(gridLR(j), "c", "left", "right")
-        rr = rr & "<td align=" & agg & " >" & rs3.rows(i).item(j)
-      Next
-      rr = rr & ienter
-    next
-    'rs3.dispose() ': dapp.dispose() '=recordset close
-    if dataTu="top1r" then return "" else return rr & ifeq(needTBma, 1, table0End, "") & ienter  'here top1r means no show result
-  End Function 'of cz_rstable_to_gridHTM
+function rs4wk(methoda as string, para as string, optional i as int32=0, optional j as int32=0) as string
+ if SQL_recordset_TH=2 then
+    select case methoda
+    case "build" 
+	                try
+                      rs2=objConn2c.Execute(para) 
+                      return if( rs2.state = 0 , "xx" , "yy")
+	                catch ex as Exception
+	                  ssddg("sqL721", para ,  ex.Message)
+	                end try    
+    case "head"   : vectorlizeHead(para,312) 'in rs4wk
+    case "fdnn"   : return (rs2.fields.count-1) & ""
+    case "fdnm"   : return rs2.fields(j).name
+    case "empty"  : return if( (i >= const_maxrc_htm) or rs2.eof,"y", "n")    
+    case "gtyp"   
+                  Select Case rs2.fields(j).type 
+                  Case 3, 20     : return "i"
+                  Case 4, 5, 131 : return "f"
+                  Case 6         : return "f" 'money
+                 'case 11        : return "b" 'boolean
+                  Case Else      : return "c"
+                  End Select 
+    case "gval"   : return rs2(j).value & ""
+    case "mov"    : rs2.movenext(): return ""
+    case "close"  : rs2.close(   ): return ""
+    case else     : ssddg("in rs4wk, see unknown methoda", methoda)
+    end select
+ else
+    select case methoda
+    case "build"  : makeRS3(para) 
+    case "head"   : vectorlizeHead(para,313) 'in rs4wk
+    case "fdnn"   : return (rs3.columns.count-1) & ""
+    case "fdnm"   : return rs3.columns(j).columnName
+    case "empty"  
+                    return if( (i >= const_maxrc_htm) or (i >rs3.rows.count-1),"y", "n")
+	                'if rs3 is nothing      then return ""
+	                'if rs3.columns.count=0 then return ""                     
+    case "gtyp"   
+                    Select Case rs3.columns(j).dataType.ToString  
+                      Case "System.Int32" , "System.Int16": return "i"
+		              case "System.Decimal"               : return "f"
+                      Case Else                           : return "c"
+	                end select
+    
+    case "gval"   : return rs3.rows(i).item(j).toString
+    case "mov"    : return ""
+    case "close"  : return ""
+    end select
+ end if 
+    return ""
+end function
+
+
 
 
   
@@ -711,7 +610,7 @@ end function
 	catch ex as Exception
 	 ssddg("sqL808",sql , ex.Message)
 	end try	
-    vectorlizeHead(headlist, rs2, 360)
+    vectorlizeHead(headlist,360)
 
     local_rcALLL = const_maxrc_fil : cn = 0
     While cn < local_rcALLL And Not rs2.eof  'p44
@@ -731,13 +630,12 @@ end function
   sub czrstable_to_dataF(sql) 'dataTW is dataTu 
     Dim  cn, local_rcALLL, oneline
 	
-	'below 4line==  rs3=objConn2c.Execute(sql) 'objconn2v= new SqlConnection(ddccss) was at very top
-	vectorlizeHead00 
-	  dim rs3 as new DataTable : makeRS3(sql, rs3) : if rs3 is nothing then  exit sub 
+	'below 3line==  rs3=objConn2c.Execute(sql) 'objconn2v= new SqlConnection(ddccss) was at very top	 
+	  if rs4wk(3,"build",sql)="xx" then exit sub
       dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
 	if imax<0 then  exit sub 
 
-    vectorlizeHead(headlist, rs2, 3162)
+    vectorlizeHead(headlist,3162)
     local_rcALLL = const_maxrc_fil : cn = 0
     for i=0 to min(imax,local_rcALLL) 'While cn < local_rcALLL And Not rs2.eof  'p44
       cn = cn + 1
@@ -1157,10 +1055,10 @@ sub edit_ghh(caseN) 'edit the output wording style,
 end sub
 
 
-  Sub wwx(s)    
+  Sub wwx(s as string)    
                Response.Write(s)  
   end sub               
-  Sub wwi(s)   
+  Sub wwi(s as string)   
                Response.Write(s & ienter)    
   end sub               
 sub  nowWarn(s1 as string,  optional s2 as string="",  optional s3 as string="",   optional s4 as string="",   optional s5 as string="",   optional s6 as string="")  
@@ -1655,9 +1553,10 @@ end sub
   Sub switchDB(dbnm) 'this is call by: (1)conndb,  (2)the first sqlcmd without conndb(which will connect to HOME)
     If nowDB<>"" Then objConn2_close()
 	
-	nowDB=ucase(dbnm)     :usAdapt="n"
-	if nowDB="CRMY"   then usAdapt="m" 
-	if nowDB="CROKHQ" then usAdapt="y"
+	nowDB=ucase(dbnm)     
+   '                       usAdapt="y" 'was n
+   'if nowDB="CRMY"   then usAdapt="y" 'was m
+   'if nowDB="CROKHQ" then usAdapt="y"
     If                   Application("dbct,HOME")           = "" Then load_dblist()
 		
     If                   Application("dbct," & ucase(dbnm) ) = "" Then ssddg("no such db:" & dbnm)
@@ -2133,9 +2032,6 @@ end sub
     For i = 0 To UBound(gg1s) : rr = rr & tb1 & "." & gg1s(i) & "=" & tb2 & "." & gg2s(i) & gu2 : Next
     return cutLastGlue(rr,gu2)
   End Function
-  Function joinlize(ss)
-    joinlize = Replace(ss, "'", "^")
-  End Function
 
   Sub Sleepy(sec As Single) 'while running it, your click on buttons will function
     'you cannot use this in asp.net ::> Application.DoEvents()
@@ -2232,7 +2128,7 @@ end sub
         bb = bb & rs_top1Record(sqcmd, headlist, "htm") & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' grid25R:後接sql command
 
       ElseIf Left(Trim(ss(i)), 5) = "grid:" Then
-        bb = bb & rstable_to_gridHTM(Replace(ss(i), "grid:", ""), headlist, 1, 1) & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' grid:後接sql command
+        bb = bb & rstable_to_gridHTM(Replace(ss(i), "grid:",""), headlist, true, true) & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' grid:後接sql command
       ElseIf Left(Trim(ss(i)), 5) = "gtxt:" Then
         bb = bb & rstable_to_comaEnter_String(Replace(ss(i), "gtxt:", ""), headlist, icoma, "needHead", "<br><pre>") & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' gtxt:後接sql command 輸出純文字檔
       ElseIf Left(Trim(ss(i)), 7) = "format:" Then
@@ -2446,6 +2342,8 @@ end function
                                     Call dump() : rstable_to_htmxyz(sqcmd, headlist,0)
     ElseIf dataTul="xyzsum" Then
                                     Call dump() : rstable_to_htmxyz(sqcmd, headlist,1)
+    ElseIf dataTul="gridhtm" Then
+                                    ssdd(2448, rstable_to_gridHTM(sqcmd, "aaa,bbb",1=1,1=2) )
     ElseIf dataTul="top1s"  Then 'get the top1 record and do show on screen
                                     buffW(rs_top1Record(sqcmd, headlist, "htm"))
     ElseIf dataTul="top1r"  Then 'get the top1 record and put to a vector
@@ -2472,58 +2370,11 @@ end function
     End If
   End Sub
 
-  
-  function cz_vectorlizeHead(head1, rs3, debugLine)
-    Dim head1s = Split(head1 & " ", ",")
-    Dim ffit = 0, ffic = "i"
-    Dim uuh1 = UBound(head1s)
-    Dim ele, elm,j
-    top1T = ""  ' column type
-    top1h = ""  ' column name
-    top1r = ""  ' top1 record data
-	top1u = -1  ' so top1u=columns.upperBound=columns.count-1
 
-	if rs3 is nothing      then return ""
-	if rs3.columns.count=0 then return "" 
-    Dim uuh2 = rs3.columns.count-1		 
-
-    For j = 0 To uuh2
-      If j <= uuh1 Then
-        If Trim(head1s(j)) <> "" Then ele = head1s(j) Else ele = rs3.columns(j).columnName
-      Else
-        ele = rs3.columns(j).columnName
-      End If
-      'ffit = rs3.columns(j).type 'see http://www.w3schools.com/asp/ado_datatypes.asp 'rs3.columns(j).type = typeof(System.Int32)	  
-      Select Case rs3.columns(j).dataType.ToString  
-        Case "System.Int32" , "System.Int16": ffic ="i"
-		case "System.Decimal"               : ffic ="f"
-        Case Else                           : ffic ="c"
-	  end select
-      'if ffit=3 or  ffit=20  or  ffit=129 or  ffit=131  then ffic="i" else if ffit=5 then ffic="f" else ffit=6 then ffic="m" else ffic="c"
-
-      top1T = top1T & ffic & ","
-      'top1T=top1T & ele & "." & ffit & ", "     'for detail debug  
-      top1h = top1h & ele & ","
-      top1hz(j) = ele
-    Next
-    If rs3.rows.count=0 Then
-      For j = 0 To uuh2 : elm = ""                                : top1r = top1r & elm & defaultDIT : top1rz(j) = elm : Next
-    Else
-      For j = 0 To uuh2 : elm = isnullMA(rs3.rows(0).item(j), "") : top1r = top1r & elm & defaultDIT : top1rz(j) = elm : Next
-    End If
-
-    top1T = Mid(top1T, 1, Len(top1T) - 1) '  column type
-    top1h = Mid(top1h, 1, Len(top1h) - 1) '  column names
-    top1r = Mid(top1r, 1, Len(top1r) - 1) ' top 1 record  column values
-    top1u = uuh2  'upper bound
-	return ""
-  End function 'of cz_vectorlizeHead
-
-'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 
  
 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-  sub makeRS3(sql as string, byref rs3 as datatable)
+  sub makeRS3(sql as string)
          if usAdapt="y" then dim dapp as new   SqlDataAdapter : dapp=New   SqlDataAdapter(sql, objconn2v): dapp.SelectCommand.CommandTimeout=600 : dapp.Fill(rs3) 
     'mmy if usAdapt="m" then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : dapp.Fill(rs3) 
   end sub 
@@ -2533,8 +2384,7 @@ end function
     Dim cn, line : cn = 0 : line = ""	  
 	  	
 	'below 4line==  rs3=objConn2c.Execute(sql) 'objconn2v= new SqlConnection(ddccss) was at very top
-	vectorlizeHead00 
-	  dim rs3 as new DataTable : makeRS3(sql, rs3) : if rs3 is nothing then exit sub	  
+	  dim rs3 as new DataTable : makeRS3(sql) : if rs3 is nothing then exit sub	  
       dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
 	if imax<0 then exit sub
 	

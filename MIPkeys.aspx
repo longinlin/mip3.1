@@ -113,9 +113,9 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "taillist"    : TailList = vals(i) : Call zeroize_sumTotal()  ' was named as needSumList
       case "setfuncbegin" : fcBeg  =replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
       case "setfuncpara"  : fcComma=replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
-      case "exit."        : if hasValue(vals(i)) then exitWord = joinlize(vals(i)) : exit for  
-      case "exitred"      : if hasValue(vals(i)) then buffW("<font color=red>" & vals(i) & "</font>" ) : exitWord = joinlize(vals(i)) : exit for 
-      case "exit"         : if hasValue(vals(i)) then buffW(""                 & vals(i) &        "" ) : exitWord = joinlize(vals(i)) : exit for                                 
+      case "exit."        :                                                                              exitWord =vals(i) : exit for  
+      case "exitred"      :                           buffW("<font color=red>" & vals(i) & "</font>" ) : exitWord =vals(i) : exit for 
+      case "exit"         : if hasValue(vals(i)) then buffW(""                 & vals(i) &        "" ) : exitWord =vals(i) : exit for                                 
       case else
            'keyLower is [programmer defined var]  , almost set mayReplaceOther to true  
            if len(keyLower)<minKeyLen then ssddg("err, key name too short:",keyLower)
@@ -171,11 +171,11 @@ end function
     if ityp=2 then 
                    rs2=objConn2c.Execute(sql) 
                    If rs2.state = 0 Then return false
-                   vectorlizeHead(headL1, rs2, 252) 
+                   vectorlizeHead(headL1,252) 
     else
-                   makeRS3(sql, rs3) 
+                   makeRS3(sql) 
                    if rs3 is nothing then return false
-                   vectorlizeHead(headL1, rs3, 252) 
+                   vectorlizeHead(headL1,252) 
     end if
     return true
   end function  

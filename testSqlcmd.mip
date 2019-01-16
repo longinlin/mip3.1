@@ -1,0 +1,5 @@
+#1#2
+sqlcmd==select * from mapper
+var1==top1r|2
+show==var1
+exit==ok
