@@ -47,7 +47,7 @@ End Function
    utf8_openW(gname)
    utf8_doesW(strr)
    utf8_closeW(gname)
-   catch ex as Exception : ssddg("err on write file:" & ex.Message) :end try
+   catch ex as Exception : ssddg("err1 on write file " & gname , ex.Message) :end try
   end sub
   
   Sub saveToFile_big5(fname, strr) ' as big5
@@ -98,13 +98,14 @@ End Function
   Sub wLog(words) 'no buffer
     exit sub
     If iisPermitWrite = 0 Then Exit Sub
+    dim gname as string=tmpFord & "ARM.log"
     try
     Dim fsaLog = Server.CreateObject("Scripting.FileSystemObject")
-    Dim fsbLog = fsaLog.OpenTextFile(tmpFord & "ARM.log", 8, True)  '8 for append
+    Dim fsbLog = fsaLog.OpenTextFile(gname, 8, True)  '8 for append
 	dim cook2 as string="" : if not (Request.Cookies("userID2") is nothing) then cook2=request.Cookies("userID2").value
     fsbLog.WriteLine(Now & "# u=" & userID & ", k=" & cook2 & "," & Request.ServerVariables("REMOTE_ADDR") & ",spf=" & spfily & ",wd=" & words)   
     fsbLog.close() : fsbLog = Nothing : fsaLog = Nothing ' close as as possible, because another user might want to write	   
-    catch ex as Exception : ssddg("err on write file:" & ex.Message) :end try
+    catch ex as Exception : ssddg("err2 on write file " & gname , ex.Message) :end try
   'object.OpenTextFile(filename[, iomode[, create[, format]]])
   '                               iomode: ForReading = 1, ForWriting = 2, ForAppending = 8
   '                                        create: true then create file if not exist
@@ -114,6 +115,7 @@ End Function
   Sub wLog3(words) 'with buffer
     Const bufferMax = 80
     Dim s22, i22, fsalog, fsblog
+    dim gname as string=tmpFord & "ARM.log"
     If iisPermitWrite = 0 Then Exit Sub
 
     i22 = Application("i22")
@@ -123,11 +125,11 @@ End Function
     If i22 > bufferMax Then
       i22 = 0 : Application("i22") = 0 : s22 = Application("s22") : Application("s22") = ""
       fsalog = Server.CreateObject("Scripting.FileSystemObject") 'dd wlog3
-      fsblog = fsalog.OpenTextFile(tmpFord & "ARM.log", 8, True)  '8 for append
+      fsblog = fsalog.OpenTextFile(gname, 8, True)  '8 for append
       fsblog.WriteLine(s22)
       fsblog.close() : fsblog = Nothing : fsalog = Nothing ' close as as possible, because another user might want to write	   
     End If
-    catch ex as Exception : ssddg("err on write file:" & ex.Message) :end try
+    catch ex as Exception : ssddg("err3 on write file " & gname , ex.Message) :end try
 
     i22 = i22 + 1
     Application("i22") = i22
@@ -233,7 +235,7 @@ End Function
     End Sub
 
 	  
-  Function visitURLwithPost(ByVal targetUrlz As String, ByVal posd As String) As string 
+  Function askURLwithPost(ByVal targetUrlz As String, ByVal posd As String) As string 
   'very simular as v8public.sub:remoteRunner , it might return a table in one string format: 1|2|3 vbnewline 4|5|6
       Dim targetUrl , result, result2 , ans As String : dim lena as int32
       Dim request  As HttpWebRequest

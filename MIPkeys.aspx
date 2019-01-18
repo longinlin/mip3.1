@@ -167,16 +167,5 @@ end function
                                                     okmaa=0 :return i0
   End Function
 
-  function build_rs4_ok(ityp as int32, sql as string, headL1 as string) as boolean
-    if ityp=2 then 
-                   rs2=objConn2c.Execute(sql) 
-                   If rs2.state = 0 Then return false
-                   vectorlizeHead(headL1,252) 
-    else
-                   makeRS3(sql) 
-                   if rs3 is nothing then return false
-                   vectorlizeHead(headL1,252) 
-    end if
-    return true
-  end function  
+ 
 </script>  

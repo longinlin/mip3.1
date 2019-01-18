@@ -1,0 +1,69 @@
+﻿
+
+#1#2
+ifa==ifeq|1|2|then
+show==say eq
+else==
+show==say neq
+endifa==
+exit==ok1
+
+
+for==iiii|1|4
+ show==counting iiii,
+next==
+exit==ok2
+
+
+ifa==ifeq|11|22|then
+show==say eq
+   ifa==ifeq|33|33|then
+   show==say 3 eq
+   else==
+   show==say 4
+   endifa==
+else==
+show==say neq
+endifa==
+exit==ok3
+
+
+for==iiii|1|4
+ ifa==ifeq|4|4|then
+    show==iiii ifok,
+ else==
+    show==iiii nifok,
+ endifa==
+next==
+exit==ok4
+
+
+most==
+  show==yy
+but==ifeq|4|4|then
+  show==xx
+  for==iqty|1|5|2
+  show==ciqty,
+  next==
+endmost==
+exit==ok5
+
+//below for SQL
+sqlcmd,screen,t31.dat== select a=123
+exit==ok
+
+
+mass==
+   11,12
+   21,22
+   31,32
+sqlcmd,mass,screen== select 'cfdv01'
+exit==ok
+
+
+mass==
+   11,12
+   21,22
+   31,32
+sqlcmd,mass,t32.dat==select 'cfdv01'
+  

@@ -133,14 +133,17 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
     case "ifhasfile" 
       If hasfile(arr(1)) Then return arr(2) Else return arr(3)
     case "askurl" 
+      ssdd(137,arr(1),222)
       return askURL(arr(1))
-	case "visiturlwithpost"   ' visitURLwithPost| URL | dataTable
-	   if left(arr(2),6)<>"matrix" then ssddg("in visitURLwithPost, the second parameter should look like matrix$i")
+	case "askurlwithpost"   ' 0=askURLwithPost| 1=URL | 2=dataTable
+	   if left(arr(2),6)<>"matrix" then ssddg("in askURLwithPost, the second parameter should look like matrix$i")
 	   funcLet=getValue(arr(2))	   	   
-	   if inside("/webc/", arr(1)) then return visitURLwithPost(arr(1)                                           ,  "f2postDA=" & cypa3(funcLet))
-	  'example:                         return visitURLwithPost("localhost/webc/webc.aspx?act=run&spfily=test4.q",  "f2postDA=10|20|30" & vbnewline & "41,42" ) 'you may use #! or | or ,
-      
-      return visitURLwithPost(arr(1),         funcLet)	   
+	   if inside(iisFolder, arr(1)) then 
+                                        return askURLwithPost(arr(1)                                           , "f2postDA=" & cypa3(funcLet))
+	                          'example: return askURLwithPost("localhost/MIP/webc.aspx?act=run&spfily=test4.q",  "f2postDA=10|20|30" & vbnewline & "41,42" ) 'you may use #! or | or ,
+       else
+                                        return askURLwithPost(arr(1)                                           ,  funcLet)	   
+       end if
     case "top1r" 
       If arr(1)  < 1 Then
         ssddg("top1r index should be positive")

@@ -11,7 +11,9 @@
      m1-opLife.mip&act=run&uvar=wkii==askQcondi , m1-opLife run                
 
 [td]
-[tf]mis, 資訊部    
+[tf]mis, 資訊部
+  makeSomeASPX.mip , 製造出某個aspx檔 
+  MIPSQL.amacro    , MIPSQL.aspx的原始模板  
   dblistReload.q   , 重讀DBlist
   tbInfo.txt       , 查資料表欄位
   tbInfo-with-chinese-meaning.txt, 查資料表欄位及其說明

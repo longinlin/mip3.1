@@ -4,7 +4,7 @@
   Function good_string(strr) as string
     strr = Replace(strr, "09.03"  , "68.48")
     strr = Replace(strr, "85.200", "80.251")
-	if usAdapt="y" then return replace(strr, "Provider=SQLOLEDB.1", "") else return strr
+	if SQL_recordset_TH=3 then return replace(strr, "Provider=SQLOLEDB.1", "") else return strr
   End Function
   
   function merge_one_sentence(vv as string, _into as string ,mm as string, byref matched as int32) as string

@@ -281,11 +281,11 @@
          append,cAdr==基隆路
          show==cAdr      
          這促使電腦顯示 台北市文山區基隆路
-      若cAdr未先定義也可以，cAdr以第一次收到的字串往下跑:
+      若你曾經聲明append要添加到哪個變數，下次不用再聲明:
          append,addEnter==n
          append,cAdr==台北市
-         append,cAdr==文山區
-         append,cAdr==基隆路
+         append     ==文山區
+         append     ==基隆路
          show==cAdr   
          這促使電腦顯示 台北市文山區基隆路
           
@@ -344,16 +344,16 @@
   
   conndb 用法，連接資料庫
          conndb==db1234
-         sqlcmd==select * from tb5
+         sqlcmd==select * from mapper
       其中db1234要預先定義在 c:\MIP\webc\cdblist.mip裏         
-      又若HOME已經預先定義在 c:\MIP\webc\cdblist.mip裏，則直接寫
-         sqlcmd==select * from tb5
+      又若HOME已經預先定義在 c:\MIP\webc\cdblist.mip裏，則直接寫:
+         sqlcmd==select * from mapper
       不用聲明conndb==HOME
 
   sqlcmd 用法， 送出SQL指令給資料庫引擎
       (例: 最簡單用法)
          sqlcmd==
-            select * into #p from tb5
+            select * into #p from mapper
             select hi='hello', * from #p
       內容可以含多句SQL指令
 
@@ -363,7 +363,7 @@
          21,22
          31,32
          sqlcmd,mass==select a='c:fdv01', b=fdv02*100
-      在sqlcmd後面逗點接來源，SQL將歷遍這來源，來源一行做一次，
+      這裏在sqlcmd後面逗點接來源，SQL將歷遍這來源，來源一行做一次，
       每次SQL送出前，將fdv01置換為當前這一行的第一個元素，
       每次SQL送出前，將fdv02置換為當前這一行的第二個元素，...
       結果顯示
@@ -1062,6 +1062,74 @@
 
 ## 被外界呼叫: URL get,post
 ## 被外界呼叫: 被VB, 被排程器
+
+## 巨集編程的優點: 編程可以分層次
+   有一個程式 它慢慢長大，長大成一隻恐龍，你無法想像它原始模樣或中間模樣。
+   有一個程式，大約3個步驟結束，原本程式很短。
+   後來你覺得在某某情形下，應執行另外3個步驟，於是程式變長了。
+   後來又想記錄程式過程，進入每一步驟時寫檔記開始，離開記結束，程式更長。
+   若以巨集寫作，凡是添加的句子都命名為一段巨集，那麼當你暫時把巨集清空，
+   就可以顯出原始模樣，當你把巨集充滿，就顯示最後模樣。
+   
+   這比文字編輯器採用文字折疊法更清楚，例如為了記錄過程而添加程式，
+   這記錄機制本身又分三段，開檔、多次寫檔、關檔。過多的文字造成干擾，
+   你折疊文字還是留個字頭干擾視覺。
+   
+   若某程式用巨集一層一層的添加複雜度，一共四層，則你可以只寫前兩個層次，
+   暫時清空後面兩個層次，就可以顯示程式組合到一半的模樣。
+   
+## 矩陣式編程的優點: 程式可以對比
+   例如有兩個程式，
+   A程式為aa;         bb;               cc; dd;             ff
+   B程式為aa; forEach;bb;if item=1 then cc; dd;endEach; ee; ff
+   其中aa,bb,cc,dd,ee,ff 都是幾十行程式。當你鋪陳開來就造成視覺困擾。
+   若把aa,bb,cc,dd,ee,ff 都寫成副程式更麻煩，因為有很多參數要傳遞。
+   若把程式改用矩陣式表達法，卻很簡單:
+       matrix==
+          aa  , aa
+              , forEach
+          bb  , bb
+          cc  , 
+              , if item=1 then cc
+          dd  , dd
+              , endEach
+              , ee
+          ff  , ff
+       programA==gu1m|matrix|[mi1]|$enter
+       programB==gu1m|matrix|[mi2]|$enter
+   這樣是不是很清楚呢
+   
+   也可以改成這麼寫:
+       matrix==
+          AB, aa
+          .B, forEach
+          AB, bb
+          A., cc
+          .B, if item=1 then cc
+          AB, dd
+          .B, endEach
+          .B, ee
+          AB, ff
+       programA==gu1m|matrix|[mi2]|$enter|1A
+       programB==gu1m|matrix|[mi2]|$enter|1B
+   在matrix中第一個欄位中有A，就是A程式會用到，
+   在matrix中第一個欄位中有B，就是B程式會用到，
+   這樣是不是更清楚又簡短呢
+   
+   
+## 怎樣減少軟體編程的時間
+  要減少編程的時間，其方法都是把軟體寫作由申論題降為填充題，再降為選擇題。
+  先由資深人員定骨架，骨架間留有空格，再由資淺人員把材料填進空格裏。
+  但世界沒這麼美好，某套骨架只能適用於某些場景，換場景要換別套。
+  
+  有人批評程序導向的作法，到處宣傳物件導向的作法，也就是變數應盡量封裝。
+  但若編程到處都強迫封裝，多出很多封裝紙，封裝之間傳訊息就太難寫了。
+  所以變數全部封裝或和變數全部裸露，工程師要有智慧判斷。
+
+  有人提出軟體應分解為前端後端，前後之間由各種訊號、指位詞等串接。
+  這些串接的訊號有時候也複雜到變成很大的程式，若程式總長度反而升高，
+  那就是串接段已零碎散落程式各處，不如前後端合併更節省編程時間。
+  
 
 ## 輸入畫面集解  
   輸入框基本型:

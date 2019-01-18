@@ -22,8 +22,6 @@
   ' System.Data.OracleClient  Oracle.ManagedDataAccess.Client  
   ' import System.Diagnostics is a preparation for using process.start, 20160909
   ' Request.ServerVariables("PATH_TRANSLATED") looks like   C:\main\webc\webc.aspx
-
-  const version="standard"       ' when smallod, default spfily = smallOD-qpass.txt
   Const sysTitle = "HQ", metaCCset = "<meta charset='UTF-8'>" ,    begpt="<scri" & "pt "  , endpt="</scri" & "pt>" , mister="mis"
   'const codePage=65001 '是指定IIS要用什麼編碼讀取傳過來的網頁資料 , frank tested: 不論有寫65001或沒寫 對select * from f2tb2(內有utf80 都正確顯示到網頁 但若寫936簡體 或寫950繁體 都會顯示出錯  
   Const bodybgAdmin = "", bodybgNuser = "bgcolor=#FBEBEC"  '#FFF7B2=light-yellow  #C4DEE6=turkey-blue  #81982F=light-green  #FBEBEC=pink
@@ -32,12 +30,11 @@
   const itab = Chr(9), ienter=vbNewLine, keyGlue="#$"  ,  tmpGlu="$*:" , icoma = "," , ispace=" " , iempty="" , ibest="best" 
   const csplist_mip="csplist.mip" , cuslist_mip="cuslist.MIP"  , cdblist_mip="cdblist.mip" , minKeyLen=4, maxKeyLen=20
   const gcBeg="%gcBEg" ,               gcEnd="%gcENd"  ,  gcComma="!."
-  const cs23=2 '2 means go rs2( suit for usAdapt="n"), 3 means go rs3(suit for usAdapt="y")
-  const SQL_recordset_TH=2 '2 using recordset, 3 using datatable
-  const usAdapt="n"
+  const SQL_recordset_TH=3 'when 2 using recordset    , 3 using sqlAdapter and datatable
+  const iisFolder="/MIP/"
 
   dim fcBeg as string="@["     , fcBeg2 as string="2@[",  fcEnd as string="]#"      ,  fcComma as string="|"
-  dim  CCFD, runFord, codFord,  tmpFord, queFord, tmpy,   table0,table0End,tr0, th0, td0, thriz,tdriz, saying as string
+  dim CCFD, runFord, codFord,  tmpFord, queFord, tmpy,   table0,table0End,tr0, th0, td0, thriz,tdriz, saying as string
   Dim qrALL,act, Uvar, Upar, Upag, f2postSQ, f2postDA, spfily, spDescript, usnm32, pswd32, logID, exitWord, userID,userNM, userCP,userOG,userWK, siteName       as string
   Dim digilist, FilmFDlist, cnInFilm, headlist, atComp,   dataFF,dataTu,dataGu, ddccss, dataToDIL       as string
   Dim thisDefaultName, serverIP, strConnLogDB     as string
@@ -45,8 +42,7 @@
 
   dim iisPermitWrite as int32            ' you must let c:\main\webT  not readonly
   dim uslistFromDB   as int32  =0        ' this=0:fromTxt, this=1:fromTxt+fromDB
-  'dim usAdapt        as string ="y"      ' was n    ' use sqlAdapter, and  those subroutines of cz_**  , "y" is only for DB=CRON
-  dim usjson         as string ="n"      ' to parse uvar by JSON , when version="okMartSmallOD" then always use JSON
+  dim usjson          as string ="n"      ' to parse uvar by JSON
   dim XMLroot = "aaaa,bbbb,noneed", ram1 = "", spContent = "", nowDB = "", dbBrand = "ms", ghh = "", TailList = "", gccwrite as string   
   
   '這程式必須用utf8內碼存起來, 這程式讀檔也要讀utf8檔,  讀資料庫的資料內容是utf8, 然後這程式在下一行宣告產出是uft8,  browser也設定為顯示utf8 , 一切才會顯示正常
@@ -66,13 +62,13 @@
 
   dim fsaLog, fsbLog, opLog, tmpo, tmpf,objConn2c , rs2,objStream  as object    'dim rs2 as New ADODB.Recordset
   dim rs3 as new dataTable
-  dim objconn2v as SqlConnection   'for usAdapt=y
+  dim objconn2v as SqlConnection   'for SQL_recordset_TH=3
   
   'dim objconn2a as OracleConnection '=new OracleConnection(ddccss)  'using (OracleConnection conn = new OracleConnection(conn_str))  
   'dim objconn2a as new OracleConnection("Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.100.231)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=topprod)));   User Id=dst;Password=dst")  
   'Dim connectionString As String = ConfigurationManager.ConnectionStrings("{Name of application conn string or full tnsnames connection string}").ConnectionString
   'Dim cn As New OracleConnection(connectionString)
-  'mmy dim objconn2m as MySqlConnection 'for usAdapt=m
+  'mmy dim objconn2m as MySqlConnection 'for SQL_recordset_TH=6
   
   dim randMother As Random = New Random() '產生新的隨機數用在 intrnd
   Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) 
@@ -174,8 +170,8 @@ end if
         If Application(userID & ",og") = "" Then Call login_acceptKeyin("無此帳號")
       End If
 	else                                                                                           '(w4) user not login yet
-      if inside(  "qpass",spfily) then                         'I permit it run without username
-         userID = "qpass"                                   'give a userID for current use
+      if inside(  "qpass", spfily) orElse inside("aMacro", spfily) then 'I permit it run without username
+         userID = "qpass"                                               'give a userID for current use
          If Application("dbcs,HOME") = "" Then load_dblist()
       else   
          Call login_acceptKeyin("")                         'I don't permit it run
@@ -209,20 +205,21 @@ end if
   End Sub 'of main
   
   sub objconn2_open()
-     select case usAdapt
-	 case "n"  : objconn2c.open(ddccss)  
-	 case "y"  : objconn2v=new SqlConnection(ddccss)   
-     case "o"  : tmpf="" ' objconn2a=new OracleConnection(ddccss)
-	 'mmy case "m"  : objconn2m=new MySqlConnection(ddccss)  
-	 case else : objconn2c.open(ddccss)  ': rs2=objconn2c.Execute("set nocount on;select a=1")
+     select case SQL_recordset_TH
+	 case 2       : objconn2c.open(ddccss)                  'old fashion recordset
+	 case 3       : objconn2v=new SqlConnection(ddccss)     'use dataTable  
+     case 5       ' objconn2a=new OracleConnection(ddccss)  'for oracle, use recordset
+	 'mmy case 6  : objconn2m=new MySqlConnection(ddccss)   'might use dataTable
+	 case else    : objconn2c.open(ddccss)                  'old fashion recordset
      end select
   end sub
   
   sub objconn2_close()	 
-     select case usAdapt
-	 case "n"  : objconn2c.close()  
-	 case "y"  : sqlClient.SqlConnection.clearPool(objconn2v)
-     'mmy case "m"  : mysqlConnection.clearPool(objconn2m) 
+     select case SQL_recordset_TH
+	 case 2  : objconn2c.close()  
+	 case 3  : sqlClient.SqlConnection.clearPool(objconn2v)
+     case 5  
+     'mmy case 6  : mysqlConnection.clearPool(objconn2m) 
 	 case else : objconn2c.close()  
      end select
   end sub 
@@ -311,27 +308,27 @@ end if
    return icoma
   end function
   
-  function vectorlizeHead(head1,debugLine)
+  function prepareColumnHead(head1,debugLine)
     Dim head1s() as string : trimSplit(head1, ",", head1s)
-    Dim ffit = 0, ffic = "i"
+    Dim ffic = "i"
     Dim uuh1 = UBound(head1s)
-    Dim uuh2 as int32= rs4wk("fdnn","") 
-    Dim ele, elm,j
-    top1T = ""  ' column type
-    top1h = ""  ' column name
-    top1r = ""  ' top1 record data
-	top1u = -1  ' so top1u=columns.upperBound=columns.count-1
+    Dim uuh2 as int32= rs4wk("fdub","") 
+    Dim ele as string
+    dim j as int32
+    top1T = ""  '      column type[i], ...
+    top1h = ""  '      column name[i], ...
+    top1r = ""  ' top1 column data[i], ...
+	top1u = -1  '     =column Ubound       or =columns.count-1
 
     For j = 0 To uuh2
-      ele=If( (j<=uuh1) andAlso (head1s(j)<>"")  , head1s(j) , rs4wk("fdnm","",0,j)  )
-      ffit = rs2.fields(j).type 'see http://www.w3schools.com/asp/ado_datatypes.asp
-      ffic = rs4wk("gtyp","")
-      top1T = top1T & ffic & iflt(j,uuh2,",")  'top1T=top1T & ele & "." & ffit & ", "     'for detail debug  
+      ele=If( (j<=uuh1) andAlso (head1s(j)<>"")  , head1s(j) , rs4wk("fdnm","",0,j)  ) 
+      ffic = rs4wk("gtyp","",0,j)
+      top1T = top1T & ffic & iflt(j,uuh2,",")  'top1T=top1T & ele & "." & ffic & ", "     'for detail debug  
       top1h = top1h & ele  & iflt(j,uuh2,",")
       top1hz(j) = ele 
     Next
 
-    For j = 0 To uuh2 : elm = isnullMA(rs2(j).value, "") : top1r = top1r & elm & iflt(j,uuh2,defaultDIT) : top1rz(j) = elm : Next
+    For j = 0 To uuh2 : ele = rs4wk("gval","",0,j) : top1r = top1r & ele & iflt(j,uuh2,defaultDIT) : top1rz(j) = ele : Next
     top1u = uuh2  'upper bound
 	return ""
   End function
@@ -340,10 +337,9 @@ end if
  
   Function rs_top1Record(sql, headL1, outFormat) 'might return a html table, or a new Upar, or a vector string
     Dim eleU, rr, vecH3s, vecR3s,i
-    if build_rs4_ok(cs23,sql, headL1) then else return ""
+    if rs4wk("build",sql   )="xx" then return ""
+       rs4wk("head" ,headL1)   
     ssdd("in rs_top1Record",outFormat)
-
-    
 
     If outFormat = "vec" Then
       'top1h=top1h  
@@ -368,53 +364,21 @@ end if
     End If
   End Function
   
-  sub rstable_to_htm(sql, headList2) 'response to screen
+  sub rstable_to_htm(sql as string, headList2 as string, showTitle as boolean) 'response to screen
     Dim cn,j as int32
-    dim excc, oneL, rsij as string
-    dim fsa, fsb
-    Dim ftyp
-    Dim headline, td0Fashion 
-    excc = "" 
+    dim oneL, rsij, excc as string
+    Dim titleBar
     if rs4wk("build"  ,sql      )="xx" then exit sub
-    rs4wk("head",headlist2)   
-
-    'prepare excel link 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    fsa = Nothing
-    fsb = Nothing
-    If showExcel Then
-      Dim ffsnameT = intloopi() & ".csv"
-      Dim ffsname2 = tmpFord & ffsnameT
-      Response.Write("此查詢結果也可以顯示於<a href='../" & tmpy & "/" & ffsnameT & "' target=eexx>Excel檔</a>, ")
-      fsa = CreateObject("scripting.FileSystemObject")
-      fsb = fsa.createTextFile(ffsname2, True)
-      excc = top1h & ienter
-    End If
- 
-    headline=tr0 & "<th>" & Replace(top1h, ",", "<th>") : td0Fashion=td0    
-	if headlist="fashion2" then headline=""
-	if headlist="fashion2" then td0Fashion="<td width=50% >"
-	
-    'build tdRights()  to define td  align be left or right, build fdvSomeComa=sum(fdvii,)  
-    digis = Split(nospace(digilist), ",") : Dim fdvomeComa = ""
-    For j = 0 To top1u      
-      tdRights(j) = td0
-      fdvomeComa = fdvomeComa & "fdv" & digi2(j+1) & ".type=" & rs4wk("gtyp","",0,j) & ","
-    Next
-
-    If needSchema = 1 Then
-      wwi(top1h & "<br>" & fdvomeComa & "<br>")
-      wwi(table0 & headline & "<tr><td>" & Replace(fdvomeComa, ",", "<td>") & table0End)
-      wwi(top1T & "<br>" & top1h & "<br>" & top1r & "<br>")
-    End If
-
-    Dim local_rcSHOW = const_maxrc_htm
-    Dim local_rcALLL = const_maxrc_fil
-    For j = 0 To top1u : fdt_sumtotal(j) = 0 : Next
-
-    'prepare head end, scan rs begin 2222222222222222222222222222222222222222222222222222222222222222222222222222222222
-    cn = 0 
-    wwi("<br for=dataBlock>" & table0 & headline & ienter) 'for data block
-    'ssdd(3970, "[" & top1T & "]")
+    
+    if showTitle then
+        rs4wk("head",headlist2)  
+        rs4wk("initExcel")        
+        rs4wk("Write,TitleBar+Schema")       
+        rs4wk("initSumTotal")
+    end if 'showTitle
+    excc = top1h & ienter
+     
+    cn = 0   'scan rs begin 2222222222222222222222
     For j = 0 To top1u : tdDecorate(j)=if(mid(top1T,1+j*2,1)="c",  "<td>", "<td align=right>") :next j
     do until rs4wk("empty", "",cn)="y"
       cn = cn + 1 : oneL=tr0
@@ -426,17 +390,17 @@ end if
       Next : wwi(oneL)
 
       If headlistRepeat>=10 Then
-        If ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(headline)
+        If ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(titleBar)
       End If
-      If showExcel Then fsb.writeline(excc) : excc = ""
-      rs4wk("mov","") 'rs2.movenext() : 
-    loop : rs4wk("close","") 
+      rs4wk("writeExcel",excc):excc=""      
+      rs4wk("mov") 'rs2.movenext() : 
+    loop : rs4wk("close") 
 
     'scan rs2 end, make tail  333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
-    If cn > local_rcSHOW Then wwi(tr0 & "<td>and more ...")
-    If cn > 60 Then wwi(headline) 'to add headline at bottom
+    If cn > const_maxrc_htm Then wwi(tr0 & "<td>and more ...")
+    If cn > 60 Then wwi(titleBar) 'to add titleBar at bottom
     If TailList <> "" Then wwi(TailListResult(cn, top1u, "htm"  ,tr0 & "<td style='color:blue;font-weight:bold'>", "<td class=riz  style='color:blue'>"))
-    If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : fsb.writeline(excc) : fsb.close()
+    If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : rs4wk("writeExcel",excc) : rs4wk("closeExcel")
     wwi(table0End)
   End sub 'of rstable_to_htm
   
@@ -445,19 +409,12 @@ end if
   'when     tdValue comes from tdrights(j) & rs(j).value    then     you must previously let rs(j).value="er! colspan=2>"+realValue
   return replace(tdValue, ">er!" , "")
   end function
-  
-  
-
-  Function                        rstable_to_quick_Response(sql as string, preWord as string)
-           if usAdapt="n" then ca_rstable_to_quick_Response(sql          , preWord)
-		                       cz_rstable_to_quick_Response(sql          , preWord) 'using adapter on mssql or mysql 
-  end function
 
   Function rstable_to_comaEnter_String(sql, headList2, dipi, needHeadMa, preWord)    
     Dim cn, j as int32
 	dim rr, ri as string
     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then  return ""  'no need to say rs2.close
-    vectorlizeHead(headList2,338)
+    prepareColumnHead(headList2,338)
 
     rr = preWord & ifeq(needHeadMa, "needHead", top1h & ienter, "")
     cn = 0 : ri=""
@@ -474,25 +431,27 @@ end if
   End Function
 
 
-  sub ca_rstable_to_quick_Response(sql as string, preWord as string)
-    Dim rs2, cn, line, j : cn = 0 : line = ""
-    rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then exit sub 'no need to say rs2.close
-    vectorlizeHead("",338)
+  sub rstable_to_quick_Response(sql as string, preWord as string)
+    Dim cn,j as int32 
+    dim rr as string : rr = ""
+    if rs4wk("build",sql)="xx" then exit sub
+    prepareColumnHead("",338)
     Response.Write(preWord & top1h & j1j2 & top1T & j1j2)
-    While cn < const_maxrc_fil And Not rs2.eof()
-      cn = cn + 1 : line = ""
+    cn = 0
+    do until rs4wk("empty", "",cn)="y"
+      cn = cn + 1 : rr = ""
       For j = 0 To top1u - 1
-        line =      line & rs2(j).value & quickSepa
-      Next : line = line & rs2(j).value & entery
-      Response.Write(line )
+             rr = rr & rs4wk("gval","",cn-1,j) & quickSepa
+      Next : rr = rr & rs4wk("gval","",cn-1,j) & entery
+      Response.Write(rr )
       If (cn Mod 1000) = 1 Then
         Response.Flush()
-        If Not Response.IsClientConnected() Then cn = const_maxrc_fil
+        If Not Response.IsClientConnected() Then exit do
       End If
-      rs2.movenext() : End While : rs2.close()
+    rs4wk("mov","")    
+    loop : rs4wk("close","") : cnInFilm = cn      
     Response.Write(Left(preWord, 1) + "/" + Mid(preWord, 2))
-    Response.Flush()
-    cnInFilm = cn
+    Response.Flush()   
   End sub
   
 
@@ -501,7 +460,7 @@ sub rstable_to_freeCama(sql as string)
    Dim rs2
    dim cn, j  as int32 : dim line as string: cn = 0 : line = ""
    rs2=objConn2c.Execute(sql) :  if  rs2.state=0 then exit sub 'no need to say rs2.close
-   vectorlizeHead("",534)
+   prepareColumnHead("",534)
    'response.write("<!DOCTYPE html><head><meta charset='UTF-8'></head>")
    cn=0  : line=""
    while cn<const_maxrc_fil and not rs2.eof
@@ -517,7 +476,7 @@ end sub
 function    rstable_to_top1r(sql)
    ssdd("in rstable_to_top1r ...",sql)
    rs2=objConn2c.Execute(sql) :  if  rs2.state=0 then exit function 'no need to say rs2.close
-   vectorlizeHead("",567)      
+   prepareColumnHead("",567)      
    rs2.close
    rstable_to_top1r=""
 end function
@@ -544,111 +503,28 @@ Function rstable_to_gridHTM(sql as string, headlist2 as string,   optional needT
     return rr & if(needTBma, table0End, "") & ienter 
 End Function 
 
-function rs4wk(methoda as string, para as string, optional i as int32=0, optional j as int32=0) as string
- if SQL_recordset_TH=2 then
-    select case methoda
-    case "build" 
-	                try
-                      rs2=objConn2c.Execute(para) 
-                      return if( rs2.state = 0 , "xx" , "yy")
-	                catch ex as Exception
-	                  ssddg("sqL721", para ,  ex.Message)
-	                end try    
-    case "head"   : vectorlizeHead(para,312) 'in rs4wk
-    case "fdnn"   : return (rs2.fields.count-1) & ""
-    case "fdnm"   : return rs2.fields(j).name
-    case "empty"  : return if( (i >= const_maxrc_htm) or rs2.eof,"y", "n")    
-    case "gtyp"   
-                  Select Case rs2.fields(j).type 
-                  Case 3, 20     : return "i"
-                  Case 4, 5, 131 : return "f"
-                  Case 6         : return "f" 'money
-                 'case 11        : return "b" 'boolean
-                  Case Else      : return "c"
-                  End Select 
-    case "gval"   : return rs2(j).value & ""
-    case "mov"    : rs2.movenext(): return ""
-    case "close"  : rs2.close(   ): return ""
-    case else     : ssddg("in rs4wk, see unknown methoda", methoda)
-    end select
- else
-    select case methoda
-    case "build"  : makeRS3(para) 
-    case "head"   : vectorlizeHead(para,313) 'in rs4wk
-    case "fdnn"   : return (rs3.columns.count-1) & ""
-    case "fdnm"   : return rs3.columns(j).columnName
-    case "empty"  
-                    return if( (i >= const_maxrc_htm) or (i >rs3.rows.count-1),"y", "n")
-	                'if rs3 is nothing      then return ""
-	                'if rs3.columns.count=0 then return ""                     
-    case "gtyp"   
-                    Select Case rs3.columns(j).dataType.ToString  
-                      Case "System.Int32" , "System.Int16": return "i"
-		              case "System.Decimal"               : return "f"
-                      Case Else                           : return "c"
-	                end select
-    
-    case "gval"   : return rs3.rows(i).item(j).toString
-    case "mov"    : return ""
-    case "close"  : return ""
-    end select
- end if 
-    return ""
-end function
-
-
 
 
   
   sub rstable_to_dataF_beg(fromSomeLabel)
       utf8_openW(tmpPath(dataTu))
   End Sub
+  
   sub rstable_to_dataF(sql) 'dataTW is dataTu 
-    Dim rs2, cn, local_rcALLL, oneline, j
-	try
-     rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then exit sub  'no need to say rs2.close
-	catch ex as Exception
-	 ssddg("sqL808",sql , ex.Message)
-	end try	
-    vectorlizeHead(headlist,360)
-
-    local_rcALLL = const_maxrc_fil : cn = 0
-    While cn < local_rcALLL And Not rs2.eof  'p44
+    Dim cn as int32,  j as int32, rr as string
+    if rs4wk("build",sql)="xx" then exit sub
+    prepareColumnHead("",360)
+    cn = 0
+    do until rs4wk("empty", "",cn)="y"
       cn = cn + 1
-      oneline = ""
-      For j = 0 To top1u : oneline = oneline & Replace(Replace(rs2(j).value & "", ienter, "vbNL"), dataToDIL, "-") & ifeq(j, top1u, "", dataGu) : Next
-      'here must use & "" , otherwise when rs2(j) is null, command 'replace' will rise error
-      'now oneline looks like f1#! f2#1 f3#! f4
-      oneline = Replace(oneline, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
-      utf8_doesW(oneline)
-     rs2.movenext()
-    End While
-    rs2.close()
+      rr = ""
+      For j = 0 To top1u : rr=rr & replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-") & ifeq(j, top1u, "", dataGu) : Next
+      rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
+      utf8_doesW(rr)
+    rs4wk("mov","")    
+    loop : rs4wk("close","") 
     cnInFilm = cn  
   End sub 
-  
-  sub czrstable_to_dataF(sql) 'dataTW is dataTu 
-    Dim  cn, local_rcALLL, oneline
-	
-	'below 3line==  rs3=objConn2c.Execute(sql) 'objconn2v= new SqlConnection(ddccss) was at very top	 
-	  if rs4wk(3,"build",sql)="xx" then exit sub
-      dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
-	if imax<0 then  exit sub 
-
-    vectorlizeHead(headlist,3162)
-    local_rcALLL = const_maxrc_fil : cn = 0
-    for i=0 to min(imax,local_rcALLL) 'While cn < local_rcALLL And Not rs2.eof  'p44
-      cn = cn + 1
-      oneline = ""
-      For j = 0 To top1u : oneline = oneline & Replace(Replace(rs3.rows(i).item(j) & "", ienter, "vbNL"), dataToDIL, "-") & ifeq(j, top1u, "", dataToDIL) : Next
-      'here must use & "" , otherwise when rs2(j) is null, command 'replace' will rise error
-      'now oneline looks like f1#! f2#1 f3#! f4
-      oneline = Replace(oneline, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
-      tmpf.writeline(oneline)
-    next
-    'rs3.dispose() ': dapp.dispose() '=recordset close
-    cnInFilm = cn 
-  End sub
 
   Sub rstable_to_dataF_end()
     utf8_CloseW(tmpPath(dataTu) ) 
@@ -1319,8 +1195,9 @@ end sub
   End Sub
   
   function permitRun(progNm as string) as boolean
-    If userOG = mister         then return true
-    if inside("qpass", progNm) then return true
+    If userOG = mister          then return true
+    if inside("qpass" , progNm) then return true
+    if inside("aMacro", progNm) then return true
     if inside( lcase(progNm) , application(userID & ",runable") ) then return true
     return false    
   end function
@@ -1343,7 +1220,7 @@ end sub
   Sub prepare_UparUpag(acta) 'this sub to: prepare Upar,Upag
     Dim org12() as string    
     If trim(spfily)=""   Then Exit Sub ' so (Upar, Upag) come from screen and ignore Uvar  
-    spContent = loadFromFile(codFord, spfily):org12 = Split(spContent, "#1#2") : If UBound(org12) <> 1 Then ssddg("program opened " & spfily & " but it looks not like #1#2 format")
+    spContent = loadFromFile(codFord, spfily):org12 = Split(spContent, "#1#2") : If UBound(org12) <> 1 Then ssddg("err when opening " & spfily ,"it looks not like #1#2 format")
     
     if acta="showop" then Upar = merge_UVAR_into_UPAR(Uvar, "into",org12(0)) : Upag=org12(1) : exit sub
     
@@ -1504,8 +1381,11 @@ Sub setValue(keyName as string,   whatval as string)
     addKV(keyname,whatVal)
 End Sub
 sub appendStr(keyName as string, longString as string) 'similar as sub setValue , but mayReplaceOther is true
+    static KeyNameWas as string
     dim k as int32   
     if lowt(keyName)="addenter"              then appendAddEnter= (lowt(longString)="y" )                      :exit sub
+    if keyName="" then keyName=keyNameWas
+    keyNameWas=keyName
     for k=1 to cmN12
       if                     keys(k)=keyName then vals(k)=vals(k) & if(appendAddEnter,ienter,"") & longString  :exit sub
     next
@@ -1554,9 +1434,6 @@ end sub
     If nowDB<>"" Then objConn2_close()
 	
 	nowDB=ucase(dbnm)     
-   '                       usAdapt="y" 'was n
-   'if nowDB="CRMY"   then usAdapt="y" 'was m
-   'if nowDB="CROKHQ" then usAdapt="y"
     If                   Application("dbct,HOME")           = "" Then load_dblist()
 		
     If                   Application("dbct," & ucase(dbnm) ) = "" Then ssddg("no such db:" & dbnm)
@@ -2258,7 +2135,7 @@ end function
        xmlhttp.Send()
        askURL = xmlhttp.ResponseText
     catch e as Exception
-       askURL = "I could not get data, maybe you are misSpelling or site is down."
+       askURL = "I could not get data, maybe you are misSpelling or site is down:(" & URL & ")," & e.Message
     end try
     xmlhttp = nothing
   End Function
@@ -2327,13 +2204,13 @@ end function
     End If
   End Function
 
-  Sub rstable_dataTu_somewhere(sqcmd as string) 'also for batch_loop
+  Sub rstable_dataTu_somewhere(sqcmd as string, optional showColumnTitle as boolean=true) 'also for batch_loop
     Dim dataTul, idle, idleMark, rstt
     sqcmd=aheadSQL() & sqcmd
     dataTul = LCase(Trim(dataTu)) 'ssdd(2721,"going to write data", dataTu)
     
     If dataTul = "screen" Then
-                                    Call dump() : rstable_to_htm(sqcmd, headlist) 'dump beforeHand becasue rstable_to_htm might generate long string
+                                    Call dump() : rstable_to_htm(sqcmd, headlist,showColumnTitle) 'do dump() becasue rstable_to_htm might generate long string
     ElseIf dataTul="quick2" Then 'was said vb.net
                                     call newHtm(100) : rstable_to_quick_Response(sqcmd, "[quick2]")  'for vb.net.tb  , cz means replace recordSet into dataTable 
     elseif dataTul="quick"  then 'was said freecama
@@ -2375,37 +2252,10 @@ end function
  
 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
   sub makeRS3(sql as string)
-         if usAdapt="y" then dim dapp as new   SqlDataAdapter : dapp=New   SqlDataAdapter(sql, objconn2v): dapp.SelectCommand.CommandTimeout=600 : dapp.Fill(rs3) 
-    'mmy if usAdapt="m" then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : dapp.Fill(rs3) 
+         if SQL_recordset_TH=3 then dim dapp as new   SqlDataAdapter : dapp=New   SqlDataAdapter(sql, objconn2v): dapp.SelectCommand.CommandTimeout=600 : dapp.Fill(rs3) 
+    'mmy if SQL_recordset_TH=4 then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : dapp.Fill(rs3) 
   end sub 
   
-  'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-  sub cz_rstable_to_quick_Response(sql as string, preWord as string)
-    Dim cn, line : cn = 0 : line = ""	  
-	  	
-	'below 4line==  rs3=objConn2c.Execute(sql) 'objconn2v= new SqlConnection(ddccss) was at very top
-	  dim rs3 as new DataTable : makeRS3(sql) : if rs3 is nothing then exit sub	  
-      dim i,j, imax,jmax : imax=rs3.rows.count-1 :jmax=rs3.columns.count-1 		  
-	if imax<0 then exit sub
-	
-	Response.Write(preWord & top1h & j1j2 & top1T & j1j2)
-	for i=0 to min(imax, const_maxrc_fil)
-      cn = cn + 1 : line = ""
-      For j = 0 To jmax - 1
-             line = line & rs3.rows(i).item(j) & quickSepa
-      Next : line = line & rs3.rows(i).item(j) & entery
-      Response.Write(line)
-	
-      If (cn Mod 1000) = 1 Then
-          Response.Flush()
-          If Not Response.IsClientConnected() Then cn = const_maxrc_fil
-      End If
-    next i
-	'rs3.dispose()' : dapp.dispose() '=recordset close
-    Response.Write(Left(preWord, 1) + "/" + Mid(preWord, 2))
-    Response.Flush()
-    cnInFilm = cn  
-  end sub 'of cz_stable_to_quick_Response
   
   function sqlToFileMa() as boolean
    sqltoFileW= inside(".", dataTu)
@@ -2413,11 +2263,12 @@ end function
   end function
   
   Sub batch_loop(loopN as int32, cmdtyp as string, ELE2 as string)
-    Dim cn, j as int32
+    Dim inpN, j, sqlrunNth as int32
     dim line, linez, cutter, wds() as string
+    dim showColumnTitle as boolean
     
     'output prepare process:
-       cn = 0 : dataFromRecordN = 0  : dump() :  sqlToFileMa() 
+       inpN = 0 : dataFromRecordN = 0 : sqlrunNth=0 : dump() :  sqlToFileMa() 
        If dataTu = "screen"   Then buffW(table0) 'LB3045A
        If sqlToFileW Then rstable_to_dataF_beg(2670) 'in sub batch_loop
        if loopN=1 then goto kernel
@@ -2428,9 +2279,9 @@ end function
     do 'for each record of input matrix
       line = SRCget()
       If line = "was.eof" Then Exit Do
-      if cn=0 then cutter=bestDIT(line) 'decide cutter only at the first line      
-      cn = cn + 1
-      If record_cutBegin <= cn And cn <= record_cutEnd And line <> "" Then 
+      if inpN=0 then cutter=bestDIT(line) 'decide cutter only at the first line      
+      inpN = inpN + 1
+      If record_cutBegin <= inpN And inpN <= record_cutEnd And line <> "" Then 
         linez = line
         line = Replace(line.trim, "'", "`")  '有這一行可以使insert 'fdv01'且文字內有單撇時正常灌入
         If line <> "" andAlso line <> Chr(26)  Then ' chr(26) is EOF
@@ -2441,19 +2292,20 @@ end function
           For j = 0 To UBound(wds)
             ELE2 = Replace(ELE2, "fdv" & digi2(j + iniz), Replace(wds(j), "vbNL", ienter) ) '要預先把 data block裡的vbNL 改為 ienter 
           Next
-          ELE2 = Replace(ELE2, "fdv0I", "" & (cn + iniz - 1)) 'the ith of this line, if iniz=1 then it=cn else it=cn-1
+          ELE2 = Replace(ELE2, "fdv0I", "" & (inpN + iniz - 1)) 'the ith of this line, if iniz=1 then it=inpN else it=inpN-1
           ELE2 = Replace(ELE2, "fdv0Z", Replace(linez, dataToDIL, ",")) 'populate linez, but if linez contains dataToDIL, then replace it to ,
           
           kernel:
+          sqlrunNth=sqlrunNth+1 : showColumnTitle=( sqlrunNth=1)
           select case cmdTyp
-          case "sqlcmd"     : rstable_dataTu_somewhere(ELE2)     'in sub batch_loop
-          case "sqlcmdh"    : buffW("sqlcmdh: " & ELE2 & "<br>") 'in sub batch_loop  
-          case "sendmail"   : Call sendmail(ELE2)                'in sub batch_loop 
+          case "sqlcmd"     : rstable_dataTu_somewhere(ELE2,showColumnTitle)         'in sub batch_loop
+          case "sqlcmdh"    : buffW("sqlcmdh: " & ELE2 & "<br>")                     'in sub batch_loop  
+          case "sendmail"   : Call sendmail(ELE2)                                    'in sub batch_loop 
 		  case else         : buffW("unknown batch command type: " & cmdTyp & "<br>")
           End select
           if loopN=1 then goto loopOut
         End If   'not ch26 (not eof)
-      End If    'cn is good
+      End If    'inpN is in range
     loop 'next of for each   
     
     'input ending process
@@ -2465,10 +2317,11 @@ end function
     If dataTu = "screen"  Then buffW(table0End) 'LB3045B, relate to LB3045A 
 'ssddg(2918,123)    
   End Sub
-
+'total 169k bytes 20190117
 
 </script>
 
+<!-- #Include virtual=MIPrs4w.aspx" --> 
 <!-- #Include virtual=MIPkeys.aspx" --> 
 <!-- #Include virtual=MIPfunc.aspx" --> 
 <!-- #Include virtual=MIP2str.aspx" --> 

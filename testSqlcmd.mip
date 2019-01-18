@@ -3,3 +3,12 @@ sqlcmd==select * from mapper
 var1==top1r|2
 show==var1
 exit==ok
+
+
+
+mass==
+         11,12
+         21,22
+         31,32
+sqlcmd,mass==select a='c:fdv01', b='d:fdv02'
+exit==ok
