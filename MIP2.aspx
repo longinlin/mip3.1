@@ -315,10 +315,10 @@ end if
     Dim uuh2 as int32= rs4wk("fdub","") 
     Dim ele as string
     dim j as int32
-    top1T = ""  '      column type[i], ...
-    top1h = ""  '      column name[i], ...
-    top1r = ""  ' top1 column data[i], ...
-	top1u = uuh2  '     =column Ubound       or =columns.count-1
+    top1T = ""   '      column type[i], ...
+    top1h = ""   '      column name[i], ...
+    top1r = ""   ' top1 column data[i], ...
+	top1u = uuh2 '     =column Ubound       or =columns.count-1
 
     For j = 0 To uuh2
       ele=If( (j<=uuh1) andAlso (head1s(j)<>"")  , head1s(j) , rs4wk("fdnm","",0,j)  ) 
@@ -327,7 +327,6 @@ end if
       top1h = top1h & ele  & iflt(j,uuh2,",")
       top1hz(j) = ele 
     Next
-
     For j = 0 To uuh2 : ele = rs4wk("gval","",0,j) : top1r = top1r & ele & iflt(j,uuh2,defaultDIT) : top1rz(j) = ele : Next
 	return ""
   End function
@@ -350,7 +349,7 @@ end if
       vecR3s = Split(top1r, defaultDIT)
       eleU = UBound(vecH3s)
       For i = 0 To eleU
-        rr = rr & "<tr><td style='background-color: #FFBA00'>" & vecH3s(i) & "<td style='background-color: #FFCB00'>" & vecR3s(i)
+        rr = rr & "<tr><td style='background-color: #FFBA00'>" & vecH3s(i) & "<td style='background-color: #FFCB00'>" & vecR3s(i)  
       Next
       return rr & table0End & ienter
     Else 'generating par
@@ -367,7 +366,7 @@ end if
   'example: tdValue contains ">er! colspan=2>realValue"
   'when     tdValue comes from tdrights(j) & rs(j).value    then     you must previously let rs(j).value="er! colspan=2>"+realValue
   return replace(tdValue, ">er!" , "")
-  end function  
+  end function
   
   sub rstable_to_htm(sql as string, headList2 as string, showTitle as boolean) 'response to screen
     Dim cn,j as int32
@@ -408,93 +407,14 @@ end if
     If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : rs4wk("writeExcel",excc) : rs4wk("closeExcel")
     wwi(table0End)
   End sub 'of rstable_to_htm
-
-  Function rstable_to_varComma(sql, headList2, dipi, needHeadMa, preWord)    
-    Dim cn, j as int32
-	dim rr, ri as string
-    rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then  return ""  'no need to say rs2.close
-    prepareColumnHead(headList2,338)
-
-    rr = preWord & ifeq(needHeadMa, "needHead", top1h & ienter, "")
-    cn = 0 : ri=""
-    While cn < const_maxrc_fil And Not rs2.eof
-      cn = cn + 1
-      For j = 0 To top1u
-        ri = ri & Replaces(rs2(j).value & ""  , ienter, "vbNL",    dipi, "-"               ) & ifeq(j, top1u, ienter, dipi)
-       'ri = ri & Replaces(rs2(j).value & ""  , ienter, "vbNL",    dipi, "-",   Chr(0), " ") & ifeq(j, top1u, ienter, dipi)
-      Next
-	                      if cn mod 100 =99 then rr=rr & ri : ri=""
-      rs2.movenext() : End While : rs2.close() : rr=rr & ri
-	cnInFilm = cn
-    return rr & Replace(preWord, "<", "</")    
-  End Function
-
-
-  sub rstable_to_responseCall(sql as string, begQ as string, endQ as string)
-    Dim cn,j as int32 
-    dim rr as string : rr = ""
-    if rs4wk("build",sql)="xx" then exit sub
-    prepareColumnHead("",338)
-    Response.Write(begQ & top1h & j1j2 & top1T & j1j2)
-    cn = 0
-    do until rs4wk("empty", "",cn)="y"
-      cn = cn + 1 : rr = ""
-      For j = 0 To top1u - 1
-             rr = rr & rs4wk("gval","",cn-1,j) & quickSepa
-      Next : rr = rr & rs4wk("gval","",cn-1,j) & entery
-      Response.Write(rr )
-      If (cn Mod 1000) = 1 Then
-        Response.Flush()
-        If Not Response.IsClientConnected() Then exit do
-      End If
-    rs4wk("mov","")    
-    loop : rs4wk("close","") : cnInFilm = cn      
-    Response.Write(endQ)
-    Response.Flush()   
-  End sub
-
-sub rstable_to_freeCama(sql as string)
-   Dim rs2
-   dim cn, j  as int32 : dim line as string: cn = 0 : line = ""
-   rs2=objConn2c.Execute(sql) :  if  rs2.state=0 then exit sub 'no need to say rs2.close
-   prepareColumnHead("",534)
-   'response.write("<!DOCTYPE html><head><meta charset='UTF-8'></head>")
-   cn=0  : line=""
-   while cn<const_maxrc_fil and not rs2.eof
-      cn=cn+1 : line=""
-	  for j=0 to top1u-1 
-	         line=line & rs2(j).value    & icoma
-	  next : line=line & rs2(j).value    & ienter
-	  response.write(line)
-   rs2.movenext: end while:rs2.close
-   cnInFilm=cn
-end sub
-
-
-Function rstable_to_varGrid(sql as string, headlist2 as string,   optional needTBma as boolean=true,   optional needHDma as boolean=false) as string' assemble recordSet to an html piece
-    dim cn,j as int32
-    dim result,rr,agg as string	 
-    if rs4wk("build"  ,sql      )="xx" then return ""
-    ssdd(6491,sql,needTBma,needHDma)
-       rs4wk("head",headlist2)   
-   ssdd(6492,sql,headlist2,top1u)       
-    For j = 0 To top1u : tdDecorate(j)="<td align=right>" :next j
-    cn = 0
-    rr = if(needTBma, table0, "") & if(needHDma, "<tr><th>" & Replace(top1h, ",", "<th>"), "")
-    do until rs4wk("empty", "",cn)="y"
-      cn = cn + 1 : rr = rr & "<tr>"
-      For j = 0 To top1u ' the last u is done in next 3 lines
-        rr = rr & tdDecorate(j) & rs4wk("gval","",cn-1,j)
-      Next
-      rr = rr & ienter
-      rs4wk("mov","")    
-    loop : rs4wk("close","") 
-    return rr & if(needTBma, table0End, "") & ienter 
-End Function 
+  
 
 
 
   
+
+
+
   sub rstable_to_dataF_beg(fromSomeLabel)
       utf8_openW(tmpPath(dataTu))
   End Sub
@@ -507,7 +427,7 @@ End Function
     do until rs4wk("empty", "",cn)="y"
       cn = cn + 1
       rr = ""
-      For j = 0 To top1u : rr=rr & replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-")  & if(j<top1u, defaultDIT, iempty) : Next
+      For j = 0 To top1u : rr=rr & replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-") & if(j<top1u, defaultDIT, iempty) : Next
       rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
       utf8_doesW(rr)
     rs4wk("mov","")    
@@ -914,6 +834,7 @@ End Function
     buffW(endpt)
   End Sub
 
+
 sub edit_ghh(caseN) 'edit the output wording style, 
     select case caseN
     case 88101
@@ -947,7 +868,7 @@ end sub
   Sub dump()   
                Response.Write(ghh) : ghh = "" 
   end sub               
-  
+    
   Sub newHtm(caseN)
     ghh = "" : buildCssStyle(): buildJscript() : edit_ghh(caseN) ' in sub newHtm, to erase those data in buffer
   End Sub  
@@ -1000,7 +921,6 @@ end sub
     dumpend()
   End Sub
 
-
   Sub load_usList()
     Dim userALL, i, xnm, u2atts, users
     wLog("read uslist")
@@ -1016,7 +936,7 @@ end sub
           xnm=xnm & vbnewline & "    select agNm, agID,agpp=@pw,comp='ROC',dept='sal', jbid='w003', permit='all' from agent where agID='$usnm32'; "
           xnm=replace(xnm, "$usnm32", usnm32)
           xnm=replace(xnm, "$pswd32", pswd32)
-       userALL=userALL & vbnewline & rstable_to_varComma(xnm,  "",  ",", "noNeedHead", "") 'ddd       
+       userALL=userALL & vbnewline & rstable_to_varComma(xnm,  "",  ",") 'ddd       
 	end if
 	users = Split(userALL, ienter)
     Application("inputF") = Now()
@@ -1466,7 +1386,6 @@ end sub
     dim i,j,k, UBB as int32
     Dim keya, vala, typa, tLines(), thisLine as string
 
-   
     tLines=split(mystr2, ienter) 'no trimSplit(mystr2, ienter, tLines) since I wish mip.aspx works as translater and keeps the space of wording
     UBB = UBound(tLines) 
     'ssdd(2029, "part12:"& part12,  "mystr2:" & mystr2,   "uBB:" & UBB, tlines(0))
@@ -1478,7 +1397,7 @@ end sub
 		  keya=leftPart(thisLine,"==").trim : vala=rightPart(thisLine,"==").trim   :  typa="iibx"  'let default type be iibx      
           If vala = "" Then         '若==之後是空白， 往下取到某行含有== ；且這==左方沒有uvar= 
             For j = i + 1 To UBB
-              If inside("==",tLines(j)) andAlso notInside("uvar=", leftPart(tlines(j),"==")) Then vala=replace(ienter & vala & "fzUz", ienter & "fzUz" , "") : Exit For                
+              If inside("==",tLines(j)) andAlso notInside("uvar=", leftPart(tlines(j),"==")) Then  vala=replace(ienter & vala & "fzUz", ienter & "fzUz" , "") : Exit For    
               vala = vala & tLines(j) & ienter              
               if tLines(j)<>"" then typa = "mmbx"  
             Next
@@ -1996,7 +1915,7 @@ end sub
         Dim sqcmd = Replace(ss(i), "grid25R:", "")
         bb = bb & rs_top1Record(sqcmd, headlist, "htm") & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' grid25R:後接sql command
       ElseIf Left(Trim(ss(i)), 5) = "gtxt:" Then
-        bb = bb & rstable_to_varComma(Replace(ss(i), "gtxt:", ""), headlist, icoma, "needHead", "<pre>") & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' gtxt:後接sql command 輸出純文字檔
+        bb = bb & "<br><pre>" & rstable_to_varComma(Replace(ss(i), "gtxt:", ""), headlist, icoma) & "</pre><br>" & ienter : m2.bodyformat = 0 : m2.Mailformat = 0  ' gtxt:後接sql command 輸出純文字檔
       ElseIf Left(Trim(ss(i)), 7) = "format:" Then
         m2.bodyformat = 0 : m2.Mailformat = 0
       ElseIf Left(Trim(ss(i)), 7) = "attach:" Then
@@ -2205,6 +2124,7 @@ end function
                                     call zeroHtm(100) : rstable_to_responseCall(sqcmd, "[begQ]", "[endQ]")  'for vb.net.tb  , cz means replace recordSet into dataTable 
     elseif dataTul="quick"  then 'was said freecama
                                     Call zeroHtm(100) : rstable_to_freeCama(sqcmd)  'output data in simple string (for vb or .net or API)
+                                    
     ElseIf dataTul="xyz"    Then
                                     Call dump() : rstable_to_htmxyz(sqcmd, headlist,0)
     ElseIf dataTul="xyzsum" Then
@@ -2218,16 +2138,17 @@ end function
                                     'ssdd("in top1w",Upar,"soso")
                                     Call show_UparUpag("for-top1w", Upar, Upag, spfily) 'in top1Write , so you cannot mix up upar and upag
     ElseIf dataTul="top99w" Then  'display 99 records on screen in a <textarea>
-                                    rstt = rstable_to_varComma(sqcmd, headlist, icoma, "noNeedHead", "")
+                                    rstt = rstable_to_varComma(sqcmd, headlist, icoma)
                                     Upar = Upar & ienter & "matrix==" & ienter & rstt
                                     Call show_UparUpag("for-top9w", Upar, Upag, spfily) 'in top9Write      
     ElseIf Right(dataTul,3)="xml"   Then
                                     Call rstable_to_xmlFile(sqcmd, headlist)
     ElseIf Left(dataTul,6)="matrix" Then
-                                    Call setValue(dataTu, rstable_to_varComma(sqcmd, "", dataToDIL, "noNeedHead", "") )
+                                    Call setValue(dataTu, rstable_to_varComma(sqcmd, "", dataToDIL) )
     ElseIf left(dataTul,4)="grid" Then
                                     Call setValue(dataTu, rstable_to_varGrid(sqcmd, "aaa,bbb",1=1,1=2)                )
-    ElseIf sqlToFileMa()          Then
+                                    
+    ElseIf sqlToFileMa()              Then
                                     'ssdd(2726,"going to write data", dataTu)
                                     'rstable_to_dataF_beg(2221)
                                     rstable_to_dataF(sqcmd)  'in rstable_dataTu_somewhere
@@ -2311,6 +2232,7 @@ end function
 
 </script>
 
+<!-- #Include virtual=MIPSQL.aspx"  --> 
 <!-- #Include virtual=MIPrs4w.aspx" --> 
 <!-- #Include virtual=MIPkeys.aspx" --> 
 <!-- #Include virtual=MIPfunc.aspx" --> 

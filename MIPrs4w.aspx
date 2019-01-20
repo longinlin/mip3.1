@@ -33,7 +33,7 @@ function rs4wk(methoda as string, optional para as string="", optional i as int3
     end select
  else
     select case methoda
-    case "build"  : makeRS3(para) 
+    case "build"  : makeRS3(para) : return if( rs3.rows.count <= 0 , "xx" , "yy")
     case "head"   : prepareColumnHead(para,313) 'in rs4wk
     case "fdub"   : return (rs3.columns.count-1) & ""
     case "fdnm"   : return rs3.columns(j).columnName

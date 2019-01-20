@@ -53,9 +53,9 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       'parse_step[4.5] execute keys(i) with its vals(i)
       build_p123(keys(i), aaj1,aaj2,aaj3,keyLower)
 	  select case keyLower  'when see verb==some_description , then execute this verb
-      case "show", "showc":      
+      case "show", "showc":  ' "exit"    
                           if keyLower="showc" then vals(i)="<center>" & vals(i)  & "</center>" 
-                          buffW( vals(i)) 
+                          buffW( replace(vals(i), ienter,"<br>") ) 
       case "append"        'example: append,abcd==longString  'this serves for appending string
                            appendStr(aaj1, vals(i))  
       case "savetofile"  : aaj1=trim(leftPart(vals(i),icoma)) : aaj2=trim(rightPart(vals(i),icoma)) :                 saveToFileD(""     ,aaj1, aaj2)  
@@ -103,6 +103,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
 	  case "showapplication" : showApplication                          
 	  case "readdbs"    : load_dblist()
       case "newhtm"     : newHtm(vals(i))
+      case "zerohtm"    : zeroHtm(vals(i))
       case "datafromrange"   : records = Split(vals(i), ",") : record_cutBegin = CLng(Trim(records(0))) : record_cutEnd = CLng(Trim(records(1)))
       case "change_password" : Call change_password(vals(i))
       case "showexcel"   : showExcel = (vals(i) = 1)
@@ -115,7 +116,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "setfuncpara"  : fcComma=replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
       case "exit."        :                                                                              exitWord =vals(i) : exit for  
       case "exitred"      :                           buffW("<font color=red>" & vals(i) & "</font>" ) : exitWord =vals(i) : exit for 
-      case "exit"         : if hasValue(vals(i)) then buffW(""                 & vals(i) &        "" ) : exitWord =vals(i) : exit for                                 
+      case "exit"         : if hasValue(vals(i)) then buffW(replace(vals(i), ienter,"<br>")          ) : exitWord =vals(i) : exit for                                 
       case else
            'keyLower is [programmer defined var]  , almost set mayReplaceOther to true  
            if len(keyLower)<minKeyLen then ssddg("err, key name too short:",keyLower)

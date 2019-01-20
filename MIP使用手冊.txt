@@ -392,11 +392,29 @@
          c:21#!2200
          c:31#!3200   其中#!是資料分隔符號
           
-      (例: 讓SQL輸出結果到檔案 指定資料分隔符)
+      (例: 讓SQL輸出結果到檔案且指定輸出資料分隔符)
       用;當分隔符號: sqlcmd,mass,t22.txt,;==select a='c:fdv01', b=fdv02*100
       用,當分隔符號: sqlcmd,mass,t22.txt,,==select a='c:fdv01', b=fdv02*100
 
-          
+
+      (例: 讓SQL輸出結果到變數matrix...)
+      sqlcmd,,matrix2==select top 2 * from mapper -- 單純一句SQL
+      mass==
+      a11,a12
+      a21,a22
+      sqlcmd,mass,matrix3==select cc='fdv01',dd='fdv02' --將重複跑兩次SQL 因為 mass有兩行
+      凡是變數名稱前6個字母為matrix，則輸出是 a11#!a12(cr)a21#!a22(cr) 其中(cr)代表換行
+
+      (例: 讓SQL輸出結果到變數grid...)
+      sqlcmd,,grid2==select top 2 * from mapper -- 單純一句SQL
+      mass==
+      a11,a12
+      a21,a22
+      sqlcmd,mass,grid3==select cc='fdv01',dd='fdv02' --將重複跑兩次SQL 因為 mass有兩行
+      凡是變數名稱前4個字母為grid，則輸出是 <table><tr><th>cc<th>dd(cr)<tr><td>a11<td>a12(cr)<tr><td>a21<td>a22 其中(cr)代表換行
+      
+      凡是輸出到變數，則變數名稱必須是matrix開頭或grid開頭，其它開頭都不允許
+      
       (sqlcmd用法總結) sqlcmd,fromX,toY,DIP==some SQL lines
       其中fromX預設值 matrix
       其中toY  預設值 screen

@@ -3,7 +3,7 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
 'purpose: after previous keys() are wahsed into rightHandPart, and see there is a @[translateFuncName|para1|para2] in rightHandPart, then translate it
     Dim j as int32
     dim ftxt, i1ftxt, i2ftxt, cifhay,  ftxta, ftxtb,   ftxtc, kmcader, cutt, dval as string
-    dim funcLet,  idle, newSymbol, oldSymbol ,   verb2, info3, wallTH, arr0L, patt, tmpa,tmpb,tmpc as string
+    dim funcLet,tmpa,tmpb,tmpc,  idle, newSymbol, oldSymbol ,   verb2, info3, wallTH, arr0L, patt as string
     dim wordvs(), arr() as string
    'dim datetime22 as datetime
     if not inside(fcComma, rightHandPart) then return rightHandPart
@@ -71,10 +71,14 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
 	case "addhtmlgrid"  ' was named gridLize with purpose: change   1,2,3,4 (cr) 5,6,7,8   into        <table><tr>1234<tr>5678</table>    
       return addHtmlGrid(arr(1))
       
-    case "replace" 	' replace!abcd_is_arr(1)|a|1| b|2
+    case "replace", "say"  ' replace!abcd_is_arr(1)|a|1| b|2
         funcLet = arr(1)
-        For j = 2 To UBound(arr) - 1 Step 2
-          If arr(j) <> "" Then funcLet = Replace(funcLet, arr(j), arr(j+1))
+        For j = 2 To UBound(arr) 
+        if arr(j)<>"" then
+          if notInside("=", arr(j)) then ssddg("err when you use replace function, there must use = symbol, so it must looks as replace|wordy|p1=q1 , you wrote:(" & arr(j) & ")"  )
+          tmpa=leftPart(arr(j),"=") : tmpb=rightPart(arr(j),"=")
+          If tmpa<> "" Then funcLet = Replace(funcLet, tmpa, tmpb)
+        end if
         Next
         return funcLet
     case "max"        ' replace!abcd_is_arr(1)!pqrs_is_arr(2)    
@@ -133,7 +137,7 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
     case "ifhasfile" 
       If hasfile(arr(1)) Then return arr(2) Else return arr(3)
     case "askurl" 
-      ssdd(137,arr(1),222)
+      'ssdd(137,arr(1),222)
       return askURL(arr(1))
 	case "askurlwithpost"   ' 0=askURLwithPost| 1=URL | 2=dataTable
 	   if left(arr(2),6)<>"matrix" then ssddg("in askURLwithPost, the second parameter should look like matrix$i")
@@ -210,7 +214,7 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
     case "cdate"  '0:Date      1:(Jul  6, 1991) or (28-Aug-79)
                     dateAdd(arr(2),0,"yyyy/MM/dd")  
     case else ' kk==myLongParagraph|yy1|yy2
-      ssdd(211,"unknown function:", arr0L)
+      ssddg(2110,"unknown function:", leftHandPart,rightHandPart)
     End select
       tryERR=1 : ssdd("unknown func name, varTH:" & varTH,  "leftHand: " & lefthandPart, "unknown rightHand: "  & rightHandPart): return rightHandPart
   catch ex as exception
