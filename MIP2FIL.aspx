@@ -277,10 +277,10 @@ End Function
         result = stm.ReadToEnd() : stm.Close() : response.Close()
         Return string3tb(result)
       Catch e As WebException
-        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & quickSepa & "db say err2:" + e.Message) : Return ans
+        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & idotComa & "db say err2:" + e.Message) : Return ans
         'If e.Status = WebExceptionStatus.ProtocolError Then ...
       Catch e As Exception
-        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & quickSepa & "db say err3:" + e.Message) : Return ans
+        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & idotComa & "db say err3:" + e.Message) : Return ans
       End Try	  
   End Function
   

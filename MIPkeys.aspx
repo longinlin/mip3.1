@@ -72,14 +72,14 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "sqlcmd"  'see sql, might be single sql or doloop sql               
        if inside("T", vals(i).toUpper) then  'if pvals contains selecT updaT deleT   ; if not contains then do nothing 
 	      if nowDB="" then Call switchDB("HOME")  
-          If Inside("fdv0",vals(i)) then loopM=99 else loopM=1
-          batch_loop(loopM,"sqlcmd", vals(i)) 
+          If Inside("fdv0",vals(i)) then  batchSQL(vals(i)) else singleSQL(vals(i))
+          'batch_loop(loopM,"sqlcmd", vals(i)) 
 	   end if	  
       case "sqlcmdh"  'single sql           
         If InStr(vals(i), "fdv0") > 0 Then
-                                            Call batch_loop(99,"sqlcmdh", vals(i)) 'loop sql h
+                                            buffW("<xmp>sqlcmdh: " & vals(i) & "</xmp>")   
         Else
-                                            buffW("<xmp>sqlcmdh: " & vals(i) & "</xmp>") 'single sql h    
+                                            buffW("<xmp>sqlcmdh: " & vals(i) & "</xmp>")   
         End If
       
       case "label"   'no work to do, but I list it here to prevent it be recognized as [programmer defined var]
@@ -108,7 +108,6 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "change_password" : Call change_password(vals(i))
       case "showexcel"   : showExcel = (vals(i) = 1)
       case "showschema"  : needSchema = vals(i)
-      case "setxmlroot"  : XMLroot = vals(i)
       case "sleep"       : Call sleepy(vals(i))
       case "headlist"    : headlistRepeat = tryCint(aaj1) : headlist = noSpace(vals(i))
       case "taillist"    : TailList = vals(i) : Call zeroize_sumTotal()  ' was named as needSumList

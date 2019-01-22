@@ -26,8 +26,8 @@
   'const codePage=65001 '是指定IIS要用什麼編碼讀取傳過來的網頁資料 , frank tested: 不論有寫65001或沒寫 對select * from f2tb2(內有utf80 都正確顯示到網頁 但若寫936簡體 或寫950繁體 都會顯示出錯  
   Const bodybgAdmin = "", bodybgNuser = "bgcolor=#FBEBEC"  '#FFF7B2=light-yellow  #C4DEE6=turkey-blue  #81982F=light-green  #FBEBEC=pink
   const entery = "[!y)", enterz="[!e)" , ieq="=", KVMX=280, FDMX=340, const_maxrc_fil = 190000, const_maxrc_htm = 10000, iniz = 1  ' iniz=0 means fdv00=rs2(0), iniz=1 means fdv01=rs2(0)
-  Const webServerID = 41, adj="$," ,adj2="$,$," , j1j2 = "j1j2", defaultDIT="#!", quickSepa=";"  
-  const itab = Chr(9), ienter=vbNewLine, keyGlue="#$"  ,  tmpGlu="$*:" , icoma = "," , ispace=" " , iempty="" , ibest="best" 
+  Const webServerID = 41, adj="$," ,adj2="$,$," , j1j2 = "j1j2", defaultDIT="#!" 
+  const itab = Chr(9), ienter=vbNewLine, keyGlue="#$"  ,  tmpGlu="$*:" , icoma = "," , idotComa=";" , ispace=" " , iempty="" , ibest="best"
   const csplist_mip="csplist.mip" , cuslist_mip="cuslist.MIP"  , cdblist_mip="cdblist.mip" , minKeyLen=4, maxKeyLen=26
   const gcBeg="%gcBEg" ,               gcEnd="%gcENd"  ,  gcComma="!."
   const SQL_recordset_TH=3 'when 2 using recordset    , 3 using sqlAdapter and datatable
@@ -43,17 +43,17 @@
   dim iisPermitWrite as int32            ' you must let c:\main\webT  not readonly
   dim uslistFromDB   as int32  =0        ' this=0:fromTxt, this=1:fromTxt+fromDB
   dim usjson          as string ="n"      ' to parse uvar by JSON
-  dim XMLroot = "aaaa,bbbb,noneed", ram1 = "", spContent = "", nowDB = "", dbBrand = "ms", ghh = "", TailList = "", gccwrite as string   
+  dim ram1 = "", spContent = "", nowDB = "", dbBrand = "ms", ghh = "", TailList = "", gccwrite as string   
   
   '這程式必須用utf8內碼存起來, 這程式讀檔也要讀utf8檔,  讀資料庫的資料內容是utf8, 然後這程式在下一行宣告產出是uft8,  browser也設定為顯示utf8 , 一切才會顯示正常
   dim keys(KVMX), vals(KVMX), mrks(KVMX), typs(KVMX), vbks(KVMX)   as string: dim mayReplaceOther(KVMX) as boolean
   dim keyys(KVMX),valls(KVMX) as string
-  dim gridLR(FDMX),    tdRights(FDMX),    top1hz(FDMX),       top1rz(FDMX), tdDecorate(FDMX)                   as string 
+  dim gridLR(FDMX),    tdRights(FDMX),    top1Hz(FDMX), top1Tz(FDMX), top1Rz(FDMX), tdDecorate(FDMX)                   as string 
   dim fdt_sumtotal(FDMX), fdt_needsum(FDMX) as string
   dim wkds(), digis() as string
   dim wkdsI, wkdsU as int32
   
-  dim             top1T as string= "" ,      top1h as string= "",       top1r as string= "" : dim top1u as int32=0
+  dim             top1T as string= "" ,      top1h as string= "",       top1r as string= "" , top1u as int32=0 , titleBar as string=""
   'the above are: top1T=record.columnTypes;  top1h=record.columnNames;  top1r=record.value;       top1u=top 1 record.value's number of columns -1
 
   dim intflow,  headlistRepeat, needSchema, dataFromRecordN , cmN10, cmN12, record_cutBegin, record_cutEnd as int32
@@ -308,12 +308,11 @@ end if
    return icoma
   end function
   
-  function prepareColumnHead(head1,debugLine)
-    Dim head1s() as string : trimSplit(head1, ",", head1s)
-    Dim ffic = "i"
-    Dim uuh1 = UBound(head1s)
+  sub prepareColumnHead(debugLine as int32)
+    Dim userHs() as string : trimSplit(HeadList, ",", userHs)
+    Dim uuh1 as int32= UBound(userHs)
     Dim uuh2 as int32= rs4wk("fdub","") 
-    Dim ele as string
+    Dim eleHD,eleTP as string
     dim j as int32
     top1T = ""   '      column type[i], ...
     top1h = ""   '      column name[i], ...
@@ -321,22 +320,22 @@ end if
 	top1u = uuh2 '     =column Ubound       or =columns.count-1
 
     For j = 0 To uuh2
-      ele=If( (j<=uuh1) andAlso (head1s(j)<>"")  , head1s(j) , rs4wk("fdnm","",0,j)  ) 
-      ffic = rs4wk("gtyp","",0,j)
-      top1T = top1T & ffic & iflt(j,uuh2,",")  'top1T=top1T & ele & "." & ffic & ", "     'for detail debug  
-      top1h = top1h & ele  & iflt(j,uuh2,",")
-      top1hz(j) = ele 
-    Next
-    For j = 0 To uuh2 : ele = rs4wk("gval","",0,j) : top1r = top1r & ele & iflt(j,uuh2,defaultDIT) : top1rz(j) = ele : Next
-	return ""
-  End function
+      eleHD=If( (j<=uuh1) andAlso (userHs(j)<>"")  , userHs(j) , rs4wk("fdnm","",0,j)  ) 
+      eleTP = rs4wk("gtyp","",0,j)
+      top1H = top1H & eleHD & iflt(j,uuh2,",") : top1Hz(j) = eleHD 
+      top1T = top1T & eleTP & iflt(j,uuh2,",") : top1Tz(j)=eleTP   : tdDecorate(j)=if(eleTP="c", "<td>", "<td align=right>")
+      eleHD = rs4wk("gval","",0,j) 
+      top1r = top1r & eleHD & iflt(j,uuh2,defaultDIT) 
+      top1rz(j) = eleHD
+    Next   
+    titleBar=tr0 & "<th>" & Replace(top1h, ",", "<th>")   
+  End sub 
 
   
  
   Function rs_top1Record(sql, headL1, outFormat) 'might return a html table, or a new Upar, or a vector string
     Dim eleU, rr, vecH3s, vecR3s,i
-    if rs4wk("build",sql   )="xx" then return ""
-       rs4wk("head" ,headL1)   
+    if rs4wk("build",sql   )="xx" then return ""  
     ssdd("in rs_top1Record",outFormat)
 
     If outFormat = "vec" Then
@@ -349,7 +348,7 @@ end if
       vecR3s = Split(top1r, defaultDIT)
       eleU = UBound(vecH3s)
       For i = 0 To eleU
-        rr = rr & "<tr><td style='background-color: #FFBA00'>" & vecH3s(i) & "<td style='background-color: #FFCB00'>" & vecR3s(i)  
+        rr = rr & "<tr><td style='background-color: #FFBA00'>" & vecH3s(i) & "<td style='background-color: #FFCB00'>" & vecR3s(i)
       Next
       return rr & table0End & ienter
     Else 'generating par
@@ -368,46 +367,7 @@ end if
   return replace(tdValue, ">er!" , "")
   end function
   
-  sub rstable_to_htm(sql as string, headList2 as string, showTitle as boolean) 'response to screen
-    Dim cn,j as int32
-    dim oneL, rsij, excc as string
-    Dim titleBar
-    if rs4wk("build"  ,sql      )="xx" then exit sub
-    
-    if showTitle then
-        rs4wk("head",headlist2)  
-        rs4wk("initExcel")        
-        rs4wk("Write,TitleBar+Schema")       
-        rs4wk("initSumTotal")
-    end if 'showTitle
-    excc = top1h & ienter
-     
-    cn = 0   'scan rs begin 2222222222222222222222
-    For j = 0 To top1u : tdDecorate(j)=if(mid(top1T,1+j*2,1)="c",  "<td>", "<td align=right>") :next j
-    do until rs4wk("empty", "",cn)="y"
-      cn = cn + 1 : oneL=tr0
-	  for j = 0 To top1u 
-          rsij=rs4wk("gval","",cn-1,j)
-          oneL=oneL & tdDecorate(j) & rsij  'colSpanx(tdRights(j) & rsij
-          If showExcel            Then excc = excc & vifhas("href", rsij, "", rsij) & ","
-          If fdt_needsum(j) = "y" Then fdt_sumtotal(j) = fdt_sumtotal(j) + numberize(rs2(j).value & "", 0)
-      Next : wwi(oneL)
 
-      If headlistRepeat>=10 Then
-        If ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(titleBar)
-      End If
-      rs4wk("writeExcel",excc):excc=""      
-      rs4wk("mov") 'rs2.movenext() : 
-    loop : rs4wk("close") 
-
-    'scan rs2 end, make tail  333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333
-    If cn > const_maxrc_htm Then wwi(tr0 & "<td>and more ...")
-    If cn > 60 Then wwi(titleBar) 'to add titleBar at bottom
-    If TailList <> "" Then wwi(TailListResult(cn, top1u, "htm"  ,tr0 & "<td style='color:blue;font-weight:bold'>", "<td class=riz  style='color:blue'>"))
-    If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : rs4wk("writeExcel",excc) : rs4wk("closeExcel")
-    wwi(table0End)
-  End sub 'of rstable_to_htm
-  
 
 
 
@@ -415,125 +375,6 @@ end if
 
 
 
-  sub rstable_to_dataF_beg(fromSomeLabel)
-      utf8_openW(tmpPath(dataTu))
-  End Sub
-  
-  sub rstable_to_dataF(sql) 'dataTW is dataTu 
-    Dim cn as int32,  j as int32, rr as string
-    if rs4wk("build",sql)="xx" then exit sub
-    prepareColumnHead("",360)
-    cn = 0
-    do until rs4wk("empty", "",cn)="y"
-      cn = cn + 1
-      rr = ""
-      For j = 0 To top1u : rr=rr & replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-") & if(j<top1u, defaultDIT, iempty) : Next
-      rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
-      utf8_doesW(rr)
-    rs4wk("mov","")    
-    loop : rs4wk("close","") 
-    cnInFilm = cn  
-  End sub 
-
-  Sub rstable_to_dataF_end()
-    utf8_CloseW(tmpPath(dataTu) ) 
-  End Sub
-  '---------------------------------------------------------------------------
-
-  Sub rstable_to_xmlFile(sql, headList2)
-    Dim rs2, xhead, xmhs, j, cn, uTBC, tits, uGIV, headline, hd, oneRecord
-    tmpf = tmpo.openTextFile(tmpPath(dataTu), 2, True)  '2==for writing , eq to createTextfile ;  true=can create Text File while not exists before here
-
-
-    xhead = "<?xml version=#1.0#  encoding=#utf8# ?>"
-    xhead = Replace(xhead, "#", Chr(34))
-
-    trimSplit(XMLroot, icoma , xmhs)
-    tmpf.write(xhead & ienter & "<" & xmhs(0) & ">" & ienter)
-
-    If sql = "" Then Exit Sub
-    rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then Exit Sub ' rs.state=0 means rs is closed so this sql is a update,  1 means rs is opened so it carry recordset
-
-    'prepare head_columnName_List
-    uTBC = rs2.fields.count - 1 : tits = Split(headList2 & " ", icoma) : uGIV = UBound(tits) : headline = "" 'for xml
-    For j = 0 To uTBC
-      hd = rs2.fields(j).name
-      If j <= uGIV Then If Trim(tits(j)) <> "" Then hd = tits(j)
-      headline = headline & hd & icoma
-    Next
-    tits = Split(headline, icoma)
-
-    cn = 0
-    While cn < const_maxrc_fil And Not rs2.eof
-      cn = cn + 1 : oneRecord = "<" & xmhs(1) & ">" & ienter
-      For j = 0 To uTBC
-        oneRecord = oneRecord & "<" & tits(j) & ">" & rs2(j).value & "</" & tits(j) & ">"
-      Next
-      oneRecord = oneRecord & ienter & "</" & xmhs(1) & ">" & ienter
-      tmpf.write(oneRecord)
-      rs2.movenext() : End While : rs2.close()
-    tmpf.write("</" & xmhs(0) & ">" & ienter &  "</xml>" & ienter)
-    tmpf.close()
-  End Sub
-  '---------------------------------------------------------------------------
-  Sub rstable_to_htmxyz(sql, headList2, sum_1record) 'response to screen
-    Dim rs2, cn, i, j, sumz_of_1y, sumz_of_1x, sumz_of_xy
-    If sql = "" Then Exit Sub
-    rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then Exit Sub ' rs.state=0 means rs is closed so this sql is a update,  1 means rs is opened so it carry recordset
-
-    cn = 0
-    Dim dicax, dicay, dicaz as object
-    Dim dikkx(), dikky(), ffx, ffy, ffz, dikkyTmp as string
-    Dim needMoreSort as int32
-    dicax = Server.CreateObject("Scripting.Dictionary")
-    dicay = Server.CreateObject("Scripting.Dictionary")
-    dicaz = Server.CreateObject("Scripting.Dictionary")
-    While cn < 9999 And Not rs2.eof
-      cn = cn + 1
-      dicax.Item(rs2(0).value & "") = 0
-      dicay.Item(rs2(1).value & "") = 0
-      dicaz.Item(rs2(0).value & "," & rs2(1).value) = rs2(2).value  '  dicaz.Item( rs2(0) & "#" & rs2(1) )  & "," & rs2(2)
-      rs2.movenext() : End While : rs2.close()
-
-    dikkx = dicax.Keys
-    dikky = dicay.Keys
-    'below sort dikky
-    needMoreSort = 0
-    While needMoreSort = 0
-      needMoreSort = 1
-      For j = 0 To UBound(dikky) - 1
-        If dikky(j) > dikky(j + 1) Then needMoreSort = 0 : dikkyTmp = dikky(j) : dikky(j) = dikky(j + 1) : dikky(j + 1) = dikkyTmp
-      Next
-    End While
-	
-	'dikkx(0) might be looks like key1#$key2  so manyTH0  as strings are varing with it
-	dim dikkxUB, keyCompondN 
-	dikkxUB=UBound(dikkx): if dikkxUB<0 then keyCompondN=1 else keyCompondN=howManyKeys(dikkx(dikkxUB), keyGlue)
-
-    'begin display
-    Response.Write(table0 & ienter)
-    Response.Write(tr0 & manyTH(keyCompondN)) : For j = 0 To UBound(dikky) : Response.Write(th0 & dikky(j)) : Next:  sumz_of_xy=0: if sum_1record then Response.Write(th0 & "小計") 
-    For i = 0 To UBound(dikkx)
-      ffx = dikkx(i)  : sumz_of_1x=0
-      For j = 0 To dicay.Count - 1
-        ffy = dikky(j)
-        ffz = dicaz.item(ffx & "," & ffy)
-        If j = 0 Then Response.Write(ienter & tr0 & td0 & manyKeyList(ffx))
-        Response.Write(tdriz & ffz)
-        sumz_of_xy=sumz_of_xy                                  + numberize(ffz,0)
-        sumz_of_1x=sumz_of_1x                                  + numberize(ffz,0)
-        sumz_of_1y=dicay.item(ffy): dicay.item(ffy)=sumz_of_1y + numberize(ffz,0)
-      Next
-        if sum_1record then Response.Write(tdriz & sumz_of_1x)
-    Next
-    if sum_1record then 
-      Response.Write(ienter & tr0 & manyEND(keyCompondN) )
-      For j = 0 To dicay.Count - 1:  Response.Write( thriz & dicay(dikky(j)) ) :next
-                                     Response.Write( thriz & sumz_of_xy      )
-    end if
-    Response.Write(table0End)
-    Response.Write("<br>")
-  End Sub 'of rstable_to_htmxyz
   
   function manyTH(mc)
 	if mc=4 then return th0 & "  " & th0 & "  " & th0 & "  " & th0 & " \" 
@@ -1392,19 +1233,20 @@ end sub
     '若某行是 somwWord不含有 等於等於，則視為 explainWord==someWord        
     for i=0 to UBB 
          thisLine=tLines(i)    
-	  if thisLine="" then continue for
+	  if trim(thisLine)="" then continue for
       If inside("==",thisLine) Then '若某行是 kk==vv 則記住這是一個pair(k,v)
 		  keya=leftPart(thisLine,"==").trim : vala=rightPart(thisLine,"==").trim   :  typa="iibx"  'let default type be iibx      
           If vala = "" Then         '若==之後是空白， 往下取到某行含有== ；且這==左方沒有uvar= 
             For j = i + 1 To UBB
-              If inside("==",tLines(j)) andAlso notInside("uvar=", leftPart(tlines(j),"==")) Then  vala=replace(ienter & vala & "fzUz", ienter & "fzUz" , "") : Exit For    
+              If inside("==",tLines(j)) andAlso notInside("uvar=", leftPart(tlines(j),"==")) Then vala=replace(ienter & vala & "fzUz", ienter & "fzUz" , "") : Exit For    
               vala = vala & tLines(j) & ienter              
-              if tLines(j)<>"" then typa = "mmbx"  
+              if trim(tLines(j))<>"" then typa = "mmbx"  
             Next
               i=j-1
           End If
       Else 'this line is not an assignment, example: this_is_some_comment
-          ssddg("err, line " & (i+1) & " is not a MIP sentence, maybe you should give two eq symbols",thisLine)
+          ssddg("err, line " & (i+1) & " is not a MIP sentence, maybe you should give two eq symbols",thisLine, keyjs(cmNxy), valjs(cmNxy))
+          'keya="comment" & i : vala=thisLine :typa="comment"
           'keya="comment" & i : vala=thisLine :typa="comment"
       end if
       
@@ -1886,7 +1728,7 @@ end sub
     Dim ss, bb, i,j, m2, attf2a, attfile
     attfile = ""
     If InStr(s1234, "fdv0") > 0 Then
-      Call batch_loop(99,"sendmail", s1234) 'this will call sendmail many times
+      'Call batch_loop(99,"sendmail", s1234) 'this will call sendmail many times
       Exit Sub
     End If
     ss = Split(s1234, ienter)
@@ -2113,49 +1955,48 @@ end function
     End If
   End Function
 
-  Sub rstable_dataTu_somewhere(sqcmd as string, optional showColumnTitle as boolean=true) 'also for batch_loop
-    Dim dataTul, idle, idleMark, rstt
-    sqcmd=aheadSQL() & sqcmd
-    dataTul = LCase(Trim(dataTu)) 'ssdd(2721,"going to write data", dataTu)
+  Sub rstable_dataTu_somewhere(sqcmd as string, works as string) 'also for batch_loop
+    Dim datatuL, idle, idleMark, rstt
+       sqcmd=aheadSQL() & sqcmd
+       datatuL = LCase(Trim(dataTu)) 'ssdd(2721,"going to write data", dataTu)
+       
+       If datatuL = "screen" Then
+                                       rstable_to_screen(sqcmd,works) 
+       ElseIf datatuL="quick2" Then 'was said vb.net
+                                       call zeroHtm(100) : rstable_to_responseCall(sqcmd, "[begQ]", "[endQ]",works)  'for vb.net.tb  , cz means replace recordSet into dataTable 
+       elseif datatuL="quick"  then 'was said freecama
+                                       Call zeroHtm(100) : rstable_to_freeCama(sqcmd,works)  'output data in simple string (for vb or .net or API)
+                                       
+       ElseIf datatuL="xyz"    Then
+                                       Call dump() : rstable_to_xyz(sqcmd,0,works)
+       ElseIf datatuL="xyzsum" Then
+                                       Call dump() : rstable_to_xyz(sqcmd,1,works)
+       ElseIf datatuL="top1s"  Then 'get the top1 record and do show on screen
+                                       buffW(rs_top1Record(sqcmd, headlist, "htm"))
+       ElseIf datatuL="top1r"  Then 'get the top1 record and put to a vector
+                                       idleMark = rs_top1Record(sqcmd, headlist, "vec")
+       ElseIf datatuL="top1w"  Then 'get the top1 record and show as input boxes 
+                                       Upar = rs_top1Record(sqcmd, headlist, "par")
+                                       'ssdd("in top1w",Upar,"soso")
+                                       Call show_UparUpag("for-top1w", Upar, Upag, spfily) 'in top1Write , so you cannot mix up upar and upag
+       ElseIf datatuL="top99w" Then  'display 99 records on screen in a <textarea>
+                                       rstt = rstable_to_varComma(sqcmd, icoma,works)
+                                       Upar = Upar & ienter & "matrix==" & ienter & rstt
+                                       Call show_UparUpag("for-top9w", Upar, Upag, spfily) 'in top9Write      
+       ElseIf Right(datatuL,3)="xml"   Then
+                                       Call rstable_to_xmlFile(sqcmd, works)
+       ElseIf Left(datatuL,6)="matrix" Then
+                                       Call setValue(dataTu, rstable_to_varComma(sqcmd, dataToDIL,works) )
+       ElseIf left(datatuL,4)="grid" Then
+                                       Call setValue(dataTu, rstable_to_varGrid(sqcmd,works)                )
+                                       
+       ElseIf inside(".", datatuL)   Then
+                                       'ssdd(2726,"going to write data", dataTu)
+                                       rstable_to_dataF(sqcmd,works)  'in rstable_dataTu_somewhere
+       Else
+                                       ssddg("unknown name of dataTo: " & datatuL, "try new name of dataTo, maybe matrix2 or grid2") 
+       End If
     
-    If dataTul = "screen" Then
-                                    Call dump() : rstable_to_htm(sqcmd, headlist,showColumnTitle) 'do dump() becasue rstable_to_htm might generate long string
-    ElseIf dataTul="quick2" Then 'was said vb.net
-                                    call zeroHtm(100) : rstable_to_responseCall(sqcmd, "[begQ]", "[endQ]")  'for vb.net.tb  , cz means replace recordSet into dataTable 
-    elseif dataTul="quick"  then 'was said freecama
-                                    Call zeroHtm(100) : rstable_to_freeCama(sqcmd)  'output data in simple string (for vb or .net or API)
-                                    
-    ElseIf dataTul="xyz"    Then
-                                    Call dump() : rstable_to_htmxyz(sqcmd, headlist,0)
-    ElseIf dataTul="xyzsum" Then
-                                    Call dump() : rstable_to_htmxyz(sqcmd, headlist,1)
-    ElseIf dataTul="top1s"  Then 'get the top1 record and do show on screen
-                                    buffW(rs_top1Record(sqcmd, headlist, "htm"))
-    ElseIf dataTul="top1r"  Then 'get the top1 record and put to a vector
-                                    idleMark = rs_top1Record(sqcmd, headlist, "vec")
-    ElseIf dataTul="top1w"  Then 'get the top1 record and show as input boxes 
-                                    Upar = rs_top1Record(sqcmd, headlist, "par")
-                                    'ssdd("in top1w",Upar,"soso")
-                                    Call show_UparUpag("for-top1w", Upar, Upag, spfily) 'in top1Write , so you cannot mix up upar and upag
-    ElseIf dataTul="top99w" Then  'display 99 records on screen in a <textarea>
-                                    rstt = rstable_to_varComma(sqcmd, headlist, icoma)
-                                    Upar = Upar & ienter & "matrix==" & ienter & rstt
-                                    Call show_UparUpag("for-top9w", Upar, Upag, spfily) 'in top9Write      
-    ElseIf Right(dataTul,3)="xml"   Then
-                                    Call rstable_to_xmlFile(sqcmd, headlist)
-    ElseIf Left(dataTul,6)="matrix" Then
-                                    Call setValue(dataTu, rstable_to_varComma(sqcmd, "", dataToDIL) )
-    ElseIf left(dataTul,4)="grid" Then
-                                    Call setValue(dataTu, rstable_to_varGrid(sqcmd, "aaa,bbb",1=1,1=2)                )
-                                    
-    ElseIf sqlToFileMa()              Then
-                                    'ssdd(2726,"going to write data", dataTu)
-                                    'rstable_to_dataF_beg(2221)
-                                    rstable_to_dataF(sqcmd)  'in rstable_dataTu_somewhere
-                                    'rstable_to_dataF_end()
-    Else
-                                    ssddg("unknown dataTo: " & dataTul, "try let dataTo matrix2") 
-    End If
   End Sub
 
 
@@ -2167,72 +2008,13 @@ end function
     'mmy if SQL_recordset_TH=4 then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : rs3.clear: dapp.Fill(rs3) 
   end sub 
   
-  
-  function sqlToFileMa() as boolean
-   sqltoFileW= inside(".", dataTu)
-   return sqltoFileW
-  end function
-  
-  Sub batch_loop(loopN as int32, cmdtyp as string, ELE2 as string)
-    Dim inpN, j, sqlrunNth as int32
-    dim line, linez, cutter, wds() as string
-    dim showColumnTitle as boolean
-    
-    'output prepare process:
-       inpN = 0 : dataFromRecordN = 0 : sqlrunNth=0 : dump() :  sqlToFileMa() 
-       If dataTu = "screen"   Then buffW(table0) 'LB3045A
-       If sqlToFileW Then rstable_to_dataF_beg(2670) 'in sub batch_loop
-       if loopN=1 then goto kernel
-    
-    'input prepare process:    
-       Call SRCbeg() ': ssddg(2880,dataFF,dataTu,sqlToFileMa())
-       
-    do 'for each record of input matrix
-      line = SRCget()
-      If line = "was.eof" Then Exit Do
-      if inpN=0 then cutter=bestDIT(line) 'decide cutter only at the first line      
-      inpN = inpN + 1
-      If record_cutBegin <= inpN And inpN <= record_cutEnd And line <> "" Then 
-        linez = line
-        line = Replace(line.trim, "'", "`")  '有這一行可以使insert 'fdv01'且文字內有單撇時正常灌入
-        If line <> "" andAlso line <> Chr(26)  Then ' chr(26) is EOF
-          trimSplit(line, cutter, wds)
-          dataFromRecordN = dataFromRecordN + 1
-          'ELE2 = ELE
-          
-          For j = 0 To UBound(wds)
-            ELE2 = Replace(ELE2, "fdv" & digi2(j + iniz), Replace(wds(j), "vbNL", ienter) ) '要預先把 data block裡的vbNL 改為 ienter 
-          Next
-          ELE2 = Replace(ELE2, "fdv0I", "" & (inpN + iniz - 1)) 'the ith of this line, if iniz=1 then it=inpN else it=inpN-1
-          ELE2 = Replace(ELE2, "fdv0Z", Replace(linez, dataToDIL, ",")) 'populate linez, but if linez contains dataToDIL, then replace it to ,
-          
-          kernel:
-          sqlrunNth=sqlrunNth+1 : showColumnTitle=( sqlrunNth=1)
-          select case cmdTyp
-          case "sqlcmd"     : rstable_dataTu_somewhere(ELE2,showColumnTitle)         'in sub batch_loop
-          case "sqlcmdh"    : buffW("sqlcmdh: " & ELE2 & "<br>")                     'in sub batch_loop  
-          case "sendmail"   : Call sendmail(ELE2)                                    'in sub batch_loop 
-		  case else         : buffW("unknown batch command type: " & cmdTyp & "<br>")
-          End select
-          if loopN=1 then goto loopOut
-        End If   'not ch26 (not eof)
-      End If    'inpN is in range
-    loop 'next of for each   
-    
-    'input ending process
-    SRCend() 
-    
-    'output ending process
-    loopOut:
-    If sqlToFileW Then rstable_to_dataF_end() 'in sub batch_loop
-    If dataTu = "screen"  Then buffW(table0End) 'LB3045B, relate to LB3045A 
-'ssddg(2918,123)    
-  End Sub
+
 'total 169k bytes 20190117
 
 </script>
 
 <!-- #Include virtual=MIPSQL.aspx"  --> 
+<!-- #Include virtual=MIPSQL2.aspx"  --> 
 <!-- #Include virtual=MIPrs4w.aspx" --> 
 <!-- #Include virtual=MIPkeys.aspx" --> 
 <!-- #Include virtual=MIPfunc.aspx" --> 

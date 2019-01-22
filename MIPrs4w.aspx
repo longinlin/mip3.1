@@ -14,7 +14,6 @@ function rs4wk(methoda as string, optional para as string="", optional i as int3
 	                catch ex as Exception
 	                  ssddg("sqL721", para ,  ex.Message)
 	                end try    
-    case "head"   : prepareColumnHead(para,312) 'in rs4wk
     case "fdub"   : return (rs2.fields.count-1) & ""
     case "fdnm"   : return rs2.fields(j).name
     case "empty"  : return if( (i >= const_maxrc_htm) or rs2.eof,"y", "n")    
@@ -34,7 +33,6 @@ function rs4wk(methoda as string, optional para as string="", optional i as int3
  else
     select case methoda
     case "build"  : makeRS3(para) : return if( rs3.rows.count <= 0 , "xx" , "yy")
-    case "head"   : prepareColumnHead(para,313) 'in rs4wk
     case "fdub"   : return (rs3.columns.count-1) & ""
     case "fdnm"   : return rs3.columns(j).columnName
     case "empty"  
@@ -55,7 +53,7 @@ function rs4wk(methoda as string, optional para as string="", optional i as int3
  end if 
  
     select case methoda
-    case "initExcel"
+    case "initExcelFile"
         If showExcel Then
           fsa = Nothing
           fsb = Nothing
@@ -65,11 +63,10 @@ function rs4wk(methoda as string, optional para as string="", optional i as int3
           fsa = CreateObject("scripting.FileSystemObject")
           fsb = fsa.createTextFile(ffsname2, True)          
         End If
-    case "writeExcel"
+    case "writeExcelFile"
         If showExcel Then fsb.writeline(para)  
-    case "closeExcel": fsb.close()
-    case "Write,TitleBar+Schema"
-        dim titleBar=tr0 & "<th>" & Replace(top1h, ",", "<th>")   	            
+    case "closeExcelFile": fsb.close()
+    case "Write,TitleBar+Schema"	            
         digis = Split(nospace(digilist), ",") : Dim fdvomeComa = "" 'build tdRights()  to define td  align be left or right, build fdvSomeComa=sum(fdvii,)  
         For j2 = 0 To top1u      
           tdRights(j2) = td0
