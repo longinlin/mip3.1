@@ -1,7 +1,7 @@
 ﻿#1#2
 $getRS_pattern==
     Dim cn,j as int32 
-    dim rr,rsij,excc as string  
+    dim rr,rsij as string  
   if inside("exe" ,works) andAlso rs4wk("build",sql)="xx" then $extt
   if inside("hed" ,works) then prepareColumnHead(338)  
   if inside("oua" ,works) then 
@@ -12,11 +12,10 @@ $getRS_pattern==
      do until rs4wk("empty", "",cn)="y"
        cn = cn + 1 : rr = $rrHead
        For j = 0 To top1u 
-              rr = rr & if(j<top1u,$colGlue,$endGlue)
-              $fetching
+              rr = rr & $fetchAtom
+              $fetchAsmm
        Next 
        $fetched
-       'If headlistRepeat>=10 aldAlso ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(titleBar)
      rs4wk("mov","")    
      loop
      rs4wk("close","") : cnInFilm = cn  
@@ -34,9 +33,8 @@ $elem==rs4wk("gval","",cn-1,j)
   $extt==exit sub
   $prepareOutF==Response.Write(begQ & top1h & j1j2 & top1T & j1j2) 
   $rrHead==""
-  $colGlue==$elem & idotComa
-  $endGlue==$elem & entery
-  $fetching==
+  $fetchAtom==$elem & if(j<top1u,idotComa, entery)
+  $fetchAsmm==
   $fetched==Response.Write(rr):If (cn Mod 1000) = 1 Then [**] Response.Flush():If Not Response.IsClientConnected() Then exit do [**] end if
   $endOutF==Response.Write(endQ):Response.Flush()    
 macro_responseCall==
@@ -50,9 +48,8 @@ macro_responseCall==
   $extt==exit sub
   $prepareOutF== j=j
   $rrHead==""
-  $colGlue==$elem & icoma 
-  $endGlue==$elem & ienter
-  $fetching==
+  $fetchAtom==$elem & if(j<top1u,icoma, ienter)
+  $fetchAsmm==
   $fetched==Response.Write(rr)
   $endOutF==
 macro_freeCama==
@@ -69,14 +66,48 @@ macro_freeCama==
                 tmpf = tmpo.openTextFile(tmpPath(dataTu), 2, True)  '2 means writing or createTextfile ;  true means creating Text File while not exists now
                 tmpf.write(xhead & ienter)
   $rrHead =="<deep1>" 
-  $colGlue=="<" & top1Hz(j) & ">" & $elem & "</" & top1Hz(j) & ">" 
-  $endGlue=="<" & top1Hz(j) & ">" & $elem & "</" & top1Hz(j) & "></deep1>"  
-  $fetching==
+  $fetchAtom=="<" & top1Hz(j) & ">" & $elem & "</" & top1Hz(j) & ">"  &  if(j<top1u, "",  "</deep1>")
+  $fetchAsmm==
   $fetched==    tmpf.write(rr)
   $endOutF==    tmpf.write("</deep0></xml>" & ienter):tmpf.close() 
 macro_xmlFile==  
   '$outputEx 
   Sub rstable_to_xmlFile(sql as string, works as string)
+    $getRS_pattern          
+  End sub      
+  
+
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  
+  $outputEx==write: { "deep1":{"conm1":"vaL1", "conm2":"vaL2"}, "deep1":{"conm1":"vaL1", "conm2":"vaL2"} } 
+  $extt==exit sub
+  $prepareOutF== 
+                'dim xhead ="{"
+                'tmpf = tmpo.openTextFile(tmpPath(dataTu), 2, True)  
+                '  '2            means writing or createTextfile 
+                '  'true         means creating Text File while not exists now
+                '  'TristateTrue means unicode
+                'tmpf.write(xhead & ienter)
+                
+                utf8_openW(tmpPath(dataTu))
+                rr="{" & ienter
+  $rrHead ==rr & "##deep1##:{" 
+  $fetchAtom=="##" & top1Hz(j) & "##:##" & $elem & "##"  &  if(j<top1u, icoma,  "},enx$" )
+  $fetchAsmm==
+  $fetched==    
+  $endOutF==  
+              rr=rr & "}" : rr=replace(rr, ",enx$}" , ienter & "}")  : rr=replaces(rr, "##", chr(34),  "enx$",  ienter ) 
+              utf8_doesWrr(rr)
+              utf8_closeW()
+              
+              'tmpf.write(rr): tmpf.close()
+              ' left( rr, 280) 
+              'rrArray=split(rr,"entx$")  
+              'for j=0 to ubound(rrArray) : tmpf.write(rrArray(j)) :next
+              'tmpf.close() 
+macro_jsonFile==  
+  '$outputEx 
+  Sub rstable_to_jsonFile(sql as string, works as string)
+    dim rrArray() as string
     $getRS_pattern          
   End sub      
   
@@ -86,9 +117,8 @@ macro_xmlFile==
   $extt==return "" 
   $prepareOutF==sqlResultSum =if(headList<>"", replace(headlist,icoma,columnSepa) & ienter, "")
   $rrHead==""
-  $colGlue==$elem & columnSepa 
-  $endGlue==$elem & ienter
-  $fetching==
+  $fetchAtom==$elem & if(j<top1u,columnSepa, ienter)
+  $fetchAsmm==
   $fetched==sqlResultSum=sqlResultSum & rr & ienter 
   $endOutF==return  sqlResultSum & ienter      
 macro_comaEnter==
@@ -103,9 +133,8 @@ macro_comaEnter==
   $extt==return "" 
   $prepareOutF==sqlResultSum = table0 & "<tr><th>" & Replace(top1h, ",", "<th>")
   $rrHead=="<tr>"
-  $colGlue==tdDecorate(j) & $elem 
-  $endGlue==tdDecorate(j) & $elem 
-  $fetching==
+  $fetchAtom==tdDecorate(j) & $elem 
+  $fetchAsmm==
   $fetched==sqlResultSum=sqlResultSum & rr & ienter  
   $endOutF==return sqlResultSum & table0End & ienter 
 macro_varGrid==  
@@ -118,32 +147,70 @@ macro_varGrid==
   $outputEx==write data to screen
   $extt==exit sub 
   $prepareOutF== 
-                    dump():wwi(table0) 
-                    wwi(titleBar)
-                    rs4wk("initExcelFile")        
-                    rs4wk("Write,TitleBar+Schema")       
-                    excc = top1h & ienter : dim k as int32: For k = 0 To top1u : fdt_sumtotal(k) = 0 : Next   
+         dump()
+         If needSchema = 1 Then
+            wwi("<br>" & top1h & "<br>" & gu2v(top1h, listI(top1u), "[ui]=fdv0[vi]" , icoma)  & "<br>" & top1T )
+         End If
+         wwi(table0) 
+         wwi(titleBar)
+         
+         If showExcel Then
+           fsa = Nothing
+           fsb = Nothing
+           Dim ffsnameT = intloopi() & ".csv"
+           Dim ffsname2 = tmpFord & ffsnameT
+           Response.Write("此查詢結果也可以顯示於<a href='../" & tmpy & "/" & ffsnameT & "' target=eexx>Excel檔</a>, ")
+           fsa = CreateObject("scripting.FileSystemObject")
+           fsb = fsa.createTextFile(ffsname2, True)          
+         End If
+        
+         excc = top1h & ienter : dim k as int32: For k = 0 To top1u : fdt_sumtotal(k) = 0 : Next   
   $rrHead=="<tr>"
-  $colGlue==tdDecorate(j) & $elem 
-  $endGlue==tdDecorate(j) & $elem 
-  $fetching==
+  $fetchAtom==tdDecorate(j) & $elem 
+  $fetchAsmm==
           rsij=$elem
           If showExcel            Then excc = excc & vifhas("href", rsij, "", rsij) & ","
           If fdt_needsum(j) = "y" Then fdt_sumtotal(j) = fdt_sumtotal(j) + numberize(rsij, 0)  
-  $fetched==wwi(rr):rs4wk("writeExcelFile",excc):excc=""
+  $fetched==
+          wwi(rr)
+          If showExcel Then fsb.writeline(excc)  
+          excc=""
   $endOutF==
             If cn > const_maxrc_htm Then wwi(tr0 & "<td>and more ...")
             If cn > 60 Then wwi(titleBar) 'to add titleBar at bottom
             If TailList <> "" Then wwi(TailListResult(cn, top1u, "htm"  ,tr0 & "<td style='color:blue;font-weight:bold'>", "<td class=riz  style='color:blue'>"))
-            If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : rs4wk("writeExcelFile",excc): rs4wk("closeExcelFile")
+            If showExcel Then excc =   TailListResult(cn, top1u, "excel", "", ","  ) : fsb.writeline(excc)  : fsb.close()
             wwi(table0End) 
 macro_screen==
   '$outputEx
   sub rstable_to_screen(sql as string, works as string) 'response to screen
+    dim excc as string
+    dim fsa,fsb as object
     $getRS_pattern    
   End sub 
 
-//777777  ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+//777777777 write to file  7777777777777777777777777777777777777777777777777777777777777777777777777777
+  $outputEx==write data to file
+  $extt==exit sub 
+  $prepareOutF==
+    If notinside(".", dataTu) Then ssddg("err, you write data to known file",dataTu)
+    utf8_openW(tmpPath(dataTu))
+  $rrHead==""
+  $fetchAtom==replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-") & if(j<top1u, dataToDIL, ienter)
+  $fetchAsmm==
+  $fetched==
+            rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
+            'If headlistRepeat>=10 aldAlso ((cn Mod headlistRepeat) = (headlistRepeat - 1)) Then wwi(titleBar)
+            utf8_doesWLine(rr)
+  $endOutF==utf8_CloseW() 
+macro_filePP==  
+  '$outputEx
+  sub rstable_to_dataF(sql as string, works as string)  
+    $getRS_pattern   
+  End sub 
+
+//8888888888888888  ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
   $outputEx==write (x,y) fullfilled with z
   $extt==exit sub 
   $prepareOutF==
@@ -151,9 +218,8 @@ macro_screen==
                 dicay = Server.CreateObject("Scripting.Dictionary")
                 dicaz = Server.CreateObject("Scripting.Dictionary")   
   $rrHead==""
-  $colGlue=="" 
-  $endGlue==""
-  $fetching==
+  $fetchAtom==""
+  $fetchAsmm==
   $fetched==
       dicax.Item(rs4wk("gval","",cn-1,0)) = "see"
       dicay.Item(rs4wk("gval","",cn-1,1)) = "see"
@@ -206,49 +272,19 @@ macro_xyz==
                 Dim needSortY as int32  
     $getRS_pattern    
   End Sub
-
-//888888888 write to file  888888888888888888888888888888888888888888888888888888888888888888888888888
-  $outputEx==write data to file
-  $extt==exit sub 
-  $prepareOutF==If inside(".", dataTu) Then utf8_openW(tmpPath(dataTu))
-  $rrHead==""
-  $colGlue==$elem & dataToDIL
-  $endGlue==$elem & ienter
-  $fetching==
-  $fetched==
-            rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
-            utf8_doesW(rr)
-  $endOutF==If inside(".", dataTu) Then utf8_CloseW(tmpPath(dataTu) ) 
-macro_filePP==  
-  sub rstable_to_dataF(sql as string, works as string)  
-    Dim cn as int32,  j as int32, rr as string
-    if rs4wk("build",sql)="xx" then exit sub
-    prepareColumnHead(360) 'rstable_to_dataF
-    cn = 0
-    do until rs4wk("empty", "",cn)="y"
-      cn = cn + 1
-      rr = ""
-      For j = 0 To top1u : rr=rr & replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-") & if(j<top1u, defaultDIT, iempty) : Next
-      rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
-      utf8_doesW(rr)
-    rs4wk("mov","")    
-    loop : rs4wk("close","") 
-    cnInFilm = cn  
-  End sub 
-
   
 //999999999999  single SQL  9999999999999999999999999999999999999999999999999999999999999999999999999999999999999
 macro_singleSQL==  
   sub singleSQL(sqcmd as string) 
     ssdd("into singleSQL")
-    rstable_dataTu_somewhere(sqcmd,123) 
+    rstable_dataTu_somewhere(sqcmd,"exe,hed,oua,get,ouz") 
   end sub 'singleSQL
   
 //below for batchSQL  bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    
 beg_SQL_in==dataFromRecordN = 0 : Call SRCbeg()  'prepare input
 end_SQL_in==SRCend() 'end input        
 
-prepare_sqcmd==
+prepare_inputString==
       line = SRCget()
       line = Replace(line.trim, "'", "`")  '有這一行可以使insert 'fdv01'且文字內有單撇時正常灌入
       If line = "" orelse line = Chr(26)  Then continue do ' chr(26) is EOF
@@ -275,7 +311,7 @@ macro_batchSQL==
     ssdd("into batchSQL")
     beg_SQL_in
     do 'for each record of input
-        prepare_sqcmd
+        prepare_inputString
         rstable_dataTu_somewhere(sqcmd, works)
         if line="was.eof" then exit do
     loop 'next of for each   
@@ -288,17 +324,15 @@ finalResult1==
   macro_responseCall
   macro_freeCama
   macro_xmlFile
+  macro_jsonFile
   macro_comaEnter
   macro_varGrid
-  </script>  
-finalResult2==
-  <script runat="server">
+
   macro_screen
-  macro_xyz
   macro_filePP
+  macro_xyz
   macro_singleSQL
   macro_batchSQL
   </script>
-savetofile==MIPSQL.aspx,finalResult1
-savetofile==MIPSQL2.aspx,finalResult2
+savetofile==MIPSQL.aspx,finalResult
 exit==done

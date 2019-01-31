@@ -7,6 +7,8 @@
             t4.mip    , t4 Q
      testBoxes.mip    , test-Boxes
     testBlocks.mip    , test-Blocks
+      testDate.mip    , test-date
+    test-Gosub.mip    , test-gosub
      m1-mapper.mip&act=run&uvar=wkii==askQcondi , m1-mapper run                
      m1-opLife.mip&act=run&uvar=wkii==askQcondi , m1-opLife run                
 

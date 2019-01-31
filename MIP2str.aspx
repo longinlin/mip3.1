@@ -165,6 +165,12 @@ End Function
     return replace(aa, entery, vbnewline)
   end function
   
+  function listI(nn as int32) as string
+   dim ss as string="" , k as int32=0
+   for k=1 to nn: ss=ss & k & if(k<nn,",","") :next
+   return ss
+  end function
+   
 Function getMd5Hash(ByVal input As String) As String    ' MD5計算Function,取自MSDN	
 	Dim md5Hasher As MD5 = MD5.Create()                 ' 建立一個MD5物件
 	Dim data As Byte() = md5Hasher.ComputeHash(Encoding.Default.GetBytes(input)) ' 將input轉換成MD5，並且以Bytes傳回，由於ComputeHash只接受Bytes型別參數，所以要先轉型別為Bytes
@@ -211,6 +217,93 @@ end function
         for i=0 to ubound(lines) : ss=ss & "<tr><td>" & lines(i) :next
         return "<table>" & replace(ss, DIT, "<td>") & "</table>"
       end function
+      
+'below are date string DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD      
+  
+  function forymd(fmt as string) as string
+    fmt=trim(fmt): if fmt="" then fmt="yyyy/MM/dd"
+    fmt=   replaces(fmt.toLower,"yy","y"   ,   "mm","m" ,   "dd","d"  , "yy","y"  )
+    return replaces(fmt,        "y" ,"yyyy",   "m" ,"MM",   "d" ,"dd" , "nn","mm" )
+  end function
+  
+  function dateConvUSA(usa as string,     optional formatt as string="yyyy/mm/dd") as string  
+    dim usaTT as dateTime :                        formatt=forymd(formatt)
+    if dateIfUSA(usa,usaTT) then return usaTT.toString(formatt) else return "xdate"
+  end function
+  
+  function dateIfUSA(usa as string, byref usaTT as dateTime) as boolean
+    try
+      usa=trim(usa)
+      if len(usa)=8 andAlso isnumeric(usa) then usa=left(usa,4) & "/" & mid(usa,5,2) & "/" & right(usa,2)
+      usaTT=dateTime.parse(usa) : return true
+    catch ex as exception
+      usaTT=dateTime.Now        : return false
+    end try
+  end function
+
+  function dateIfROC(roc as string, byref usaTT as datetime) as boolean
+    dim usa as string
+    if date_cnvC2A(roc,usa) then    
+       return dateIfUSA(usa,usaTT)
+    else
+       return false
+    end if
+  end function
+
+  function dateAddUSA(usa as string, more as int32, optional formatt as string="yyyy/mm/dd") as string  
+    dim usaTT as dateTime :  usa=trim(usa)             
+    if usa="" or lcase(usa)="now" then usa=dateTime.Now.toString("yyyy/MM/dd") : formatt=forymd(formatt)
+    if dateIfUSA(usa,usaTT) then return dateadd("d",more, usaTT).toString(formatt)    else return "unknown-USA-date:" & usa 
+  end function
+  
+
+
+  
+  
+  function dateAddROC(roc as string, more as int32, optional formatt as string="yyyy/mm/dd") as string  
+    dim usaTT as dateTime, usa as string 
+    roc=trim(roc)    :                                       formatt=forymd(formatt)
+    if roc   ="" then 
+                                        return date_cnvA2C(dateAdd("d",more, dateTime.Now).toString(formatt))
+    elseif dateIfROC(roc,usaTT) then
+                                        return date_cnvA2C(dateAdd("d",more, usaTT       ).toString(formatt))
+    else
+       ssdd("incorrect expression for ROC date:", roc, "only roc year>=100 are acceptable")
+       return roc
+    end if
+  end function
+  
+  
+  function DateDiffUSA(usa1 as string, usa2 as string) as string  ' days range: from usa1 to at2
+     dim dat1,dat2 as dateTime
+    if dateIfUSA(usa1,dat1) andAlso dateIfUSA(usa2,dat2) then return dateDiff("d",dat1,dat2) else return "dateDiff-see-unknown-date"    
+  end function
+  
+  function dateDiffROC(roc1 as string, roc2 as string) as string
+    dim usaTT1,usaTT2 as dateTime
+    if not dateIfROC(roc1, usaTT1) then return "unknown ROC date:" & roc1
+    if not dateIfROC(roc2, usaTT2) then return "unknown ROC date:" & roc2
+    return dateDiff("d", usaTT1,usaTT2)
+  end function
+  
+  function date_cnvC2A(roc as string, byref usa as string) as boolean
+    dim yy,mm,dd as string
+    roc=replace(roc,"/", iempty)
+    if len(roc)=7 'example roc=1090203
+                                               yy=left(roc,3) : mm=mid(roc,4,2) : dd=right(roc,2)
+    else
+                                               usa="x" & roc : return false
+    end if
+     
+    if not isnumeric(roc) then                 usa="usa:" & roc : return false
+                                               usa=(cint(yy)+1911) & "/" & mm & "/" & dd : return true
+  end function
+  
+  function date_cnvA2C(usa as string) as string 'usa like 1090203 or 109/02/03
+    dim yy,mmdd as string 
+    yy=left(usa,4) : mmdd=mid(usa,5) : return (cint(yy)-1911) & mmdd
+  end function
+       
   
 </script>
 

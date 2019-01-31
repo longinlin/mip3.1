@@ -37,7 +37,7 @@
   dim CCFD, runFord, codFord,  tmpFord, queFord, tmpy,   table0,table0End,tr0, th0, td0, thriz,tdriz, saying as string
   Dim qrALL,act, Uvar, Upar, Upag, f2postSQ, f2postDA, spfily, spDescript, usnm32, pswd32, logID, exitWord, userID,userNM, userCP,userOG,userWK, siteName       as string
   Dim digilist, FilmFDlist, cnInFilm, headlist, atComp,   dataFF,dataTu, ddccss, dataToDIL       as string
-  Dim thisDefaultName, serverIP, strConnLogDB, sqlResultSum  as string
+  Dim thisDefaultName, serverIP, strConnLogDB, sqlResultSum, subRetVaL  as string
   Dim mij() As String = {"zero","[mi1]", "[mi2]", "[mi3]", "[mi4]", "[mi5]", "[mi6]", "[mi7]", "[mi8]", "[mi9]", "[mia]"}
 
   dim iisPermitWrite as int32            ' you must let c:\main\webT  not readonly
@@ -48,7 +48,7 @@
   '這程式必須用utf8內碼存起來, 這程式讀檔也要讀utf8檔,  讀資料庫的資料內容是utf8, 然後這程式在下一行宣告產出是uft8,  browser也設定為顯示utf8 , 一切才會顯示正常
   dim keys(KVMX), vals(KVMX), mrks(KVMX), typs(KVMX), vbks(KVMX)   as string: dim mayReplaceOther(KVMX) as boolean
   dim keyys(KVMX),valls(KVMX) as string
-  dim gridLR(FDMX),    tdRights(FDMX),    top1Hz(FDMX), top1Tz(FDMX), top1Rz(FDMX), tdDecorate(FDMX)                   as string 
+  dim gridLR(FDMX),  top1Hz(FDMX), top1Tz(FDMX), top1Rz(FDMX), tdDecorate(FDMX)                   as string 
   dim fdt_sumtotal(FDMX), fdt_needsum(FDMX) as string
   dim wkds(), digis() as string
   dim wkdsI, wkdsU as int32
@@ -336,18 +336,20 @@ end if
   Function rs_top1Record(sql, headL1, outFormat) 'might return a html table, or a new Upar, or a vector string
     Dim eleU, rr, vecH3s, vecR3s,i
     if rs4wk("build",sql   )="xx" then return "" 
+    prepareColumnHead(338)     
     ssdd("in rs_top1Record",outFormat)
 
-    If outFormat = "vec" Then
-      'top1h=top1h  
-      'top1r=top1r
-      return "seeVector"  'top1r
+    if 1=2 then
+  ' elseIf outFormat = "vec" Then
+  '   'top1h=top1h  
+  '   'top1r=top1r
+  '   return "seeVector"  'top1r
     ElseIf outFormat = "htm" Then
       rr = table0
       vecH3s = Split(top1h, ",")
       vecR3s = Split(top1r, defaultDIT)
       eleU = UBound(vecH3s)
-      For i = 0 To eleU
+      For i = 0 To top1u
         rr = rr & "<tr><td style='background-color: #FFBA00'>" & vecH3s(i) & "<td style='background-color: #FFCB00'>" & vecR3s(i)
       Next
       return rr & table0End & ienter
@@ -363,7 +365,6 @@ end if
   
   function colSpanx(tdValue as string) as string
   'example: tdValue contains ">er! colspan=2>realValue"
-  'when     tdValue comes from tdrights(j) & rs(j).value    then     you must previously let rs(j).value="er! colspan=2>"+realValue
   return replace(tdValue, ">er!" , "")
   end function
   
@@ -375,91 +376,6 @@ end if
 
 
 
-  sub rstable_to_dataF_beg(fromSomeLabel)
-      utf8_openW(tmpPath(dataTu))
-  End Sub
-  
-  sub rstable_to_dataF(sql) 'dataTW is dataTu 
-    Dim cn as int32,  j as int32, rr as string
-    if rs4wk("build",sql)="xx" then exit sub
-    prepareColumnHead(360) 'rstable_to_dataF
-    cn = 0
-    do until rs4wk("empty", "",cn)="y"
-      cn = cn + 1
-      rr = ""
-      For j = 0 To top1u : rr=rr & replaces(rs4wk("gval","",cn-1,j),   ienter, "vbNL",  dataToDIL, "-") & if(j<top1u, defaultDIT, iempty) : Next
-      rr = Replace(rr, Chr(0), " ")  ' I add this line becuase there is such chr(0) in as400.zmimp(updt=950710)
-      utf8_doesW(rr)
-    rs4wk("mov","")    
-    loop : rs4wk("close","") 
-    cnInFilm = cn  
-  End sub 
-
-  Sub rstable_to_dataF_end()
-    utf8_CloseW(tmpPath(dataTu) ) 
-  End Sub
-
-    
-
-  '---------------------------------------------------------------------------
-  Sub rstable_to_xyzt(sql, headList2, sum_1record) 'response to screen
-    Dim rs2, cn, i, j, sumz_of_1y, sumz_of_1x, sumz_of_xy
-    If sql = "" Then Exit Sub
-    rs2=objConn2c.Execute(sql) : If rs2.state = 0 Then Exit Sub ' rs.state=0 means rs is closed so this sql is a update,  1 means rs is opened so it carry recordset
-
-    cn = 0
-    Dim dicax, dicay, dicaz as object
-    Dim dikkx(), dikky(), ffx, ffy, ffz, dikkyTmp as string
-    Dim needMoreSort as int32
-    dicax = Server.CreateObject("Scripting.Dictionary")
-    dicay = Server.CreateObject("Scripting.Dictionary")
-    dicaz = Server.CreateObject("Scripting.Dictionary")
-    While cn < 9999 And Not rs2.eof
-      cn = cn + 1
-      dicax.Item(rs2(0).value & "") = 0
-      dicay.Item(rs2(1).value & "") = 0
-      dicaz.Item(rs2(0).value & "," & rs2(1).value) = rs2(2).value  '  dicaz.Item( rs2(0) & "#" & rs2(1) )  & "," & rs2(2)
-      rs2.movenext() : End While : rs2.close()
-
-    dikkx = dicax.Keys
-    dikky = dicay.Keys
-    'below sort dikky
-    needMoreSort = 0
-    While needMoreSort = 0
-      needMoreSort = 1
-      For j = 0 To UBound(dikky) - 1
-        If dikky(j) > dikky(j + 1) Then needMoreSort = 0 : dikkyTmp = dikky(j) : dikky(j) = dikky(j + 1) : dikky(j + 1) = dikkyTmp
-      Next
-    End While
-	
-	'dikkx(0) might be looks like key1#$key2  so manyTH0  as strings are varing with it
-	dim dikkxUB, keyCompondN 
-	dikkxUB=UBound(dikkx): if dikkxUB<0 then keyCompondN=1 else keyCompondN=howManyKeys(dikkx(dikkxUB), keyGlue)
-
-    'begin display
-    Response.Write(table0 & ienter)
-    Response.Write(tr0 & manyTH(keyCompondN)) : For j = 0 To UBound(dikky) : Response.Write(th0 & dikky(j)) : Next:  sumz_of_xy=0: if sum_1record then Response.Write(th0 & "小計") 
-    For i = 0 To UBound(dikkx)
-      ffx = dikkx(i)  : sumz_of_1x=0
-      For j = 0 To dicay.Count - 1
-        ffy = dikky(j)
-        ffz = dicaz.item(ffx & "," & ffy)
-        If j = 0 Then Response.Write(ienter & tr0 & td0 & manyKeyList(ffx))
-        Response.Write(tdriz & ffz)
-        sumz_of_xy=sumz_of_xy                                  + numberize(ffz,0)
-        sumz_of_1x=sumz_of_1x                                  + numberize(ffz,0)
-        sumz_of_1y=dicay.item(ffy): dicay.item(ffy)=sumz_of_1y + numberize(ffz,0)
-      Next
-        if sum_1record then Response.Write(tdriz & sumz_of_1x)
-    Next
-    if sum_1record then 
-      Response.Write(ienter & tr0 & manyEND(keyCompondN) )
-      For j = 0 To dicay.Count - 1:  Response.Write( thriz & dicay(dikky(j)) ) :next
-                                     Response.Write( thriz & sumz_of_xy      )
-    end if
-    Response.Write(table0End)
-    Response.Write("<br>")
-  End Sub
   
   function manyTH(mc)
 	if mc=4 then return th0 & "  " & th0 & "  " & th0 & "  " & th0 & " \" 
@@ -693,8 +609,8 @@ end if
     buffW(begpt & " language=javascript>                                                                          ")
     If userOG = mister Then ' this is admin  block                                                                         
       buffW("  function bk1()  {f2.act.value='run'; runnBG.style.display='';                                      ")
-      buffW("                      pg2=f2.Upar.value;  f2.Upar.value=pg2.replace(/\+/g, '#add');                  ")
-      buffW("                      pg2=f2.Upag.value;  f2.Upag.value=pg2.replace(/\+/g, '#add');   f2.submit();}  ")
+      buffW("                      pg2=f2.Upar.value;  f2.Upar.value=pg2.replace(/\+/g, '$add');                  ")
+      buffW("                      pg2=f2.Upag.value;  f2.Upag.value=pg2.replace(/\+/g, '$add');   f2.submit();}  ")
       buffW("  function bk2()  {f2.act.value='savN'; f2.submit();}                                                ")
       buffW("                   //act=savSp is done in f3.submit                                                  ")
       buffW("  function bk7(){ if(confirm('replace '+f2.spfily.value+'?')){f2.act.value='savO'; f2.submit();}}    ")
@@ -719,7 +635,7 @@ end if
 	  buffW("                      f2p=f2p+ f2.elements[i].name+'==any.dat" & adj2 & "file;;'                     ")
 	  buffW("                    }                                                                                ")
 	  buffW("                  }                                                                                  ")
-      buffW("         f2.Upar.value=f2p.replace(/\+/g, '#add');                                                   ")
+      buffW("         f2.Upar.value=f2p.replace(/\+/g, '$add');                                                   ")
       buffW("         runnBG.style.display='';                                                                    ")
       buffW("         //alert(f2p);                                                                               ")
       buffW("         f2.submit();                                                                                ")
@@ -810,11 +726,11 @@ end sub
 
   Sub ssdd(m1 as string, optional m2 as string="", optional m3 as string="", optional m4 as string="", optional m5 as string="", optional m6 as string="")
     const r1="<font color=red>          " , s1="</font>" 
-    const r2="<font color=red>:) </font>" , s2="       " 
-    const r3="<font color=red>:) </font>" , s3="       " 
-    const r4="<font color=red>:) </font>" , s4="       " 
-    const r5="<font color=red>:) </font>" , s5="       " 
-    const r6="<font color=red>:) </font>" , s6="       "
+    const r2="<font color=red> __ </font>" , s2="       " 
+    const r3="<font color=red> __ </font>" , s3="       " 
+    const r4="<font color=red> __ </font>" , s4="       " 
+    const r5="<font color=red> __ </font>" , s5="       " 
+    const r6="<font color=red> __ </font>" , s6="       "
     
                     buffW(r1 & nof(m1) & s1)
     if m2<>""  then buffW(r2 & nof(m2) & s2)
@@ -1346,12 +1262,7 @@ end sub
     next i
   end sub
     
-  function build_few_kv_for_gosub(kv as string) as string             'kv      example: answ==gosub|subName
-    dim k1,v1, sumc as string
-    k1     =atom(kv,1,"==")                                            'k1      example: answ
-    v1     =atom(kv,2,"gosub|")                                      'v1      example: subName
-    return "gosub==" & v1 & ";;" & k1 & "==previous|"
-  end function
+
     
   function build_few_kv_from_top1r(kv as string) as string             'kv      example: a,b,c==top1r|1,2,3  
     dim k1,v1, sumc as string
@@ -1371,16 +1282,16 @@ end sub
   end function
   
 'iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii  
-  function build_few_line_vs_ifiii(iLine as int32, kv as string) as string       'kv      example: ifa==ifeq|a|b
+  function build_few_line_vs_ifiii(iLine as int32, kv as string) as string       'kv      example: ifa==ifsee|a=b
     dim rightP as string   
-    rightP=atom(kv  ,  2, "==" )                       'rightP  example: ifeq|a|b
+    rightP=atom(kv  ,  2, "==" )                       'rightP  example: ifsee|a=b
     if  left(rightP,2)<>"if"   then ssddg("MIP see ifa==" & rightP, "no see ifa==if***         " ,"so MIP stop",rightP)
     if right(rightP,4)<>"then" then ssddg("MIP see ifa==" & rightP, "no see ifa==if***|*|*|then" ,"so MIP stop",rightP)
     return "goto==" & replace(rightP,"then","") & fcComma & ("ifBlockElse" &  iNOW(iLine, "ifBeg") )
                     ' this   cut out [then]
   end function
   
-  function build_few_line_vs_ifii2(iLine as int32, kv as string) as string       'kv      example: ifa==ifeq|a|b
+  function build_few_line_vs_ifii2(iLine as int32, kv as string) as string       'kv      example: ifa==ifsee|a=b
     return "goto==laterCondi" &  iNOW(iLine, "mostBeg") 
   end function
   
@@ -1390,9 +1301,9 @@ end sub
   end function
   
 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm  
-  function build_few_line_vs_elBut(iLine as int32, kv as string, byref lines() as string) as string       'kv      example: but==ifeq|1|2|then  
+  function build_few_line_vs_elBut(iLine as int32, kv as string, byref lines() as string) as string       'kv      example: but==ifsee|1=2|then  
     dim rightP as string   
-    rightP=atom(kv  ,  2, "==" )                       'rightP  example: ifeq|a|b
+    rightP=atom(kv  ,  2, "==" )                       'rightP  example: ifsee|a=b
     if  left(rightP,2)<>"if"   then ssddg("MIP see but==" & rightP, "no see but==if***         " ,"so MIP stop",rightP)
     if right(rightP,4)<>"then" then ssddg("MIP see but==" & rightP, "no see but==if***|*|*|then" ,"so MIP stop",rightP)
     dim ckTH as int32 : ckTH=iNOW(iLine, "mostBut")
@@ -1529,13 +1440,12 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
         if isLeftOf("for=="           ,ctmp) then lines(i)=build_few_line_vs_forii(i,ctmp)     :  continue for
         if isLeftOf("foreach=="       ,ctmp) then lines(i)=build_few_line_vs_forch(i,cLin)     :  continue for
         if isLeftOf("next=="          ,ctmp) then lines(i)=build_few_line_vs_nexti(i,ctmp)     :  continue for
-        
+        if isLeftOf("call=="          ,ctmp) andAlso notInside(fcComma, ctmp) then lines(i)=lines(i) & "|"  :  continue for
         if isLeftOf("loadfromfile=="  ,ctmp) then lines(i)=left(ctmp,len(ctmp)-1) & "[]" & right(ctmp,1)    : continue for
         
-        if inside("==gosub" & fcComma ,ctmp) then lines(i)=build_few_kv_for_gosub( ctmp)       :  continue for
         if inside("==top1r" & fcComma ,ctmp) then lines(i)=build_few_kv_from_top1r(ctmp)       :  continue for
         if inside("==are"   & fcComma ,ctmp) then lines(i)=build_few_kv_from_ARE(  cLin)       :  continue for
-        
+        if inside("eval|", ctmp)             then lines(i)=replaces(lines(i),"$para1","($para1)",  "$para2","($para2)",  "$para3","($para3)")
       next
         iNow(999,"check")
     catch ex as exception
@@ -1551,20 +1461,20 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
       'seldom use so mark out; Upag= Replace(Upag, "#userCP"  , userCP)
       'seldom use so mark out; Upag= Replace(Upag, "#userOG"  , userOG)
       'seldom use so mark out; Upag= Replace(Upag, "#userWK"  , userWK)
-      Upag= Replace(Upag, "@comp"    , atComp)
-      Upag= Replace(Upag, "thispg"   , spfily)
-      Upag= Replace(Upag, "#userID"  , userID)
-      Upag= Replace(Upag, "#fromIP"  , Request.ServerVariables("REMOTE_ADDR"))
-      Upag= Replace(Upag, "#serverIP", Request.ServerVariables("SERVER_NAME"))
-      Upag= Replace(Upag, "#disk"    , Left(tmpFord, 1))
-      Upag= Replace(Upag, "#f2postSQ", f2postSQ)
-      Upag= Replace(Upag, "#f2postDA", f2postDA)
-      Upag= Replace(Upag, "okclick"  , "onclick"           )        
-      Upag= Replace(Upag, " ve("     , "@[gu1m|matrix|"    )        
-      Upag= Replace(Upag, ")er"      , "]#"                )        
+      Upag= Replace(Upag, "$comp"      , atComp)
+      Upag= Replace(Upag, "$thisprog"  , spfily)
+      Upag= Replace(Upag, "$userID"    , userID)
+      Upag= Replace(Upag, "$fromIP"    , Request.ServerVariables("REMOTE_ADDR"))
+      Upag= Replace(Upag, "$serverIP"  , Request.ServerVariables("SERVER_NAME"))
+      Upag= Replace(Upag, "$serverDisk", Left(tmpFord, 1))
+      Upag= Replace(Upag, "$postSQL"   , f2postSQ)
+      Upag= Replace(Upag, "$postDATA"  , f2postDA)
+      Upag= Replace(Upag, "okclick"    , "onclick"           )        
+      Upag= Replace(Upag, " ve("       , "@[gu1m|matrix|"    )        
+      Upag= Replace(Upag, ")er"        , "]#"                )        
       
-      Upag= Replace(Upag, "#add"     , "+"                 )
-      Upar= Replace(Upar, "#add"     , "+"                 )
+      Upag= Replace(Upag, "$add"     , "+"                 )
+      Upar= Replace(Upar, "$add"     , "+"                 )
       	  
           
     'parse_step[3] split program to k=v pairs
@@ -1572,7 +1482,7 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
     cmN12=cmN12:Call textToPair("toExec",2,  Upag, keys,vals,cmN12) 'in sub wash_UparUpag_exec
     'showvars("after textToPair done")		
     
-    recognize_and_do_keyCommands() 'parse_step[4.2]+[4.3]
+    exec_sentence_since(1, split("",icoma) ) 'parse_step[4.2]+[4.3]
 End Sub 'wash_UparUpag_exec
   
 
@@ -1584,7 +1494,8 @@ sub showApplication
 		                  ssddg("show all application vars done")
 end sub    
 
-  function cut_to_3_parts(mstr as string, begg as string,  endd as string) as string ' aa @[bb] cc then: st1=aa ; st2=bb ; st3=cc
+  '會尋找最內層的 @[...]#
+  sub cut_to_3_parts(mstr as string, begg as string,  endd as string,   byref aa1 as string,byref bb2 as string,byref cc3 as string) 
     dim ib,loopi,i1,i2 as int32  : dim st1,st23,st2,st3, tmp, pfp() as string
     
     ib=1: loopi=0
@@ -1605,138 +1516,56 @@ end sub
            pfp=split(st2, fcComma): tmp=pfp(0): pfp(0)=pfp(1): pfp(1)=tmp
        st2=string.join(   fcComma, pfp)
     end if    
-    return st1 & tmpGlu & st2 & tmpGlu & st3
-  end function
     
-  function translateCallOneByOne(varTH as int32,   leftPart as string, rightPart as string              ) as string 'translate gu1m|matrix|patt=@[ff]                  
+    'final output
+    aa1=st1: bb2=st2: cc3=st3
+  end sub
+    
+  function reduceComplexSentence(varTH as int32,   leftPart as string, rightPart as string              ) as string 'translate gu1m|matrix|patt=@[ff]                  
   'example: key==hhhh @[fun1|p1|p2]# mm  --> leftPart:key      , rightpart:hhh     @[fun1|p1|p2]#          mm  
   'also                                  -->                           hh1:hhh , par2:fun|p1|p2     ,  mm3:mm
   'if rightpart lookslike abc|p1|p2  ; then edit it to:                             @[abc|p1|p2]#
-   dim cms(), cmx2, rightHandQ,hh1,focus2,mm3, joinc3 as string    :   dim findingBracket as int32  
+   dim rightHandQ,hh1,focus2,mm3 as string    :   dim findingBracket as int32  
    rightHandQ=rightPart
-   for findingBracket=1 to 99
-     'ssdd("inside translateCallOneByOne, looping head",findingBracket ,rightHandQ)
+   for findingBracket=1 to 16
+     'ssdd(string.format("oneByOne, varth={0}, finding={1}, lef={2}, rit={3}",varth,findingBracket,leftpart,rightHandQ))
      'below 3 if-conditions are in good order, not alter it
      
-     '(1)若有看到 @[...]
+     '(1)看右手方 有沒有@[...]#，若有，也就是有內層函數未解開，則:
      if inside(fcBeg , rightHandQ) then 
-       joinc3=cut_to_3_parts(rightHandQ,fcBeg,fcEnd) 
-       cms=split(joinc3, tmpGlu)           ' so cms() example is: (0):hhh , (1):fun1|p1|p2 , (2):mm 
-       hh1=cms(0) :focus2=cms(1) : mm3=cms(2)   'focus函就是目前最內層的函數
-       'ssdd("inside translateCallOneByOne,cond 1")
-       if oneInside("[ui,[vi,[mi", focus2) then '若focus函的參數很像是 gu函數的參數 
-          'ssdd("inside translateCallOneByOne,cond 1-1")
-          if oneInside("gu1,gu2", hh1) then           '若focus函的左方另有gu函數，則focus函必是內層函數，應壓抑focus函 不轉
-               rightHandQ=hh1 & gcBeg & replace(focus2, fcComma , gcComma) & gcEnd & mm3
-               'ssdd("inside translateCallOneByOne,cond 1-1-1")
-          else                                        '若focus函的左方沒有gu函數，則focus函自己就是gu函數，於是解開它
-               'ssdd("inside translateCallOneByOne,cond 1-1-2")
-               focus2=translateFunc(varTH, leftPart, focus2) :if tryERR=1 then dumpEnd
+       cut_to_3_parts(rightHandQ,fcBeg,fcEnd,  hh1,focus2,mm3)  '[focus] means (fn1|p1|p2) of the @[fn|p1|p2]#  ， 就是目前最內層的函數名及參數
+       'ssdd("inside reduceComplexSentence,cond 1")
+       if oneInside("gu1,gu2", hh1) andAlso oneInside("[ui,[vi,[mi", focus2) then         '遇到gu函數內部包著 @[...] ， 應壓抑 暫時不解開@[...]
+               rightHandQ=hh1 & gcBeg & replace(focus2, fcComma , gcComma) & gcEnd & mm3  '為了壓抑 不解開函數，技巧是把fcComma暫時改為gcComma
+               'ssdd("inside reduceComplexSentence,cond 1-1-1")
+       else                                                                               '不是遇到gu函數內部包著 @[...]，於是解開它
+               focus2=translateFunc(varTH, focus2) :if tryERR=1 then dumpEnd
                rightHandQ=hh1 & focus2 & mm3
-          end if
-       else                                     '若focus函不是gu函數，直接解開它
-            'ssdd("inside translateCallOneByOne,cond 1-2")
-            focus2=translateFunc(varTH, leftPart, focus2) :if tryERR=1 then dumpEnd
-            rightHandQ=hh1 & focus2 & mm3
-       end if             
+       end if
+             
        
-     '(2)若有看到直線號 | 例如:  func|p1|p2| %gcBeg fn2 |. q1 |. q2 %gcEn  則直接解開
+     '(2)若內層函數都解了，還是有看到直線號 | 例如:  func|p1|p2| %gcBeg fn2 |. q1 |. q2 %gcEn  則這是一個單行函數，直接解開它
      elseif inside(fcComma,rightHandQ) then  
-            'ssdd("inside translateCallOneByOne,cond 2")
-            rightHandQ=translateFunc(varTH, leftPart, rightHandQ) :if tryERR=1 then dumpEnd
+            'ssdd("inside reduceComplexSentence,cond 2")
+            rightHandQ=translateFunc(varTH, rightHandQ) :if tryERR=1 then dumpEnd
             
-     '(3)若有看到被壓抑的內層函數  %gcBeg[...]
+     '(3)最後我們看到還剩下剛剛被壓抑的內層函數  %gcBeg[...]
      elseif inside(gcBeg, rightHandQ) then   
-            'ssdd("inside translateCallOneByOne,cond 3")
+            '全部還原它，再準備一層一層解開
             rightHandQ=replaces(rightHandQ, gcBeg,fcBeg,  gcEnd,fcEnd, gcComma , fcComma)
             continue for
             
      '(4)若已完全解開了
      else
-       'ssdd("inside translateCallOneByOne,cond 4else")
        if inside(fcEnd, rightHandQ) then ssddg("calling function but begin-end not matched", "command-th:" & varTH, "command:" & leftPart, "val:" & rightHandQ)
        'return replaces(rightHandQ, gcBeg, fcbeg,  gcEnd,fcEnd)
        return rightHandQ
      end if    
    next   
-   ssddg("translateCallOneByOne working too many times")
+   ssddg("reduceComplexSentence working too many times")
   end function  
-  
-  function ifValidDate(das1 as string, byref dat1 as dateTime) as boolean
-    try
-      dat1=dateTime.parse(das1)         : return true
-    catch ex as exception
-      dat1=dateTime.parse("1911/01/01") : return false
-    end try
-  end function
-  
-  function forymd(fmt as string) as string
-    fmt=trim(fmt): if fmt="" then fmt="yyyy/MM/dd"
-    fmt=   replaces(fmt.toLower,"yy","y"   ,   "mm","m" ,   "dd","d"  , "yy","y"  )
-    return replaces(fmt,        "y" ,"yyyy",   "m" ,"MM",   "d" ,"dd" , "nn","mm" )
-  end function
-  function dateConvUSA(das1 as string,     formatt as string, byref outs as string) as string  
-    dim dat1 as dateTime :                 formatt=forymd(formatt)
-    das1=Any_to_usaSlash(das1)
-    if ifValidDate(das1,dat1) then outs=dat1.toString(formatt) else outs=""
-    return outs
-  end function
-  
-  function dateAddUSA(das1 as string, more as int32, formatt as string) as string  
-    dim dat1 as dateTime :  das1=trim(das1):         formatt=forymd(formatt)
-    das1=Any_to_usaSlash(das1)
-    if das1="" then das1=dateTime.Now.toString("yyyy/MM/dd")
-    if ifValidDate(das1,dat1) then   return dateadd("d",more, dat1).toString(formatt) else return "bad-dateAddUSA:" & das1 & ";" & dat1
-  end function 
-  
-  function any_to_usaSlash(das1 as string) as string
-           if isNumeric(das1) andAlso len(das1)=8  then return         left(das1,4)  & "/" & mid(das1,5,2) & "/" & mid(das1,7)
-           if isNumeric(das1) andAlso len(das1)=7  then return c3A1911(left(das1,3)) & "/" & mid(das1,4,2) & "/" & mid(das1,6)
-           if isNumeric(das1) andAlso len(das1)=6  then return c3A1911(left(das1,2)) & "/" & mid(das1,3,2) & "/" & mid(das1,5)
-           return das1
-  end function
-  
-  function c3A1911(y4  as string) as string
-    if   isNumeric(y4) andAlso (len(y4)=3 or len(y4)=2) then return (cint(y4) +1911) & ""
-    return         y4
-  end function
-    
-  function dateConvROC(das1 as string,     formatt as string, byref outs as string) as string  'only for yyymmdd, yyy/mm/dd, yyy-mm-dd   
-    dim dat1 as dateTime, das2 as string : formatt=forymd(formatt)
-    das1=Any_to_usaSlash(das1)
-    if ifValidDate(das1,dat1) then 
-       das2=dateadd("yyyy",-911,dat1).toString(formatt)
-       'if das1=2019.0101 then   das2=1108.0101
-       'if das1=2009.0101 then   das2=1098.0101
-       'if das1=1999.0101 then   das2=1088.0101
-                                 outs=das2 
-       if left(das2,2)="10" then outs=mid(das2,3) 
-       if left(das2,2)="11" then outs=mid(das2,2) 
-       return outs
-    else 
-       return ""
-    end if
-  end function
-  
-  function dateAddROC(das1 as string, more as int32, formatt as string) as string  
-    dim dat1 as dateTime, das2 as string : das1=trim(das1): formatt=forymd(formatt)
-    das1=Any_to_usaSlash(das1)
-    if das1   ="" then das1=dateTime.Now.toString("yyyy/MM/dd")
-    if ifValidDate(das1,dat1) then 
-       dat1=dateadd("d",more, dat1)
-       das2=dateadd("yyyy",-911,dat1).toString(formatt)
-       if left(das2,2)="10" then return mid(das2,3) else return mid(das2,2)
-    else
-       return "bad-dateAddROC:" & das1 & ";" & dat1    
-    end if
-  end function
-  
-  function myDateDiff(das1 as string, das2 as string) as int32  ' days range: from das1 to at2
-     dim dat1,dat2 as dateTime
-     das1=Any_to_usaSlash(das1)
-     das2=Any_to_usaSlash(das2)
-    if ifValidDate(das1,dat1) andAlso ifValidDate(das2,dat2) then return dateDiff("d",dat1,dat2) else return "bad-dateDiff"    
-  end function 
+
+
   
                             
   Function ffMatch(tb1 as string,  tb2 as string,  ff1s as string,  ff2s as string,  gu2 as string) as string
@@ -1866,16 +1695,15 @@ end sub
   Function inta(a1)
     If IsNumeric(a1) Then inta = CLng(a1) Else inta = 0
   End Function
-  Function NumGT(a1, a2)
-    If IsNumeric(a1) And IsNumeric(a2) Then NumGT = (CDbl(a1) > CDbl(a2)) Else NumGT = (a1 > a2)
-  End Function
-  Function NumGE(a1, a2)
-    If IsNumeric(a1) And IsNumeric(a2) Then NumGE = (CDbl(a1) >= CDbl(a2)) Else NumGE = (a1 >= a2)
-  End Function
 
   Function fn_eval(expp as string) as string
     Dim tbl = new DataTable()
-    return Convert.ToString(tbl.Compute(expp, Nothing))
+    if expp="" then return ""
+    try
+     return Convert.ToString(tbl.Compute(expp, Nothing))
+    catch ex as Exception
+     return expp
+    end try
   End Function
 
 function gu1v(vectorU as string, patt as string, glue as string) as string 
@@ -2040,80 +1868,68 @@ end function
     End If
   End Function
 
+  Sub rstable_dataTu_somewhere(sqcmd as string, works as string) 'also for batch_loop
+    Dim datatuL, idle, idleMark, rstt
+       sqcmd=aheadSQL() & sqcmd
+       datatuL = LCase(Trim(dataTu)) 'ssdd(2721,"going to write data", dataTu)
+       
+       If datatuL = "screen" Then
+                                       rstable_to_screen(sqcmd,works) 
+       ElseIf datatuL="datastring" Then 'was said vb.net
+                                       call zeroHtm(100) : rstable_to_responseCall(sqcmd, "[begData]", "[endData]",works)  'for vb.net.tb  , cz means replace recordSet into dataTable 
+      'elseif datatuL="datalines"  then 'was said freecama
+      '                                Call zeroHtm(100) : rstable_to_freeCama(sqcmd,works)  'output data in simple string (for vb or .net or API)
+      'ElseIf datatuL="top1r"  Then 'get the top1 record and put to a vector
+      '                                idleMark = rs_top1Record(sqcmd, headlist, "vec")
+       ElseIf datatuL="top1s"  Then 'get the top1 record and do show on screen
+                                       buffW(rs_top1Record(sqcmd, headlist, "htm"))
+       ElseIf datatuL="top1w"  Then 'get the top1 record and show as input boxes 
+                                       Upar = rs_top1Record(sqcmd, headlist, "par")
+                                       'ssdd("in top1w",Upar,"soso")
+                                       Call show_UparUpag("for-top1w", Upar, Upag, spfily) 'in top1Write , so you cannot mix up upar and upag
+       ElseIf datatuL="top99w" Then  'display 99 records on screen in a <textarea>
+                                       rstt = rstable_to_varComma(sqcmd, icoma,works)
+                                       Upar = Upar & ienter & "matrix==" & ienter & rstt
+                                       Call show_UparUpag("for-top9w", Upar, Upag, spfily) 'in top9Write      
+       ElseIf Right(datatuL,4)=".xml"   Then
+                                       Call rstable_to_xmlFile(sqcmd, works)
+       ElseIf Right(datatuL,5)=".json"   Then
+                                       Call rstable_to_jsonFile(sqcmd, works)
+       ElseIf datatuL="xyz"    Then
+                                       Call dump() : rstable_to_xyz(sqcmd,0,works)
+       ElseIf datatuL="xyzsum" Then
+                                       Call dump() : rstable_to_xyz(sqcmd,1,works)
+       ElseIf Left(datatuL,6)="matrix" Then
+                                       Call setValue(dataTu, rstable_to_varComma(sqcmd, dataToDIL,works) )
+       ElseIf left(datatuL,4)="grid" Then
+                                       Call setValue(dataTu, rstable_to_varGrid(sqcmd,works)                )
+                                       
+       ElseIf inside(".", datatuL)   Then
+                                       'ssdd(2726,"going to write data", dataTu)
+                                       rstable_to_dataF(sqcmd,works)  'in rstable_dataTu_somewhere
+       Else
+                                       ssddg("unknown name of dataTo: " & datatuL, "try new name of dataTo, maybe matrix2 or grid2") 
+       End If
+    
+  End Sub
+
+
 
  
 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
   sub makeRS3(sql as string)
-         if SQL_recordset_TH=3 then dim dapp as new   SqlDataAdapter : dapp=New   SqlDataAdapter(sql, objconn2v): dapp.SelectCommand.CommandTimeout=600 : rs3.clear: dapp.Fill(rs3) 
+         if SQL_recordset_TH=3 then 
+            dim dapp as new   SqlDataAdapter : dapp=New SqlDataAdapter(sql, objconn2v): dapp.SelectCommand.CommandTimeout=600 
+            dim rs4 as new datatable
+            rs3=rs4  'using rs3.clear will only clear data, but column schema are kept. so I use a brad new rs4 to replace rs3
+            dapp.Fill(rs3) 
+            ssdd(2009, rs3.columns.count, rs3.rows.count)
+         end if
     'mmy if SQL_recordset_TH=4 then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : rs3.clear: dapp.Fill(rs3) 
   end sub 
   
-  
-  function sqlToFileMa() as boolean
-   sqltoFileW= inside(".", dataTu)
-   return sqltoFileW
-  end function
-  
-  Sub batch_loop(loopN as int32, cmdtyp as string, ELE2 as string)
-    Dim inpN, j, sqlrunNth as int32
-    dim line, linez, cutter, wds() as string
-    dim showColumnTitle as boolean
-    
-    'output prepare process:
-       inpN = 0 : dataFromRecordN = 0 : sqlrunNth=0 : dump() :  sqlToFileMa() 
-       If dataTu = "screen"   Then buffW(table0) 'LB3045A
-       If sqlToFileW Then rstable_to_dataF_beg(2670) 'in sub batch_loop
-       if loopN=1 then goto kernel
-    
-    'input prepare process:    
-       Call SRCbeg() ': ssddg(2880,dataFF,dataTu,sqlToFileMa())
-       
-    do 'for each record of input matrix
-      line = SRCget()
-      If line = "was.eof" Then Exit Do
-      if inpN=0 then cutter=bestDIT(line) 'decide cutter only at the first line      
-      inpN = inpN + 1
-      If record_cutBegin <= inpN And inpN <= record_cutEnd And line <> "" Then 
-        linez = line
-        line = Replace(line.trim, "'", "`")  '有這一行可以使insert 'fdv01'且文字內有單撇時正常灌入
-        If line <> "" andAlso line <> Chr(26)  Then ' chr(26) is EOF
-          trimSplit(line, cutter, wds)
-          dataFromRecordN = dataFromRecordN + 1
-          'ELE2 = ELE
-          
-          For j = 0 To UBound(wds)
-            ELE2 = Replace(ELE2, "fdv" & digi2(j + iniz), Replace(wds(j), "vbNL", ienter) ) '要預先把 data block裡的vbNL 改為 ienter 
-          Next
-          ELE2 = Replace(ELE2, "fdv0I", "" & (inpN + iniz - 1)) 'the ith of this line, if iniz=1 then it=inpN else it=inpN-1
-          ELE2 = Replace(ELE2, "fdv0Z", Replace(linez, dataToDIL, ",")) 'populate linez, but if linez contains dataToDIL, then replace it to ,
-          
-          kernel:
-          sqlrunNth=sqlrunNth+1 : showColumnTitle=( sqlrunNth=1)
-          select case cmdTyp
-          case "sqlcmdh"    : buffW("sqlcmdh: " & ELE2 & "<br>")                     'in sub batch_loop  
-          case "sendmail"   : Call sendmail(ELE2)                                    'in sub batch_loop 
-		  case else         : buffW("unknown batch command type: " & cmdTyp & "<br>")
-          End select
-          if loopN=1 then goto loopOut
-        End If   'not ch26 (not eof)
-      End If    'inpN is in range
-    loop 'next of for each   
-    
-    'input ending process
-    SRCend() 
-    
-    'output ending process
-    loopOut:
-    If sqlToFileW Then rstable_to_dataF_end() 'in sub batch_loop
-    If dataTu = "screen"  Then buffW(table0End) 'LB3045B, relate to LB3045A 
-'ssddg(2918,123)    
-  End Sub
-  sub singleSQL(aa)
-  end sub
-  sub batchSQL(aa)
-  end sub
-'total 169k bytes 20190117
 
+'total 169k bytes 20190117
 
 </script>
 

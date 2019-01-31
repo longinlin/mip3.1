@@ -23,16 +23,22 @@ End Function
      Dim utf8WithoutBom As New System.Text.UTF8Encoding(False)  
      objStream                               = New System.IO.StreamWriter(fileName, false, utf8WithoutBom) 
   end sub         
-  sub utf8_doesW(oneline as string) 'do writing
+  sub utf8_doesWLine(oneline as string) 'do writing
       dim method_k as int32
           'method_k=1 :tmpf.writeline(     oneline)               
           'method_k=2 :objStream.WriteText(oneLine & vbnewline)   
            method_k=3 :objStream.Write(    oneLine & vbnewline)   
   end sub
-  sub utf8_closeW(fname as string) 'close writing
+  sub utf8_doesWrr(rr as string) 'do writing
+      dim method_k as int32
+          'method_k=1 :tmpf.write    (     rr)               
+          'method_k=2 :objStream.WriteText(rr)   ' or objStream.SaveToFile(fname, 2)
+           method_k=3 :objStream.Write(    rr)   
+  end sub
+  sub utf8_closeW() 'close writing
       dim method_k as int32
          'method_k=1  :tmpf.close()
-         'method_k=2  :objStream.SaveToFile(fname, 2):objStream.Close() ' 2 means adSaveCreateOverwrite 
+         'method_k=2  :objStream.Close() ' 2 means adSaveCreateOverwrite 
           method_k=3  :objStream.Close()                                                              
   end sub
   
@@ -45,8 +51,8 @@ End Function
    
    try
    utf8_openW(gname)
-   utf8_doesW(strr)
-   utf8_closeW(gname)
+   utf8_doesWLine(strr)
+   utf8_closeW()
    catch ex as Exception : ssddg("err1 on write file " & gname , ex.Message) :end try
   end sub
   

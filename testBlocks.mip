@@ -1,7 +1,7 @@
 ﻿
 
 #1#2
-ifa==ifeq|1|2|then
+ifa==ifsee|1=2|then
 show==say eq
 else==
 show==say neq
@@ -15,9 +15,9 @@ next==
 exit==ok2
 
 
-ifa==ifeq|11|22|then
+ifa==ifsee|11=22|then
 show==say eq
-   ifa==ifeq|33|33|then
+   ifa==ifsee|33=33|then
    show==say 3 eq
    else==
    show==say 4
@@ -29,7 +29,7 @@ exit==ok3
 
 
 for==iiii|1|4
- ifa==ifeq|4|4|then
+ ifa==ifsee|4=4|then
     show==iiii ifok,
  else==
     show==iiii nifok,
@@ -40,13 +40,23 @@ exit==ok4
 
 most==
   show==yy
-but==ifeq|4|4|then
+but==ifsee|4=4|then
   show==xx
   for==iqty|1|5|2
   show==ciqty,
   next==
 endmost==
 exit==ok5
+
+
+//below for gosub recursive rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+ans5==prod|5
+exit==ok ans5
+
+label==prod
+return==ifsee|$para1=1| 1|notYet
+return==$para1*@[prod| $para1-1 ]#
+
 
 //below for SQL
 sqlcmd,screen,t31.dat== select a=123

@@ -1,47 +1,38 @@
 <script runat="server">      
-Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as string) as string 'translate yy=func|x1|x2
+Function translateFunc(varTH as int32, rightHandPart as string) as string 'translate yy=func|x1|x2
 'purpose: after previous keys() are wahsed into rightHandPart, and see there is a @[translateFuncName|para1|para2] in rightHandPart, then translate it
-    Dim j as int32
+    Dim j,LB_loc, idleI1,idleI2 as int32
     dim ftxt, i1ftxt, i2ftxt, cifhay,  ftxta, ftxtb,   ftxtc, kmcader, cutt, dval as string
     dim funcLet,tmpa,tmpb,tmpc,  idle, newSymbol, oldSymbol ,   verb2, info3, wallTH, arr0L, patt as string
     dim wordvs(), arr() as string
-   'dim datetime22 as datetime
+    dim usaTT32 as datetime
     if not inside(fcComma, rightHandPart) then return rightHandPart
-    trimSplit(rightHandPart & fcComma & fcComma & fcComma & fcComma, fcComma, arr)
-    arr0L=LCase(arr(0)) :tryERR=0
+    trimSplit(rightHandPart & fcComma & fcComma & fcComma,   fcComma, arr)
+    
+    arr0L=LCase(arr(0)) :tryERR=0 : for j=1 to ubound(arr): arr(j)=fn_eval(arr(j)):next
   try
-	select case arr0L
-    case "ifeq"           :If arr(1) =      arr(2)       Then return arr(3) Else return arr(4)
-    case "ifne"           :If arr(1) <>     arr(2)       Then return arr(3) Else return arr(4)
-    case "ifgt"           :If NumGT(arr(1), arr(2))      Then return arr(3) Else return arr(4)
-    case "ifge"           :If NumGE(arr(1), arr(2))      Then return arr(3) Else return arr(4)
-    case "iflt"           :If NumGT(arr(2), arr(1))      Then return arr(3) Else return arr(4)
-    case "ifle"           :If NumGE(arr(2), arr(1))      Then return arr(3) Else return arr(4)
-    case "iflceq"         :if lcase(arr(1))=lcase(arr(2))Then return arr(3) else return arr(4) ' if lcase(x1)=lcase(x2)
+	select case arr0L               
+    case "ifsee"  :return ifsee(arr(1),arr(2),arr(3))
+    
+    case "ifuueq"         :if ucase(arr(1))=ucase(arr(2))Then return arr(3) else return arr(4) 
     case "ifleneq"        :If Len(arr(1)) = len(arr(2))  Then return arr(3) Else return arr(4)
-    case "ifin"           :If inside(arr(1), arr(2)) Then return arr(3) Else return arr(4) ' ifin a b --> if a in b
+    case "ifinside"       :If inside(arr(1), arr(2)) Then return arr(3) Else return arr(4) ' ifin a b --> if a in b
     case "ifnum"          :If IsNumeric(arr(1))          Then return arr(2) Else return arr(3)
     case "ifposi"         :If IsNumeric(arr(1)) andAlso        0<arr(1)                   Then return arr(2) Else return arr(3) ' if positive number
     case "ifbetween"      :if ifbetween(arr(1), atom(arr(2),1,":"),  atom(arr(2),2,":") ) then return arr(3) Else return arr(4) 'yy==ifBetween|x1|x2:x3|act1|act2 
-    case "ifv"            : If hasValue(arr(1)) Then return arr(2) Else return arr(3) 'means if_not_empty_string then    
-    case "ifvaliddate"    : if     dateConvUSA(arr(1),"yyyymmdd",funcLet)<>"" andalso ifBetween(left(funcLet,len(funcLet)-4),1900,2040) then return arr(2) else return arr(3)  ' you may write idle==ifvalidDate|20113344  or goto==ifvalidDate|20113344|LB1|LB2
-    case "ifvaliddateroc" : if     dateConvROC(arr(1),"yyyymmdd",funcLet)<>"" andAlso ifbetween(left(funcLet,len(funcLet)-4),   0, 150) then return arr(2) else return arr(3)
+    case "ifvalueful"     : If hasValue(arr(1)) Then return arr(2) Else return arr(3) 'means if_not_empty_string then    
+
+    case "cdate"          : return dateConvUSA(arr(1))  'example: easy==cdate|Jan 2,1991 |yyyy/mm/dd
+    case "ifdate"         : tmpa=dateConvUSA(arr(1)): return if(tmpa<>"xdate" , arr(2),arr(3) )  
+                          ' example:  show==ifDate|20113344|LB1|LB2    
+    case "dateadd"        : return dateAddUSA( arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd   
+    case "datediff"       : return DateDiffUSA(arr(1), arr(2))
     
-    case "dateconv"       : return dateConvUSA(arr(1),arr(2)    ,funcLet)
-    case "dateconvroc"    : return dateConvROC(arr(1),arr(2)    ,funcLet)
-    
-    case "dateadd"        : return dateAddUSA(arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd
-    case "dateaddroc"     : return dateAddROC(arr(1), arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd
-    
-    case "dateDiff"      : return myDateDiff(arr(1), arr(2))
-    
-    case "add"  
-      if arr(1)="" then arr(1)="0"
-      if not isnumeric(arr(1)) then ssddg("add 第一個參數只能是空白或數字，現在不是:",arr(1) )
-      if not isnumeric(arr(2)) then ssddg("add 第二個參數只能是數字      ，現在不是:",arr(2) )
-      return CDbl(arr(1)) + CDbl(arr(2))
+    case "ifDateroc" : return if( dateIfROC(arr(1),usaTT32), arr(2), arr(3))       
+    case "dateaddroc"     : return dateAddROC(        arr(1)         , arr(2), arr(3))  ' arr(3) is format ex: yyyymmdd    
+    case "datediffroc"    : return DateDiffROC(       arr(1)         , arr(2)        )
     case "eval" 
-      return fn_eval(arr(1))
+      return fn_eval(arr(1)) 'for eval|
     case "previous" 
       return vals(varTH-1)
     
@@ -56,38 +47,52 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
       Next
       return ""
 
-    case "cookiew" :Response.Cookies(arr(1)).value = arr(2) : return ""  ' session(arr(1))=arr(2) : return "" 'cookie  write
-    case "cookier" :return Request.Cookies(arr(1)).toString              ' session(arr(1)) 'cookie  read
 
     case "inner"   :return inner(arr(1), arr(2), arr(3))
     case "mobiletel"
       if left(arr(1),1)="9" then return "0" & arr(1) else return arr(1)
-    case "datafromlinecount"   ' if there was a source of dataFrom and be execuded by doloop then dataFromLineCount will have non-zero value
+    case "datasourcelinecount"   ' if there was a source of dataFrom and be execuded by doloop then datasourcelinecount will have non-zero value
       return  dataFromRecordN
-    case "intrnd"   ' if there was a source of dataFrom and be execuded by doloop then dataFromRecordN will have non-zero value
+    case "cookiew" :Response.Cookies(arr(1)).value = arr(2) : return ""  ' session(arr(1))=arr(2) : return "" 'cookie  write
+    case "cookier" :return Request.Cookies(arr(1)).toString              ' session(arr(1)) 'cookie  read
+    case "intrnd" 
       return intrnd(arr(1))
-    case "camalize" '往下的序列 改為往右的序列: change      a (cr) b (cr)c              into        'a','b','c'
-      return gu1m(arr(1),"'[mi1]'" , ienter, "")
+    case "transport" 'matrix transport
+                    tmpa=rowCount(arr(1)) : tmpb=""
+                    for j=1 to min(9,cint(tmpa))
+                        tmpb=tmpb & gu1m(arr(1), "[mi" & j & "]", icoma,"") & ienter
+                    next
+                    return tmpb
 	case "addhtmlgrid"  ' was named gridLize with purpose: change   1,2,3,4 (cr) 5,6,7,8   into        <table><tr>1234<tr>5678</table>    
       return addHtmlGrid(arr(1))
       
-    case "replace", "say"  ' replace!abcd_is_arr(1)|a|1| b|2
+    case "replace", "edit"  ' replace!abcd_is_arr(1)|a|1| b|2
         funcLet = arr(1)
         For j = 2 To UBound(arr) 
         if arr(j)<>"" then
-          if notInside("=", arr(j)) then ssddg("err when you use replace function, there must use = symbol, so it must looks as replace|wordy|p1=q1 , you wrote:(" & arr(j) & ")"  )
+          if notInside("=", arr(j)) then ssddg("err, when calling [replace function], it must looks as replace|wordy|p1=q1 , but you wrote:(" & arr(j) & ")"  )
           tmpa=leftPart(arr(j),"=") : tmpb=rightPart(arr(j),"=")
           If tmpa<> "" Then funcLet = Replace(funcLet, tmpa, tmpb)
         end if
         Next
         return funcLet
-    case "max"        ' replace!abcd_is_arr(1)!pqrs_is_arr(2)    
+    case "max"        ' max|arr(1)|2|3|4  
         funcLet = arr(1)
         For j = 2 To UBound(arr) 
           If isNumeric(funcLet) andalso isNumeric(arr(j)) Then 
              if               cint(arr(j))>cint(funcLet) then funcLet=arr(j)
           else
              if arr(j)<>"" andAlso arr(j) >     funcLet  then funcLet=arr(j)
+          end if
+        next
+        return funcLet
+    case "min"        ' min|arr(1)|2|3|4  
+        funcLet = arr(1)
+        For j = 2 To UBound(arr) 
+          If isNumeric(funcLet) andalso isNumeric(arr(j)) Then 
+             if               cint(arr(j))<cint(funcLet) then funcLet=arr(j)
+          else
+             if arr(j)<>"" andAlso arr(j) <     funcLet  then funcLet=arr(j)
           end if
         next
         return funcLet
@@ -130,8 +135,6 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
     case "rightto"   'rightTo 1motherWord 2ther 3Lenght 4defaultVal
       j = InStr(arr(1), arr(2))
       If j <= 0 Then return arr(4) Else return Mid(arr(1), j + Len(arr(2)), arr(3))
-    case "intrnd" 
-      return "" & intrnd(arr(1))
     case "ifhasfilm" 
       If cnInFilm >= 0   Then return arr(1) Else return arr(2)
     case "ifhasfile" 
@@ -152,6 +155,7 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
       If arr(1)  < 1 Then
         ssddg("top1r index should be positive")
       ElseIf arr(1) <= top1u+1 Then
+        'you must have run sqlcmd and prepareColumnHead before this command
         return top1rz(arr(1) - 1)
       Else
         ssddg("top1r index is badly outside data columns, maxi=" & top1u)
@@ -204,21 +208,75 @@ Function translateFunc(varTH as int32, leftHandPart as string, rightHandPart as 
       select case arr(1)
       case "i", "r" : funcLet=               arr(2)
       case "c"      : funcLet="'"  &         arr(2) & "'" 
-      case "d"      : funcLet=dateConvUSA(arr(2),"yyyy/mm/dd", idle)
+      case "d"      : funcLet=dateConvUSA(arr(2))
       case "nc"     : funcLet="N'" &         arr(2) & "'"
       case else     : funcLet="N'" &         arr(2) & "'"
       end select 								 
       return funcLet
     case "red"   '0:Red  |    1:value123
       return "<font color=red>" & arr(1) & "</font>"
-    case "cdate"  '0:Date      1:(Jul  6, 1991) or (28-Aug-79)
-                    dateAdd(arr(2),0,"yyyy/MM/dd")  
-    case else ' kk==myLongParagraph|yy1|yy2
-      ssddg(2110,"unknown function:", leftHandPart,rightHandPart)
+    case else 'now it is user defined func
+      ' var2==myFF|1|2  --> calling function and return value to var2
+      ' call==myFF|1|2  --> calling function and discard ret value 
+      ' var3==myvr|1|2  --> rise error, this sentence should lookslike var3=say|myvr|1,2
+      LB_loc=label_location(arr(0))       
+      if LB_loc>0 then 'the sentence lookslike     var2==myFF|1|2     or     call==myFF|1|2 
+        tmpa=Val_of_myFunc( arr(0), arr)    
+        'ssdd("in funcs",arr(0), arr(1), "result:",tmpa)
+        return tmpa
+      else 
+       ssddg("before wanting a func value, but func not found:", arr(0))
+      end if
     End select
-      tryERR=1 : ssdd("unknown func name, varTH:" & varTH,  "leftHand: " & lefthandPart, "unknown rightHand: "  & rightHandPart): return rightHandPart
+      tryERR=1 : ssdd("unknown func name, keyword-TH:" & varTH,   "unknown rightHand: " & rightHandPart): return rightHandPart
   catch ex as exception
-      tryERR=1 : ssdd("bad func exec    , varTH:" & varTH,  "leftHand: " & lefthandPart, "err From rightHand: " & rightHandPart, "funcNm:" & arr0L,  "rise: " & ex.Message): return rightHandPart
+      tryERR=1 : ssdd("bad func exec    , keyword-TH:" & varTH,   "unknown rightHand: " & rightHandPart, "funcNm:" & arr0L,  "rise: " & ex.Message): return rightHandPart
   end try
 End Function 'translateFunc
+
+function Val_of_myFunc( funcName as string, pamas() as string) as string
+  dim LB_loc, I2 as int32
+      LB_loc=label_location(funcName)
+      if LB_loc<=0 then ssddg("on wanting a func value, but func not found:", funcName)
+      exec_sentence_since(LB_loc, pamas)
+      return subRetVal
+end function
+
+function ifsee(cond as string, answ1 as string, answ2 as string) as string
+ dim c1,c2 as string
+ cond=nospace(cond)
+ if 1=2 then
+ elseif inside("<=", cond) then
+                           c1=fn_eval(leftPart(cond,"<=")) :  c2=fn_eval(rightPart(cond,"<="))
+                           if isnumeric(c1) andAlso isnumeric(c2) then       return if( csng(c1)<=csng(c2), answ1,answ2) else return if( c1<=c2, answ1,answ2)
+ elseif inside(">=", cond) then
+                           c1=fn_eval(leftPart(cond,">=")) :  c2=fn_eval(rightPart(cond,">="))
+                           if isnumeric(c1) andAlso isnumeric(c2) then       return if( csng(c1)>=csng(c2), answ1,answ2) else return if( c1>=c2, answ1,answ2)
+ elseif inside("<>", cond) then
+                           c1=fn_eval(leftPart(cond,"<>")) :  c2=fn_eval(rightPart(cond,"<>"))
+                           if isnumeric(c1) andAlso isnumeric(c2) then       return if( csng(c1)<>csng(c2), answ1,answ2) else return if( c1<>c2, answ1,answ2)
+ elseif inside("<", cond) then
+                           c1=fn_eval(leftPart(cond,"<")) :  c2=fn_eval(rightPart(cond,"<"))
+                           if isnumeric(c1) andAlso isnumeric(c2) then       return if( csng(c1)<csng(c2), answ1,answ2) else return if( c1<c2, answ1,answ2)
+ elseif inside("=", cond) then
+                           c1=fn_eval(leftPart(cond,"=")) :  c2=fn_eval(rightPart(cond,"="))
+                           if isnumeric(c1) andAlso isnumeric(c2) then       return if( csng(c1)=csng(c2), answ1,answ2) else return if( c1=c2, answ1,answ2)
+ elseif inside(">", cond) then
+                           c1=fn_eval(leftPart(cond,">")) :  c2=fn_eval(rightPart(cond,">"))
+                           if isnumeric(c1) andAlso isnumeric(c2) then       return if( csng(c1)>csng(c2), answ1,answ2) else return if( c1>c2, answ1,answ2)
+ elseif cond="True"       then
+                           return answ1 
+ elseif cond="False"      then
+                           return answ2
+ else
+                           ssddg("ifsee... does not understand it", cond)
+ end if
+ return ""
+end function
+
+function rowCount( mass as string) as int32
+ dim lines() as string=     split(mass    , ienter  )
+ dim irows() as string: trimSplit(lines(0), "best", irows)
+ return ubound(irows)+1
+end function
 </script>

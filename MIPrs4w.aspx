@@ -1,10 +1,6 @@
 <script runat="server" language="VB" >
 
 function rs4wk(methoda as string, optional para as string="", optional i as int32=0, optional j as int32=0) as string
- static fsa, fsb as object
- static exec as string
- dim j2 as int32
- 
  if SQL_recordset_TH=2 then
     select case methoda
     case "build" 
@@ -51,39 +47,7 @@ function rs4wk(methoda as string, optional para as string="", optional i as int3
     case "close"  : return ""
     end select
  end if 
- 
-    select case methoda
-    case "initExcelFile"
-        If showExcel Then
-          fsa = Nothing
-          fsb = Nothing
-          Dim ffsnameT = intloopi() & ".csv"
-          Dim ffsname2 = tmpFord & ffsnameT
-          Response.Write("此查詢結果也可以顯示於<a href='../" & tmpy & "/" & ffsnameT & "' target=eexx>Excel檔</a>, ")
-          fsa = CreateObject("scripting.FileSystemObject")
-          fsb = fsa.createTextFile(ffsname2, True)          
-        End If
-    case "writeExcelFile"
-        If showExcel Then fsb.writeline(para)  
-    case "closeExcelFile": fsb.close()
-    case "Write,TitleBar+Schema"	            
-        digis = Split(nospace(digilist), ",") : Dim fdvomeComa = "" 'build tdRights()  to define td  align be left or right, build fdvSomeComa=sum(fdvii,)  
-        For j2 = 0 To top1u      
-          tdRights(j2) = td0
-          fdvomeComa = fdvomeComa & "fdv" & digi2(j2+1) & ".type=" & rs4wk("gtyp","",0,j2) & ","
-        Next
-        
-        If needSchema = 1 Then
-          wwi("<br>" & top1h & "<br>" & fdvomeComa )
-          wwi("<br>" & top1T & "<br>" & top1h   & "<br>" & top1r)
-          wwi("<br for=dataBlock>" & table0 & titleBar & "<tr><td>" & Replace(fdvomeComa, ",", "<td>") )
-        else
-          wwi("<br for=dataBlock>" & table0 & titleBar )
-        End If
-    case "initSumTotal"
-        For j2 = 0 To top1u : fdt_sumtotal(j2) = 0 : Next            
-    end select
-    
+   
  return ""
 end function
 

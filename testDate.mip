@@ -1,0 +1,10 @@
+﻿#1#2
+show==cdate|22 Jan,1988 ;;exit.==ok3
+
+show==ifDate|20180101|y|n     ;;exit.==ok1
+show==dateAdd|11080104|-2|yyyy-mm-dd ;;exit.==ok2
+show==dateDiff|2108/01/01|2108/01/03      ;;exit.==ok3
+
+show==ifDateROC|11080103|y|n     ;;exit.==ok4
+show==dateAddROC|1080101|-2|yyyy-mm-dd ;;exit.==ok5
+show==dateDiffROC|1080101|11080103      ;;exit.==o

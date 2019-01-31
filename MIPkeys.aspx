@@ -16,12 +16,12 @@ dim keyp() as string
       end if
 end sub
       
-sub recognize_and_do_keyCommands() 
+sub exec_sentence_since(begWI as int32, pamas() as string) 
 dim i,j,workN,okma,loopM as int32
 dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
     
-    For i = 1 To cmN12	      	
-      workN=workN+1: if workN>300 then ssddg("err, MIP have walked too many steps")
+    For i = begWI To cmN12	      	
+      workN=workN+1: if workN>300 then ssddg("MIP have walked too many steps")
       mayReplaceOther(i)=true ' if Left(keys(i),6)="matrix" then mayReplaceOther(i)=false
       'ssdd(2235,i,keys(i),mayReplaceOther(i))
             
@@ -37,10 +37,13 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
                end if
             end if
         Next
+        if inside("$para1",vals(i)) then vals(i)=replace(vals(i), "$para1", pamas(1))
+        if inside("$para2",vals(i)) then vals(i)=replace(vals(i), "$para2", pamas(2))
+        if inside("$para3",vals(i)) then vals(i)=replace(vals(i), "$para3", pamas(3))
       'end wash    
       
-      'parse_step[4.3] solve translateCall on vals(i)
-      If Inside(fcComma, vals(i)) then vals(i)=translateCallOneByOne(i, keys(i), vals(i) ) 'translate yy==func|x1|x2| @[func2|p1|p2]#
+      'parse_step[4.3] translateCall on vals(i)
+      If Inside(fcComma, vals(i)) then vals(i)=reduceComplexSentence(i, keys(i), vals(i) ) 'translate yy==func|x1|x2| @[func2|p1|p2]#
       if tryERR=1 then dumpEnd
 
       'parse_step[4.4] clear mask[] on vals(i) 
@@ -48,12 +51,15 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       vals(i) = replaces(vals(i),   "$and"," and "    ,     "$fncall","@"       ,     "$fnpipe","|"        )       
       'take out mask [] , 這就是'解罩'只此兩行 必須在translateFunc之後
                                                      
+      'parse_step[4.5] try reduce it to a simpler number
+      'vals(i)=fn_eval(vals(i))
+                                                     
       mayReplaceOther(i)=false ' so below selected cases are keywords with mayReplace=false
       
       'parse_step[4.5] execute keys(i) with its vals(i)
       build_p123(keys(i), aaj1,aaj2,aaj3,keyLower)
 	  select case keyLower  'when see verb==some_description , then execute this verb
-      case "show", "showc":  ' "exit"    
+      case "show", "showc"   
                           if keyLower="showc" then vals(i)="<center>" & vals(i)  & "</center>" 
                           buffW( replace(vals(i), ienter,"<br>") ) 
       case "append"        'example: append,abcd==longString  'this serves for appending string
@@ -83,10 +89,13 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
         End If
       
       case "label"   'no work to do, but I list it here to prevent it be recognized as [programmer defined var]
-      case "gosub"   : callCenter("gosub" , vals(i), i+0, i)
-      case "goto"    : callCenter("goto"  , vals(i), i+0, i)
-      case "return"  : if hasValue(vals(i)) then subAnsw=vals(i): callCenter("return", vals(i), i+0, i) : saying="now i becomes the i whose keys(i)=gosub, so:" : vals(i)=subAnsw
-
+      case "call"   
+                     'ssdd(9300,vals(i))
+                     'nothing to do, just let  mayReplaceOther(i)=false
+                     ':if not inside(fcComma, vbks(i)) then exec_sentence_since( label_location(vals(i)) , "" )  'call==myFF without any parameter
+      case "goto"    : j=label_location(vals(i)) : i=if(j>0,j,i)
+      case "return"  : if Lcase(vals(i))<>"notyet" then subRetVal=vals(i):exit sub
+      case "retrun","erturn","ertrun","retun" : ssddg("err, you did wrong spell, correct word is: return")
       case"datatodil": dataToDIL=vals(i)       
       case "digilist"   : digilist = Replaces(vals(i), "y", "i", "r", "i") : digis = Split(nospace(digilist), ",")  'let (yes,real,int)=(y,r,i) mean column align right
 	  case "sendmail" 
@@ -98,7 +107,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "m_dosqu"     : calldosqu(vals(i))
       case "m_perl"      : callperl(vals(i), 1)
       case "m_perlbg"    : callperl(vals(i), 2)
-      case "iistimeout"  : Server.ScriptTimeout = ifeq(vals(i), "", 3600, CInt(vals(i)))
+      case "iistimeout"  : Server.ScriptTimeout = if(vals(i)="", 3600, CInt(vals(i)) ) '單位是秒
 	  case "showvars"    : showVars(2335)
 	  case "showapplication" : showApplication                          
 	  case "readdbs"    : load_dblist()
@@ -113,6 +122,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "taillist"    : TailList = vals(i) : Call zeroize_sumTotal()  ' was named as needSumList
       case "setfuncbegin" : fcBeg  =replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
       case "setfuncpara"  : fcComma=replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
+      case "setfuncend"   : fcEnd  =replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
       case "exit."        :                                                                              exitWord =vals(i) : exit for  
       case "exitred"      :                           buffW("<font color=red>" & vals(i) & "</font>" ) : exitWord =vals(i) : exit for 
       case "exit"         : if hasValue(vals(i)) then buffW(replace(vals(i), ienter,"<br>")          ) : exitWord =vals(i) : exit for                                 
@@ -126,46 +136,27 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
            next      
 	  end select
     Next i
+    subRetVal="" 'prepared for msiing [return] in a function
 end sub
 
 function aheadSQL() as string
  return ifeq(dbBrand, "ms", "set nocount on;", "")
 end function
- 
-sub callCenter(verb as string, something as string, byval inpI as int32,   byref oupI as int32) 'gosub
-    static okma,callerDeep, callerAdrs(100) as int32          
-    if     verb="goto"  then
-                      oupI=label_location(something,inpI,okma) 
-                      if okma=0 then ssddg("goto a unknown label", something,inpI, keys(inpI), vbks(inpI))  
-                      
-    elseif verb="gosub" then 
-                      callerDeep=callerDeep+1 : callerAdrs(callerDeep)=inpI  
-                      oupI=label_location(something,inpI,okma)
-                      if okma=0 then ssddg("gosub see an unknown label", something)   
-                      seeJump=seeJump+1: if seeJump>40 then ssddg("jump too many times")  
-                                           
-    elseif verb="return" then      
-                      oupI=callerAdrs(callerDeep) : callerDeep=callerDeep-1  'actually here something contains the returned value
-                      if callerDeep<0 then ssddg("do return too many times")                 
 
-    else
-                      ssddg("using callCenter with unknown method",verb)
-    end if
-end sub
 
 function hasValue(ss as string) as boolean
   return trim(ss)<>"" 
 end function  
 
-  Function label_location(LABEL as string, i0 as int32, byref okmaa as int32)
-    Dim i as int32
-    if trim(LABEL) =""                         then okmaa=1 :return i0 
-    For i = 1 To cmN12
-      If keys(i) = "label" And vals(i) = LABEL Then okmaa=1 :return i   
-    Next
-    ssddg("keyTH:" & i0  , "key:" & keys(i0), "no such label:(" & LABEL & ") so process stop") 
-                                                    okmaa=0 :return i0
-  End Function
+Function Label_location(wishLabel as string)
+  Dim i as int32
+  wishLabel= trim(wishLabel) : if wishLabel="" then return 0
+  wishLabel=leftPart(wishLabel,fcComma)
+  For i = 1 To cmN12
+    If lcase(keys(i)) = "label" And vals(i) = wishLabel Then return i   
+  Next
+  ssddg("label not found: (" & wishLabel & ")" )  : return 0
+End Function
 
  
 </script>  
