@@ -1,5 +1,5 @@
-## 這是什麼
-  這是一個軟體，解譯一個程式語言MIP(Macro Interactive Processing)， 
+## 這是一個軟體
+  它解譯一個程式語言MIP(Macro Interactive Processing)， 
   並自帶編輯界面，用在快速生產商用程式，所以本軟體稱為MIP builder。 
   它內建幾十個既定動詞，所以它能操控電腦， 
   它認得模板(macro、宏、巨集)，所以它也能組合模板製造其他語言去操控電腦。
@@ -9,29 +9,30 @@
   它是一個語言，也是一個工具，用來縮短程式碼，提升資訊人員的生產力。
   .
 ## 適用場合  
-  在多年前，我看到有資訊人員每天都在下SQL指令，應付使用者的各種需求，
-  他說使用者的需求變來變去很難寫成程式，希望有一個網頁型的SQL輸入框，
-  可以任意調整參數。將來參數讓使用者自行輸入，就成為應用功能，這樣才好辦。
-  於是我作了一個生產程式的母機，協助製作商用程式，這就是MIP的起初功能。
-  本文將舉例兩個MIP寫的應用系統: 庫存撿貨系統，問卷評分系統。
-  .
-  物件導向流行以來，資訊界的程式語言越來越繁瑣，於是近年來又回頭流行巨集、
-  模板、宏編程、元編程。MIP就是元編程語言，可以用來寫製造程式的程式。
-  它把程式模板當文字，文字當變數，組合變數就是在組合模板，產生最終的程式。
-  過程就像把php和html 混雜寫，把html 當文字，輸出一個純粹但有彈性的html。
-  我們可以把MIP和java 混雜寫，把java 當文字，輸出一個純粹但有彈性的java。
-  我們可以把MIP和C方言混雜寫，把C方言當文字，輸出一個純粹但容易懂的C   。
-  .
-  這幾年流行的程式語又更長了，程式中不斷宣告物件的屬性。
-  1個屬性佔1行，1個物件有9個屬性，8個物件就72行，這些物件都長得很像，
-  讀完繞口令的72行，程式重點還沒開始。何不把它們排成9乘8的矩陣，整齊清楚。
-  用在商業程式，一行一行寫程式的一維思考，就可以轉為矩陣化的二維思考。
-  用在圍棋程式，圍棋黑白點位就是二維矩陣，冗長的圖形辨認程式可以縮短。
-  .
-  MIP不僅縮短一支程式，還可以縮短幾十支程式。當你有幾十支程式要寫，
-  你找出這幾十支程式共同的部份，分離相異的部份，呼叫MIP就組合出幾十支程式。
-  這篇說明文將從MIP的基本指令說起，延伸談到高級應用。
-  .
+ (1)生產商用型程式 存取資料庫
+   在多年前，我看到有資訊人員每天都在下SQL指令，應付使用者的各種需求，
+   他說使用者的需求變來變去很難寫成程式，希望有一個網頁型的SQL輸入框，
+   可以任意調整參數。以後讓使用者自行調整參數，就成為應用功能。
+   從這構想開始，設計了一個生產程式的母機，這就是MIP的起初功能。
+   本文將舉例兩個MIP寫的應用系統: 庫存撿貨系統，問卷評分系統。
+ (2)生產另一語言
+   物件導向流行以來，資訊界的程式語言越來越繁瑣，於是近年來又回頭流行巨集、
+   模板、宏編程、元編程。MIP就是元編程語言，可以用來寫製造程式的程式。
+   它把程式模板當文字，文字當變數，組合變數就是在組合模板，產生最終的程式。
+   過程就像把php和html 混雜寫，把html 當文字，輸出一個純粹但有彈性的html。
+   我們可以把MIP和java 混雜寫，把java 當文字，輸出一個純粹但有彈性的java。
+   我們可以把MIP和C方言混雜寫，把C方言當文字，輸出一個純粹但容易懂的C   。
+ (3)縮短程式 用矩陣表達式
+   這幾年流行的程式語又更長了，程式中不斷宣告物件的屬性。
+   1個屬性佔1行，1個物件有9個屬性，8個物件就72行，這些物件都長得很像，
+   讀完繞口令的72行，程式重點還沒開始。何不把它們排成9乘8的矩陣，整齊清楚。
+   用在商業程式，一行一行寫程式的一維思考，就可以轉為矩陣化的二維思考。
+   用在圍棋程式，圍棋黑白點位就是二維矩陣，冗長的圖形辨認程式可以縮短。
+ (4)一次生產多程式
+   MIP不僅縮短一支程式，還可以縮短幾十支程式。當你有幾十支程式要寫，
+   你找出這幾十支程式共同的部份，分離相異的部份，呼叫MIP就組合出幾十支程式。
+   這篇說明文將從MIP的基本指令說起，延伸談到高級應用。
+   .
 ## 語言的特點
  (特點1 網頁輸入輸出)
     它的預設操作環境是網頁，輸入是網頁，輸出也是網頁。
@@ -68,7 +69,7 @@
   若安裝不順(微軟IIS換版常讓人一肚子不順)， 請看文末的'安裝問題集解'。
   打開瀏覽器，打入網址localhost/MIP/MIP.aspx，看到提示請你輸入帳密 即完成。
   
-## 寫一個簡單的程式
+## 一行的簡單程式
   (例一)打開瀏覽器，打入網址localhost/MIP/MIP.aspx，看到請你輸入帳密，
   輸入帳密(admin,admin9)，網頁畫面變成上下兩個輸入框。
   你於下框寫 
@@ -95,13 +96,13 @@
   
    (例三)寫一個九九乘法表
          uuuu==1,2,3 ;; vvvv==4,5,6
-         show==gu2vx|uuuu|vvvv| [ui]x[vi]= @[eval|[ui]*[vi]]#  |td 
+         show==gu2vx|uuuu|vvvv| [ui]x[vi]= @[eval|[ui]*[vi]].  |td 
     按[確定]即可看到九九乘法表之一角:
          1x4=4  2x4=8  3x4=12  4x4=16
          1x5=5  2x5=10 3x5=15  4x5=20
-    其中 @[...]# 是把函數放在字裏行間的立即表達法。
+    其中 @[...]. 是把函數放在字裏行間的立即表達法。
     @  這個符號看起來像ca， 此處可以唸作call, 
-    ]# 用來表示函數結束
+    ]. 用來表示函數結束
   
 ## 輸入、運算、輸出
   所有的電腦程式都可分解為(輸入、運算、輸出)三段，MIP語言的三段分解如下:
@@ -178,7 +179,7 @@
 　上數變數x002能寫成x2嗎，不行，MIP會警示變數名太短，為了防錯至少要4個字母。
   上述畫面只顯示2+3 ，MIP會加在一起嗎，會，請使用eval
       show==eval|x002+x003
-  畫面會顯示5 ， eval就是做加減乘除的函數，詳情在函數那一節說明。
+  畫面會顯示5 ， eval是做加減乘除的函數，直線符號後面是參數。
   
   (變數性質一)變數名稱可以含中文，或空格以及各種符號
        例如下面這程式:
@@ -213,7 +214,7 @@
                    iqty==eval|iqty+1
                    show==iqty,
                  goto==op2                    
-       這裏讓iqty一再更換其值。執行這段程式將顯示               
+       這裏一再變更iqty的值。執行這段程式將顯示               
            1, 2, 3, ...98, 99, MIP have walked too many steps 
        這段程式本是無限迴圈，但MIP限制只能迴圈99次，所以MIP停下來。  
        
@@ -433,7 +434,48 @@
       其中DIP  是SQL輸出分隔符    (預設值 #!    )
   以上是sqlcmd這個既定詞的詳細說明，全部有哪些既定詞，請看[既定詞全集]那一節
         
+## 常用的既定詞
+  sqlcmdh 這個詞等於show。 
+          我們常常使用 sqlcmd==SQL指令 這樣的句子來查資料庫，
+          有時候SQL指令錯誤，我們需要把SQL顯示在螢幕上查錯，
+          這時候你就在sqlcmd候面加個h，使SQL句子顯示出來。
+    
+   askURL 訪問某個網址，取回這網址的回應，例如:
+              answ==askURL|https://www.google.com/search?q=perl
+              show==inner|answ|UNIX|1987
+          將訪問www.google.com 取得回應結果後， 提取介於 UNIX 和 1987
+          這兩個字眼之間全部的字，然後顯示出來。
    
+   askURLwithPOST 訪問網址，傳送資料給這網址，取回這網址的回應，例如:
+              answ==askURL|https://www.google.com/search?q=perl | 12345678
+          傳送資料的方法是用POST
+              
+   ftp
+   headList 顯示sqlcmd所得資料時賦與各欄位一個欄位名稱，例如:
+                headList==aa,bb
+                sqlcmd==select cate,myI1 from mapper
+            將顯示
+                             aa   bb
+                             ---------
+                             c1   11
+                             c1   22
+            如果不規定headList 則顯示原始欄位名稱:
+                             cate myI1
+                             ---------
+                             c1   11
+                             c1   22   
+   tailList 顯示每欄合計，例如:
+                headList==aa,bb
+                tailList==  ,y
+                sqlcmd==select cate,myI1 from mapper
+            將顯示
+                             aa   bb
+                             ---------
+                             c1   11
+                             c1   22
+                             ---------
+                             合計 33
+                
    
 ## 區塊標示類的既定詞
    goto (既定詞) 跳去某一行
@@ -446,15 +488,14 @@
        這例子會顯示 say2 . 
 
          
-   ifa else endifa (既定詞) 區塊
-           ifa==ifsee|1=1|then
+   if else endif (既定詞) 區塊
+           if==ifsee|1=1|then
              show==eq
            else==
              show==neq
-           endifa==
-       這ifa就是一般程式的if，為了和一般程式的if區隔，所以用ifa，
+           endif==
 
-   most but endmost (既定詞) 是ifa的變型，延遲到後面才訴說條件。
+   most but endmost (既定詞) 是if的變型，延遲到後面才訴說條件。
            most==
              show==11
            but==ifsee|1=2|then
@@ -502,7 +543,7 @@
                call==work2  
                show==s4,
                exit==t
-                     label==work2
+                     func==work2
                      show== s2,
                      return==.
        將顯示 s2, s4, t
@@ -513,23 +554,23 @@
            goto==右方為空白則不動作，有值則跳走。
        
        
-       return==可能空白，則程式可能跳或不跳回去，例如:       
+       return==空白，則程式不跳回去，例如:       
                call==work2  
                exit==t
-                     label==work2
+                     func==work2
                      show== s2,
                      return==ifsee|1=1|  |wrong
                      show==s3,
-                     return==.  
+                     return==end123  
        第一個return 右方經過計算是空白，繼續往下走
-       第二個return 右方打一點不是空白，程式就跳回主程式。
+       第二個return 右方end123不是空白，程式就跳回主程式。
        所以顯示: s2, s3, t
        
        若副程式要傳參數，用直線號分隔，用$para1,$para2接收，例如: 
                call==work2|88|99  
                show==s4,
                exit==g123t
-                     label==work2
+                     func==work2
                      g123==$para1
                      show== s2,g123,$para2,
                      return==.
@@ -540,25 +581,19 @@
         
        若是副程式的結果要傳出來，把結果寫在return即可，例如:  
                ret4==work2|88|99  
-               show==s4,
-               exit==g123t-ret4
-                     label==work2
+               exit==hh-ret4
+                     func==work2
                      g123==$para1
-                     show== s2,g123,$para2,
-                     return==44
-       將以顯示: s2,88,99, s4, 88t-44 
+                     return==$para2
+       將顯示: hh-99 
   
-## 其它既定詞
-   askURL
-   askURL_POST
-   ftp
-   headList
-   tailList
+
    
-## 函數
-      函數會執行預先定義好的動作，MIP裏有很多既定函數，你也可以自己定義函數。
-      為了方便，函數名稱不區分大小寫。 
-      以下列舉各種函數。
+## 函數: 一般函數
+      函數就是執行預先定義好的動作，傳回最後的結果，
+      MIP裏有很多既定函數，上一節的例子也說明了你可以自己定義函數。
+      為了方便，MIP不檢查函數名稱大小寫。 以下列舉各種函數。
+      
   eval函數，任意加減乘除:
             show==eval | 1+2*3
             畫面會顯示 7   
@@ -575,11 +610,11 @@
       這樣程式會跳到標號yes2的那一行繼續往下跑。
   
   @函數， 其實函數也可以夾雜在字裏行間使用，例如:
-          show== Hi, I was happy in recent @[eval|2*3+1]# days 
+          show== Hi, I was happy in recent @[eval|2*3+1]. days 
       畫面將顯示 Hi, I was happy in recent 7 days    
-      也就是整個函數用 @[...]# 括住。 
-      @[...]# 是什麼意思呢? @看起來像ca，所以@[...]# 唸作call，即時呼叫的意思。
-      @和[ 要緊連在一起寫，而 [...]內各參數則可鬆散，其前後空白將被忽略。
+      也就是整個函數用 @[  和  ]. 括住。 
+      @[---]. 是什麼意思呢? @看起來像ca，所以@[---]. 唸作call，即時呼叫的意思。
+      @和[ 要緊連在一起寫，而 [---]內各參數則可鬆散，其前後空白將被忽略。
 
   ifInside函數，檢查A字串有沒有在B字串裏，例如:
       answ==inside| bc | abcd |y|n
@@ -587,8 +622,8 @@
       這程式檢查bc有沒有在abcd裏，有就輸出y，沒有就輸出n。 所以顯示y
             
   2@函數， 函數在字裏行間使用時，函數名可以退居第二格，例如:
-      ans2==hi,  @[ifInside| bc    | abcd |y|n]#
-      ans3==hi, 2@[bc      | ifInside| abcd |y|n]#
+      ans2==hi,  @[ifInside| bc    | abcd |y|n].
+      ans3==hi, 2@[bc      | ifInside| abcd |y|n].
       所得到的ans2和ans3完全相同。 這麼做是為了配合人類口語習慣。
     
   ifBetween函數，檢查A數值有沒有BC之間，或A字串有沒有BC之間，例如:
@@ -597,37 +632,41 @@
       檢查1有沒有在1到3之間， 有
       檢查pqr有沒有在aa到zz之間， 有
       
-      show==2@[pqr| ifBetween| aa:zz | y| n ]#
+      show==2@[pqr| ifBetween| aa:zz | y| n ].
   
   edit函數，做文字置換，例如:
       myWord==I like someOne
-      show==@[edit|myWord|like=love|someOne=Mary]#
+      show==@[edit|myWord|like=love|someOne=Mary].
       畫面會顯示            I love Mary 
       這函數的參數用法是 舊字=將來新字 ， 各參數用直線號隔開。
+  replace函數，做文字置換，等同於edit
+  
+## 函數: 一維數據函數 向量函數
+## 函數: 二維數據函數 矩陣函數
       
 ## 自定函數 (就是自定副程式最後給返回值)，例如: 
                answ==work2| 11|22
                exit==answ
-                     label==work2
+                     func==work2
                      cacc==eval|$para1+$para2
                      return==cacc
              這程式呼叫函數work2，結果將顯示 33
              
    自定一個求N階乘的函數，例如: 
-       answ==prod|7
+       answ==factory|7
        exit==eval|answ       
-             label==prod
+             func==factory
              return==ifsee|$para1=1 |1 
-             return==$para1*@[prod|$para1-1]#
+             return==$para1*@[factory|$para1-1].
 
              
    自定 費波那契 函數，例如: 
        answ==fibo|5   // 這函數主要就是 f(n)= f(n-1) + f(n-2)
        exit==eval|answ       
-             label==fibo
+             func==fibo
              return==ifsee|$para1=0 |0  
              return==ifsee|$para1=1 |1 
-             return==@[fibo|$para1-1]# + @[fibo|$para1-2]#
+             return==@[fibo|$para1-1]. + @[fibo|$para1-2].
    
              
 ## 程式跑前預解
@@ -663,26 +702,26 @@
             kkkk==said y
      舉例二: 
             say2==said     
-            kkkk==hello @[ifsee|1=1| say2 y |say2 n]#,cc 
+            kkkk==hello @[ifsee|1=1| say2 y |say2 n].,cc 
          這@函數夾雜於字裏行間，於是@函數被解開，成為
             kkkk==hello said y, cc
      舉例三:
          若遇@函數內層還有@函數，應該先解開內層:
             aa02==1
-            kk02==see @[ifsee| 2 = @[add|aa02|1]# | two | unknown]# so what
+            kk02==see @[ifsee| 2 = @[add|aa02|1]. | two | unknown]. so what
          則變化為
-            kk02==see @[ifsee| 2 =  2              | two | unknown]# so what
+            kk02==see @[ifsee| 2 =  2              | two | unknown]. so what
          再變化為
             kk02==see two so what
     
      有時候當外層是gu**函數時，內層函數卻是延後解開，就是gu**函數先解，內層@函數後解。
      舉例四:
             aaaa==1
-            show==gu1v|4,5,6  |  @[add|aaaa|[vi]]#  |  +
+            show==gu1v|4,5,6  |  @[add|aaaa|[vi]].  |  +
          它被洗染變成
-            show==gu1v|4,5,6  |  @[add|1   |[vi]]#  |  +
+            show==gu1v|4,5,6  |  @[add|1   |[vi]].  |  +
          由於gu開頭的函數被設計成優先於內層，所以先解gu
-            show==@[add|1|4]# + @[add|1|5]# + @[add|1|6]# 
+            show==@[add|1|4]. + @[add|1|5]. + @[add|1|6]. 
          再後解@函數
             show==5 + 6 + 7
          於是顯示
@@ -724,55 +763,49 @@
 
                    
 ## 函數 全集 
-  MIP有區分大小寫的，自定函數有區分大小寫，但這樣有些僵硬，
-  所以讓函數的名稱可以任意大小寫，驚嘆號前後的空白都不計。
-  下面列出預先定義好的函數。
  
  二者擇一的一些函數:
-   ifNum          若為數字         例: ifNum     | 1.2     |yes|no
-   ifPosi         若為正數         例: ifPosi    | 123     |yes|no
-   ifValueful     若有值非空字串   例: ifValueful| aaa     |yes|no                                  
-   ifSee          若等於           例: ifSee     | 2=2     |yes|no   
-                  若小於           例: ifSee     | 1<2     |yes|no       
-                  若大於           例: ifSee     | 2>1     |yes|no
-                  若不等於         例: ifSee     | 1<>2    |yes|no
-                  若小於等於       例: ifSee     | 1<=2    |yes|no
-                  若大於等於       例: ifSee     | 1>=2    |yes|no   
-                                                 
-   ifUUEq         若改大寫後相等   例: ifUUEq    |HH |hh   |yes|no
-   ifLenEq        若字的長度相等   例: ifLenEq   |ab |cd   |yes|no
-   ifInside       若是個子字串於   例: ifInside  |bc |abcd |yes|no
-   ifBetween      若介於某某之間   例: ifBetween |bb |aa:dd|yes|no
-                  *詳說 ifValueful 這例子:
-                        inpu==456
-                        cond==ifValueful|inpu|and iqty=inpu
-                        show==1=1 cond          
-                  將顯示      1=1 and iqty=456
-                  *再說ifv這例子:
-                        inpu== 
-                        cond==ifValueful|inpu|and iqty=inpu
-                        show==1=1 cond          
-                  將顯示      1=1                   因為inpu無值 它是空字串 
-                  上例的第二行第三行也可以緊湊寫成一行:   
-                        show==1=1 @[ifValueful| inpu| and iqty=inpu]#
-
-                  
+   ifNum      若為數字         例: ifNum     | 1.2     |yes|no
+   ifPosi     若為正數         例: ifPosi    | 123     |yes|no
+   ifValueful 若有值非空字串   例: ifValueful| aaa     |yes|no                                  
+   ifSee      若等於           例: ifSee     | 2=2     |yes|no   
+              若小於           例: ifSee     | 1<2     |yes|no       
+              若大於           例: ifSee     | 2>1     |yes|no
+              若不等於         例: ifSee     | 1<>2    |yes|no
+              若小於等於       例: ifSee     | 1<=2    |yes|no
+              若大於等於       例: ifSee     | 1>=2    |yes|no   
+                                             
+   ifUUEq     若改大寫後相等   例: ifUUEq    |HH |hh   |yes|no
+   ifLenEq    若字的長度相等   例: ifLenEq   |ab |cd   |yes|no
+   ifInside   若是個子字串於   例: ifInside  |bc |abcd |yes|no
+   ifBetween  若介於某某之間   例: ifBetween |bb |aa:dd|yes|no
+   ifValueful 若參數有值(非空字串)，舉例說明一下這函數:
+                jqty==456
+                cond==ifValueful|jqty|  and iqty=jqty
+                show==select * from tb where 1=1 cond          
+              將顯示      select * from tb where 1=1 and iqty=456
+              同樣的例子但這次jqty是空字串 
+                jqty== 
+                cond==ifValueful|jqty|and iqty=jqty
+                show==select * from tb where 1=1 cond          
+              將顯示      select * from tb where 1=1      因為 jqty無值
+              由於ifValueful太常用，它也可簡寫為ifv
+              上例又可以緊湊寫成一行:   
+                show==select * from tb where 1=1 @[ifv|jqty|and iqty=jqty].
+                 
  有關日期的一些函數:                     
-   ifDate      是否有這個日期    例: ifDate |20040102  |y|n           將顯示 y
    cdate       改正零亂日期寫法  例: dateConv    |Jan 9,91            將顯示 1991/01/09 也就是一律改為yyyy/mm/dd
+   ifDate      是否有這個日期    例: ifDate |20040102  |y|n           將顯示 y
    dateDiff    兩日期之間距      例: dateDiff    |20040102|20040103   將顯示 1
    dateAdd     西元年加一些天數  例: dateAdd     |1991/01/09|3        將顯示 1991/01/12
                                  例: dateAdd     |19910109  |4        將顯示 1991/01/13  
-                                                                      
-   dateAddROC  民國年加一些天數  例: dateAddROC  | 102/01/09|3        將顯示  102/01/12
-                                 例: dateAddROC  | 1020109  |4        將顯示  102/01/13 
-                                 
+                                                                                       
+   以下這三個函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是now，也就是民國年必須3位數。
    ifDateROC   是否有這個日期    例: ifDateROC   |1030102  |y|n       將顯示 y
-                  這函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是空白
-   dateDiffROC    兩日期之間距   例: dateDiff    | 1020304|1020305    將顯示 1                  
-   dateAddROC     民國年加天數   例: dateAddROC  | 102/01/09|3        將顯示  102/01/12
-                                 例: dateAddROC  | 1020109  |4        將顯示  102/01/13 
-                  這函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是空白
+   dateDiffROC 兩日期之間距      例: dateDiff    |1020304  |1020305   將顯示 1                  
+   dateAddROC  民國年加天數      例: dateAddROC  |102/01/09|3         將顯示 102/01/12
+                                 例: dateAddROC  |1020109  |4         將顯示 102/01/13 
+               這函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是空白
                
                    
                
@@ -867,17 +900,13 @@
       
 		  
                          
-##查詢資料庫資料
-
-##新增多筆資料
-
-##新增一筆資料
-
-##刪除一筆資料
-
-##修改一筆資料
-
-##增刪修查一起工作
+##增刪修查 資料表
+ #查詢多筆資料
+ #新增多筆資料
+ #新增一筆資料
+ #刪除一筆資料
+ #修改一筆資料
+ #增刪修查一起工作
 
 ##顯示資料直轉橫(顯示樞紐報表)
 
@@ -1244,12 +1273,4 @@
           編輯c:\MIP\webc\mip.aspx大約第80行位置:
           請把 codFord=CCFD & "webc\" :tmpFord=CCFD & "webc\" :queFord=CCFD & "webc\" 
           改成 codFord=CCFD & "webd\" :tmpFord=CCFD & "webt\" :queFord=CCFD & "webq\"
-          這樣使用者就看不到了。
-          
-
-
-    
-
-
-
-
+          存起 c:\MIP\webc\mip.aspx 即完成。

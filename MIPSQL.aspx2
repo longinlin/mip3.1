@@ -212,8 +212,6 @@
       
   End Function 
 
-
-
   
   'write data to screen
   sub rstable_to_screen(sql as string, works as string) 'response to screen
@@ -431,5 +429,4 @@
     SRCend() 'end input
   End Sub
  
-
   </script>

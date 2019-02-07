@@ -3,8 +3,8 @@ ans5==prod|5
 exit==ok ans5
 
 label==prod
-return==ifsee|$para1=1| 1|notYet
-return==eval|$para1*@[prod| $para1-1 ]#
+return==ifsee|$para1=1| 1 
+return==eval|$para1*@[prod| $para1-1 ].
 
 //--------------------------------------------
 show==mimi|1,2
@@ -12,4 +12,4 @@ show==mimi|3,4
 exit==ok
 
 label==mimi
-return==$para1 x $para2 =@[eval|$para1*$para2]#
+return==$para1 x $para2 =@[eval|$para1*$para2].

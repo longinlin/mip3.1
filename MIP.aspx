@@ -33,7 +33,7 @@
   const SQL_recordset_TH=3 'when 2 using recordset    , 3 using sqlAdapter and datatable
   const iisFolder="/MIP/"
 
-  dim fcBeg as string="@["     , fcBeg2 as string="2@[",  fcEnd as string="]#"      ,  fcComma as string="|"
+  dim fcBeg as string="@["     , fcBeg2 as string="2@[",  fcEnd as string="]."      ,  fcComma as string="|"
   dim CCFD, runFord, codFord,  tmpFord, queFord, tmpy,   table0,table0End,tr0, th0, td0, thriz,tdriz, saying as string
   Dim qrALL,act, Uvar, Upar, Upag, f2postSQ, f2postDA, spfily, spDescript, usnm32, pswd32, logID, exitWord, userID,userNM, userCP,userOG,userWK, siteName       as string
   Dim digilist, FilmFDlist, cnInFilm, headlist, atComp,   dataFF,dataTu, ddccss, dataToDIL       as string
@@ -58,7 +58,7 @@
 
   dim intflow,  headlistRepeat, needSchema, dataFromRecordN , cmN10, cmN12, record_cutBegin, record_cutEnd as int32
   dim seeJump, tryERR as int32
-  dim showExcel as boolean=false, SRCfromFile as boolean=false, appendAddEnter as boolean=true, sqltoFileW as boolean
+  dim showExcel  as boolean=false, SRCfromFile as boolean=false, appendAddEnter as boolean=true, sqltoFileW as boolean
 
   dim fsaLog, fsbLog, opLog, tmpo, tmpf,objConn2c , rs2,objStream  as object    'dim rs2 as New ADODB.Recordset
   dim rs3 as new dataTable
@@ -111,7 +111,7 @@
 			 if uvar="mycaseStkOutByDepDay" then uvar="維度==1;4"
 			 		
              Upar = trimRequest("Upar")       :upar=SQejectFree(upar) 'to prevent sql injection
-             Upag = trimRequest("Upag")       
+             Upag = trimRequest("Upag")       ': wwi(upag)
           f2postSQ = trimRequest("f2postSQ")
           f2postDA = trimRequest("f2postDA")
            spfily = trimRequest("spfily"     )
@@ -725,12 +725,12 @@ end sub
   End Sub
 
   Sub ssdd(m1 as string, optional m2 as string="", optional m3 as string="", optional m4 as string="", optional m5 as string="", optional m6 as string="")
-    const r1="<font color=red>          " , s1="</font>" 
-    const r2="<font color=red> __ </font>" , s2="       " 
-    const r3="<font color=red> __ </font>" , s3="       " 
-    const r4="<font color=red> __ </font>" , s4="       " 
-    const r5="<font color=red> __ </font>" , s5="       " 
-    const r6="<font color=red> __ </font>" , s6="       "
+    const r1="<font color=red>            " , s1="</font>" 
+    const r2="<font color=green> ; </font>" , s2="       " 
+    const r3="<font color=green> ; </font>" , s3="       " 
+    const r4="<font color=green> ; </font>" , s4="       " 
+    const r5="<font color=green> ; </font>" , s5="       " 
+    const r6="<font color=green> ; </font>" , s6="       "
     
                     buffW(r1 & nof(m1) & s1)
     if m2<>""  then buffW(r2 & nof(m2) & s2)
@@ -867,7 +867,7 @@ end sub
     Dim strr2
     If  inside("run",act) Then 'execute program
       if not permitRun(spfily) then buffW("not permit to run "  & spfily & ", try click functionList or login again, your ID now is:" &userID) :dumpEnd():exit sub
-      Call prepare_UparUpag("run")          
+      Call prepare_UparUpag("run")  
       Call show_UparUpag("for-run", Upar, Upag, spfily) 
     ElseIf act = "showop" Then 'user call a prog named spfily, show GUI on web page
       if not permitRun(spfily) then buffW("not permit to show " & spfily & ", try click functionList or login again, your ID now is:" &userID) :dumpEnd():exit sub
@@ -969,30 +969,28 @@ end sub
     If hideMa = "hide" Then usr_can_see = False
   End Function
 
-  Sub prepare_UparUpag(acta) 'this sub to: prepare Upar,Upag
-    Dim org12() as string    
-    If trim(spfily)=""   Then Exit Sub ' so (Upar, Upag) come from screen and ignore Uvar  
-    spContent = loadFromFile(codFord, spfily):org12 = Split(spContent, "#1#2") : If UBound(org12) <> 1 Then ssddg("err when opening " & spfily ,"it looks not like #1#2 format")
-    
-    if acta="showop" then Upar = merge_UVAR_into_UPAR(Uvar, "into",org12(0)) : Upag=org12(1) : exit sub
+  Sub prepare_UparUpag(acta) 'this sub to: prepare Upar,Upag  
+    If trim(spfily)=""  Then Exit Sub ' so (Upar, Upag) come from screen and ignore Uvar     
+    if acta="showop"    then prepare_UparUpag_by_uVarSPFILY : exit sub
     
     'below are for act=run
     if userOG=mister then
           'ssdd("prepare_U","mister")
           if Upar="" and Upag="" then
-             Upar = merge_UVAR_into_UPAR(Uvar, "into",org12(0)) : Upag=org12(1)
+             prepare_UparUpag_by_uVarSPFILY             
           else
              'use screen upar, upag
-             'if upag="" then upag="exit==done"
           end if
     else
-          if Upar="" and Upag=""  then 'so this is program initial run
-             Upar = merge_UVAR_into_UPAR(Uvar, "into",org12(0)) : Upag=org12(1) 
-          else
-             Upar = merge_UVAR_into_UPAR(Uvar, "into",Upar    ) : Upag=org12(1) 
-          end if
+          prepare_UparUpag_by_uVarSPFILY  
     end if
   End Sub
+  
+  sub prepare_UparUpag_by_uVarSPFILY
+    Dim org12(), spContent as string    
+    spContent = loadFromFile(codFord, spfily):org12 = Split(spContent, "#1#2") : If UBound(org12) <> 1 Then ssddg("err when opening " & spfily ,"it looks not like #1#2 format")
+    Upar = merge_UVAR_into_UPAR(Uvar, "into",org12(0)) : Upag=org12(1)
+  end sub
   
   function merge_UVAR_into_UPAR(vv as string , _into as string  ,pp as string ) as string 'merge vv into pp 'return k1==v1 cr k2==v2 cr  k3==v3
     dim vars, pars as string()
@@ -1158,7 +1156,7 @@ end sub
     return Replace(Replace(ss, " ", ""), ienter, "")
   End Function
 
-  function buildEmptyTable(cp as string) as string'cp is the yy of @[xx|yy]#    of  sqlcmd==@[buildEmptyTable|#p, f1-c-50, f2-c-51, f3-i,f4-c-20]#
+  function buildEmptyTable(cp as string) as string'cp is the yy of @[xx|yy].    of  sqlcmd==@[buildEmptyTable|#p, f1-c-50, f2-c-51, f3-i,f4-c-20].
     dim tbnm as string
     cp=replace( cp,  " "  , ""  ) 
     tbnm= leftPart(cp,",")
@@ -1246,7 +1244,7 @@ end sub
               i=j-1
           End If
       Else 'this line is not an assignment, example: this_is_some_comment
-          ssddg("err, line " & (i+1) & " is not a MIP sentence, maybe you should give two eq symbols",thisLine, keyjs(cmNxy), valjs(cmNxy))
+          ssddg("err, line " & (i+1) & " is not a MIP sentence, you should write something like  x001==2",thisLine)
           'keya="comment" & i : vala=thisLine :typa="comment"
           'keya="comment" & i : vala=thisLine :typa="comment"
       end if
@@ -1282,16 +1280,16 @@ end sub
   end function
   
 'iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii  
-  function build_few_line_vs_ifiii(iLine as int32, kv as string) as string       'kv      example: ifa==ifsee|a=b
+  function build_few_line_vs_ifiii(iLine as int32, kv as string) as string       'kv      example: if==ifsee|a=b
     dim rightP as string   
     rightP=atom(kv  ,  2, "==" )                       'rightP  example: ifsee|a=b
-    if  left(rightP,2)<>"if"   then ssddg("MIP see ifa==" & rightP, "no see ifa==if***         " ,"so MIP stop",rightP)
-    if right(rightP,4)<>"then" then ssddg("MIP see ifa==" & rightP, "no see ifa==if***|*|*|then" ,"so MIP stop",rightP)
+    if  left(rightP,2)<>"if"   then ssddg("MIP see if==" & rightP, "no see if==if***         " ,"so MIP stop",rightP)
+    if right(rightP,4)<>"then" then ssddg("MIP see if==" & rightP, "no see if==if***|*|*|then" ,"so MIP stop",rightP)
     return "goto==" & replace(rightP,"then","") & fcComma & ("ifBlockElse" &  iNOW(iLine, "ifBeg") )
                     ' this   cut out [then]
   end function
   
-  function build_few_line_vs_ifii2(iLine as int32, kv as string) as string       'kv      example: ifa==ifsee|a=b
+  function build_few_line_for_most(iLine as int32) as string     
     return "goto==laterCondi" &  iNOW(iLine, "mostBeg") 
   end function
   
@@ -1311,13 +1309,13 @@ end sub
     return "goto==ifBlockEnd" & ckTH & ";;label==ifBlockElse" & ckTH
   end function
   
-  function build_few_line_vs_endif(iLine as int32, kv as string) as string       'kv      example: endifa==. 
+  function build_few_line_vs_endif(iLine as int32) as string   
     dim ifTH, metElse as int32
     metElse=iNOW(iLine, "metElseMa"): ifTH=iNOW(iLine, "ifEnd") 
     if metElse=0 then return "label==ifBlockElse" & ifTH   else   return "label==ifBlockEnd" & ifTH 
   end function
   
-  function build_few_line_vs_endms(iLine as int32, kv as string) as string       'kv      example: endifa==. 
+  function build_few_line_vs_endms(iLine as int32, kv as string) as string       'kv      example: endif==. 
     dim ifTH, metElse as int32
     metElse=iNOW(iLine, "metElseMa"): ifTH=iNOW(iLine, "mostEnd") 
     if metElse=0 then return "label==ifBlockElse" & ifTH   else   return "label==ifBlockEnd" & ifTH 
@@ -1422,29 +1420,31 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
       lines=split(Upag, ienter) 
       for i=0 to Ubound(lines)      
            cLin=lines(i)    
-           ctmp=replace(cLin, " " , "") ' so this is a stronger replacement than trim      
+           ctmp=replace(lines(i), " " , "") ' so this is a stronger replacement than trim      
         if ctmp="" then continue for  
            ctmp=Lcase(ctmp)
         if isLeftOf("include=="       ,ctmp) then lines(i)=loadFromFile(codFord, mid(ctmp,10))   :  continue for
         
-        if isLeftOf("ifa=="           ,ctmp) then lines(i)=build_few_line_vs_ifiii(i,ctmp)       :  continue for
+        if isLeftOf("if=="            ,ctmp) then lines(i)=build_few_line_vs_ifiii(i,ctmp)       :  continue for
         if isLeftOf("else=="          ,ctmp) then lines(i)=build_few_line_vs_elsei(i,ctmp)       :  continue for
-        if isLeftOf("endifa=="        ,ctmp) then lines(i)=build_few_line_vs_endif(i,ctmp)       :  continue for
+        if isLeftOf("endif=="         ,ctmp) then lines(i)=build_few_line_vs_endif(i)            :  continue for
+        if isLeftOf("end if=="        ,ctmp) then lines(i)=build_few_line_vs_endif(i)            :  continue for
 
-        if isLeftOf("most=="          ,ctmp) then lines(i)=build_few_line_vs_ifii2(i,ctmp)       :  continue for
+        if isLeftOf("most=="          ,ctmp) then lines(i)=build_few_line_for_most(i)            :  continue for
         if isLeftOf("but=="           ,ctmp) then lines(i)=build_few_line_vs_elBut(i,ctmp,lines) :  continue for
         if isLeftOf("endmost=="       ,ctmp) then lines(i)=build_few_line_vs_endms(i,ctmp)       :  continue for
         
         
 
         if isLeftOf("for=="           ,ctmp) then lines(i)=build_few_line_vs_forii(i,ctmp)     :  continue for
-        if isLeftOf("foreach=="       ,ctmp) then lines(i)=build_few_line_vs_forch(i,cLin)     :  continue for
+        if isLeftOf("foreach=="       ,ctmp) then lines(i)=build_few_line_vs_forch(i,lines(i))     :  continue for
         if isLeftOf("next=="          ,ctmp) then lines(i)=build_few_line_vs_nexti(i,ctmp)     :  continue for
         if isLeftOf("call=="          ,ctmp) andAlso notInside(fcComma, ctmp) then lines(i)=lines(i) & "|"  :  continue for
-        if isLeftOf("loadfromfile=="  ,ctmp) then lines(i)=left(ctmp,len(ctmp)-1) & "[]" & right(ctmp,1)    : continue for
+        if isLeftOf("func=="          ,ctmp) then lines(i)="exit.==end_before_func_begin;;" & lines(i)      :  continue for
+        if isLeftOf("loadfromfile=="  ,ctmp) then lines(i)=left(ctmp,len(ctmp)-1) & "[]" & right(ctmp,1)    :  continue for
         
         if inside("==top1r" & fcComma ,ctmp) then lines(i)=build_few_kv_from_top1r(ctmp)       :  continue for
-        if inside("==are"   & fcComma ,ctmp) then lines(i)=build_few_kv_from_ARE(  cLin)       :  continue for
+        if inside("==are"   & fcComma ,ctmp) then lines(i)=build_few_kv_from_ARE(  lines(i))       :  continue for
         if inside("eval|", ctmp)             then lines(i)=replaces(lines(i),"$para1","($para1)",  "$para2","($para2)",  "$para3","($para3)")
       next
         iNow(999,"check")
@@ -1471,7 +1471,7 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
       Upag= Replace(Upag, "$postDATA"  , f2postDA)
       Upag= Replace(Upag, "okclick"    , "onclick"           )        
       Upag= Replace(Upag, " ve("       , "@[gu1m|matrix|"    )        
-      Upag= Replace(Upag, ")er"        , "]#"                )        
+      Upag= Replace(Upag, ")er"        , "]."                )        
       
       Upag= Replace(Upag, "$add"     , "+"                 )
       Upar= Replace(Upar, "$add"     , "+"                 )
@@ -1494,7 +1494,7 @@ sub showApplication
 		                  ssddg("show all application vars done")
 end sub    
 
-  '會尋找最內層的 @[...]#
+  '會尋找最內層的 @[---].
   sub cut_to_3_parts(mstr as string, begg as string,  endd as string,   byref aa1 as string,byref bb2 as string,byref cc3 as string) 
     dim ib,loopi,i1,i2 as int32  : dim st1,st23,st2,st3, tmp, pfp() as string
     
@@ -1510,7 +1510,7 @@ end sub
 	st3 =Mid(st23, i2 + Len(endd))
     if inside(begg, st2) then ib=i1+1: goto ibBegin ' go again if there is inner @function
     
-    'below treat 2@[p1|func|p2]#  into  @[func|p1|p2]#
+    'below treat 2@[p1|func|p2].  into  @[func|p1|p2].
     if right(st1,1)="2" then 
        st1=left(st1,len(st1)-1)
            pfp=split(st2, fcComma): tmp=pfp(0): pfp(0)=pfp(1): pfp(1)=tmp
@@ -1522,23 +1522,23 @@ end sub
   end sub
     
   function reduceComplexSentence(varTH as int32,   leftPart as string, rightPart as string              ) as string 'translate gu1m|matrix|patt=@[ff]                  
-  'example: key==hhhh @[fun1|p1|p2]# mm  --> leftPart:key      , rightpart:hhh     @[fun1|p1|p2]#          mm  
+  'example: key==hhhh @[fun1|p1|p2]. mm  --> leftPart:key      , rightpart:hhh     @[fun1|p1|p2].          mm  
   'also                                  -->                           hh1:hhh , par2:fun|p1|p2     ,  mm3:mm
-  'if rightpart lookslike abc|p1|p2  ; then edit it to:                             @[abc|p1|p2]#
+  'if rightpart lookslike abc|p1|p2  ; then edit it to:                             @[abc|p1|p2].
    dim rightHandQ,hh1,focus2,mm3 as string    :   dim findingBracket as int32  
    rightHandQ=rightPart
    for findingBracket=1 to 16
      'ssdd(string.format("oneByOne, varth={0}, finding={1}, lef={2}, rit={3}",varth,findingBracket,leftpart,rightHandQ))
      'below 3 if-conditions are in good order, not alter it
      
-     '(1)看右手方 有沒有@[...]#，若有，也就是有內層函數未解開，則:
+     '(1)看右手方 有沒有@[---].，若有，也就是有內層函數未解開，則:
      if inside(fcBeg , rightHandQ) then 
-       cut_to_3_parts(rightHandQ,fcBeg,fcEnd,  hh1,focus2,mm3)  '[focus] means (fn1|p1|p2) of the @[fn|p1|p2]#  ， 就是目前最內層的函數名及參數
+       cut_to_3_parts(rightHandQ,fcBeg,fcEnd,  hh1,focus2,mm3)  '[focus] means (fn1|p1|p2) of the @[fn|p1|p2].  ， 就是目前最內層的函數名及參數
        'ssdd("inside reduceComplexSentence,cond 1")
-       if oneInside("gu1,gu2", hh1) andAlso oneInside("[ui,[vi,[mi", focus2) then         '遇到gu函數內部包著 @[...] ， 應壓抑 暫時不解開@[...]
+       if oneInside("gu1,gu2", hh1) andAlso oneInside("[ui,[vi,[mi", focus2) then         '遇到gu函數內部包著 @[---] ， 應壓抑 暫時不解開@[---]
                rightHandQ=hh1 & gcBeg & replace(focus2, fcComma , gcComma) & gcEnd & mm3  '為了壓抑 不解開函數，技巧是把fcComma暫時改為gcComma
                'ssdd("inside reduceComplexSentence,cond 1-1-1")
-       else                                                                               '不是遇到gu函數內部包著 @[...]，於是解開它
+       else                                                                               '不是遇到gu函數內部包著 @[---]，於是解開它
                focus2=translateFunc(varTH, focus2) :if tryERR=1 then dumpEnd
                rightHandQ=hh1 & focus2 & mm3
        end if
@@ -1549,7 +1549,7 @@ end sub
             'ssdd("inside reduceComplexSentence,cond 2")
             rightHandQ=translateFunc(varTH, rightHandQ) :if tryERR=1 then dumpEnd
             
-     '(3)最後我們看到還剩下剛剛被壓抑的內層函數  %gcBeg[...]
+     '(3)最後我們看到還剩下剛剛被壓抑的內層函數  %gcBeg[---]
      elseif inside(gcBeg, rightHandQ) then   
             '全部還原它，再準備一層一層解開
             rightHandQ=replaces(rightHandQ, gcBeg,fcBeg,  gcEnd,fcEnd, gcComma , fcComma)
@@ -1923,7 +1923,7 @@ end function
             dim rs4 as new datatable
             rs3=rs4  'using rs3.clear will only clear data, but column schema are kept. so I use a brad new rs4 to replace rs3
             dapp.Fill(rs3) 
-            ssdd(2009, rs3.columns.count, rs3.rows.count)
+            'ssdd(2009, rs3.columns.count, rs3.rows.count)
          end if
     'mmy if SQL_recordset_TH=4 then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : rs3.clear: dapp.Fill(rs3) 
   end sub 
@@ -1937,5 +1937,5 @@ end function
 <!-- #Include virtual=MIPrs4w.aspx" --> 
 <!-- #Include virtual=MIPkeys.aspx" --> 
 <!-- #Include virtual=MIPfunc.aspx" --> 
-<!-- #Include virtual=MIP2str.aspx" --> 
-<!-- #Include virtual=MIP2FIL.aspx" --> 
+<!-- #Include virtual=MIPstr.aspx" --> 
+<!-- #Include virtual=MIPfil.aspx" --> 

@@ -43,7 +43,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       'end wash    
       
       'parse_step[4.3] translateCall on vals(i)
-      If Inside(fcComma, vals(i)) then vals(i)=reduceComplexSentence(i, keys(i), vals(i) ) 'translate yy==func|x1|x2| @[func2|p1|p2]#
+      If Inside(fcComma, vals(i)) then vals(i)=reduceComplexSentence(i, keys(i), vals(i) ) 'translate yy==func|x1|x2| @[func2|p1|p2].
       if tryERR=1 then dumpEnd
 
       'parse_step[4.4] clear mask[] on vals(i) 
@@ -88,13 +88,12 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
                                             buffW("<xmp>sqlcmdh: " & vals(i) & "</xmp>")   
         End If
       
-      case "label"   'no work to do, but I list it here to prevent it be recognized as [programmer defined var]
-      case "call"   
-                     'ssdd(9300,vals(i))
-                     'nothing to do, just let  mayReplaceOther(i)=false
-                     ':if not inside(fcComma, vbks(i)) then exec_sentence_since( label_location(vals(i)) , "" )  'call==myFF without any parameter
-      case "goto"    : j=label_location(vals(i)) : i=if(j>0,j,i)
-      case "return"  : if Lcase(vals(i))<>"notyet" then subRetVal=vals(i):exit sub
+      case "label", "func" ,"end func", "endfunc"                       
+                     'no real work to do, but I list it as a key so that it is not recognized as a [programmer defined var]
+      case "call"    'no real work to do, but I list it as a key so that it is not recognized as a [programmer defined var]
+                     'I have replaced   call==myFn  into   call==myFn|
+      case "goto"    : j=label_location("label",vals(i)) : i=if(j>0,j,i)
+      case "return"  : if trim(vals(i))<>"" then subRetVal=vals(i):exit sub
       case "retrun","erturn","ertrun","retun" : ssddg("err, you did wrong spell, correct word is: return")
       case"datatodil": dataToDIL=vals(i)       
       case "digilist"   : digilist = Replaces(vals(i), "y", "i", "r", "i") : digis = Split(nospace(digilist), ",")  'let (yes,real,int)=(y,r,i) mean column align right
@@ -148,14 +147,17 @@ function hasValue(ss as string) as boolean
   return trim(ss)<>"" 
 end function  
 
-Function Label_location(wishLabel as string)
-  Dim i as int32
+Function Label_location(labelly as string, wishLabel as string)
+  Dim i, iok, icn as int32
   wishLabel= trim(wishLabel) : if wishLabel="" then return 0
   wishLabel=leftPart(wishLabel,fcComma)
+  iok=0: icn=0
   For i = 1 To cmN12
-    If lcase(keys(i)) = "label" And vals(i) = wishLabel Then return i   
+    If lcase(keys(i)) = labelly And lcase(vals(i)) = lcase(wishLabel) Then iok=i:icn=icn+1   
   Next
-  ssddg("label not found: (" & wishLabel & ")" )  : return 0
+  if icn=1 then return iok 
+  if icn>1 then ssddg("there are two " & labelly & " of the same name", wishLabel)
+  ssddg(labelly & " not found: (" & wishLabel & ")" )  : return 0
 End Function
 
  

@@ -276,7 +276,6 @@ macro_xyz==
 //999999999999  single SQL  9999999999999999999999999999999999999999999999999999999999999999999999999999999999999
 macro_singleSQL==  
   sub singleSQL(sqcmd as string) 
-    ssdd("into singleSQL")
     rstable_dataTu_somewhere(sqcmd,"exe,hed,oua,get,ouz") 
   end sub 'singleSQL
   
@@ -319,7 +318,7 @@ macro_batchSQL==
   End Sub
  
 //mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-finalResult1==
+finalResult3==
   <script runat="server">
   macro_responseCall
   macro_freeCama
@@ -334,5 +333,5 @@ finalResult1==
   macro_singleSQL
   macro_batchSQL
   </script>
-savetofile==MIPSQL.aspx,finalResult
+savetofile==MIPSQL.aspx3,finalResult3
 exit==done

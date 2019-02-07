@@ -66,11 +66,11 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
 	case "addhtmlgrid"  ' was named gridLize with purpose: change   1,2,3,4 (cr) 5,6,7,8   into        <table><tr>1234<tr>5678</table>    
       return addHtmlGrid(arr(1))
       
-    case "replace", "edit"  ' replace!abcd_is_arr(1)|a|1| b|2
+    case "replace", "edit"  ' replace!abcd_is_arr(1)|a=1| b=2
         funcLet = arr(1)
         For j = 2 To UBound(arr) 
         if arr(j)<>"" then
-          if notInside("=", arr(j)) then ssddg("err, when calling [replace function], it must looks as replace|wordy|p1=q1 , but you wrote:(" & arr(j) & ")"  )
+          if notInside("=", arr(j)) then ssddg("err, when calling [replace function], it must looks as replace|wordy|p1=q1|p2=q2 , but you wrote:(" & arr(j) & ")"  )
           tmpa=leftPart(arr(j),"=") : tmpb=rightPart(arr(j),"=")
           If tmpa<> "" Then funcLet = Replace(funcLet, tmpa, tmpb)
         end if
@@ -144,12 +144,12 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
       return askURL(arr(1))
 	case "askurlwithpost"   ' 0=askURLwithPost| 1=URL | 2=dataTable
 	   if left(arr(2),6)<>"matrix" then ssddg("in askURLwithPost, the second parameter should look like matrix$i")
-	   funcLet=getValue(arr(2))	   	   
+	   tmpb=getValue(arr(2))	   	   
 	   if inside(iisFolder, arr(1)) then 
-                                        return askURLwithPost(arr(1)                                           , "f2postDA=" & cypa3(funcLet))
+                                        return askURLwithPost(arr(1)                                           , "f2postDA=" & cypa3(tmpb))
 	                          'example: return askURLwithPost("localhost/MIP/webc.aspx?act=run&spfily=test4.q",  "f2postDA=10|20|30" & vbnewline & "41,42" ) 'you may use #! or | or ,
        else
-                                        return askURLwithPost(arr(1)                                           ,  funcLet)	   
+                                        return askURLwithPost(arr(1)                                           ,  tmpb)	   
        end if
     case "top1r" 
       If arr(1)  < 1 Then
@@ -216,17 +216,10 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
     case "red"   '0:Red  |    1:value123
       return "<font color=red>" & arr(1) & "</font>"
     case else 'now it is user defined func
-      ' var2==myFF|1|2  --> calling function and return value to var2
-      ' call==myFF|1|2  --> calling function and discard ret value 
-      ' var3==myvr|1|2  --> rise error, this sentence should lookslike var3=say|myvr|1,2
-      LB_loc=label_location(arr(0))       
-      if LB_loc>0 then 'the sentence lookslike     var2==myFF|1|2     or     call==myFF|1|2 
-        tmpa=Val_of_myFunc( arr(0), arr)    
-        'ssdd("in funcs",arr(0), arr(1), "result:",tmpa)
-        return tmpa
-      else 
-       ssddg("before wanting a func value, but func not found:", arr(0))
-      end if
+      ' var2==myFF|x1|2  --> calling function myFF and return value to var2
+      ' call==myFF|x1|2  --> calling function myFF and discard ret value 
+      ' var3==myvr|x1|2  --> error, the correct writing is var3=edit|myvr|x1=2
+      return Val_of_myFunc( arr(0), arr)   
     End select
       tryERR=1 : ssdd("unknown func name, keyword-TH:" & varTH,   "unknown rightHand: " & rightHandPart): return rightHandPart
   catch ex as exception
@@ -236,7 +229,7 @@ End Function 'translateFunc
 
 function Val_of_myFunc( funcName as string, pamas() as string) as string
   dim LB_loc, I2 as int32
-      LB_loc=label_location(funcName)
+      LB_loc=label_location("func",funcName)
       if LB_loc<=0 then ssddg("on wanting a func value, but func not found:", funcName)
       exec_sentence_since(LB_loc, pamas)
       return subRetVal
