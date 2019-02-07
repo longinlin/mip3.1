@@ -1,5 +1,5 @@
-## 這是一個軟體                                                               <br>
-  它解譯一個程式語言MIP(Macro Interactive Processing)，                       <br>
+## 這是一個程式語言軟體                                                            <br>
+  這軟體定義並解譯一個程式語言MIP(Macro Interactive Processing)，                       <br>
   並自帶編輯界面，用在快速生產商用程式，所以本軟體稱為MIP builder。           <br>
   它內建幾十個既定動詞，所以它能操控電腦，                                    <br>
   它認得模板(macro、宏、巨集)，所以它也能組合模板製造其他語言去操控電腦。     <br>
