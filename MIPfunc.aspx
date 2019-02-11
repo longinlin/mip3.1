@@ -126,17 +126,9 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
       return Mid(arr(1), arr(2), arr(3))
     case "len" 
       return Len(arr(1))
-    case "midstring"     ' midString|xx12yy|xx|yy   then return 12
-      return midstring(arr(1), arr(2), arr(3))  
-    case "left" 
-      return left(arr(1), arr(2))
-    case "right" 
-      return Right(arr(1), arr(2))
-    case "rightto"   'rightTo 1motherWord 2ther 3Lenght 4defaultVal
-      j = InStr(arr(1), arr(2))
-      If j <= 0 Then return arr(4) Else return Mid(arr(1), j + Len(arr(2)), arr(3))
-    case "ifhasfilm" 
-      If cnInFilm >= 0   Then return arr(1) Else return arr(2)
+    case "left"       : return left(arr(1), arr(2))
+    case "right"      : return Right(arr(1), arr(2))
+    'case "datalinecount" : return cnInFilm
     case "ifhasfile" 
       If hasfile(arr(1)) Then return arr(2) Else return arr(3)
     case "askurl" 
@@ -155,7 +147,7 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
       If arr(1)  < 1 Then
         ssddg("top1r index should be positive")
       ElseIf arr(1) <= top1u+1 Then
-        'you must have run sqlcmd and prepareColumnHead before this command
+        'you must have run sqlcmd before this command
         return top1rz(arr(1) - 1)
       Else
         ssddg("top1r index is badly outside data columns, maxi=" & top1u)

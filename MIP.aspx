@@ -2,7 +2,7 @@
 <%@ Import Namespace="System.IO"   %>
 <%@ Import Namespace="System.Text" %>
 <%@ Import Namespace="System.Net"  %>
-<%@ Import Namespace="System.Web"         %>
+<%@ Import Namespace="System.Web"        %>
 
 <%@ Import Namespace="System.Data.OracleClient" %> 
 <%@ Import Namespace="System.Data"        %>
@@ -60,19 +60,14 @@
   dim seeJump, tryERR as int32
   dim showExcel  as boolean=false, SRCfromFile as boolean=false, appendAddEnter as boolean=true, sqltoFileW as boolean
 
-  dim fsaLog, fsbLog, opLog, tmpo, tmpf,objConn2c , rs2,objStream  as object    'dim rs2 as New ADODB.Recordset
-  dim rs3 as new dataTable
-  dim objconn2v as SqlConnection   'for SQL_recordset_TH=3
+  dim fsaLog, fsbLog, opLog, tmpo, tmpf, rs2,objStream  as object    'dim rs2 as New ADODB.Recordset
   
-  'dim objconn2a as OracleConnection '=new OracleConnection(ddccss)  'using (OracleConnection conn = new OracleConnection(conn_str))  
-  'dim objconn2a as new OracleConnection("Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.100.231)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=topprod)));   User Id=dst;Password=dst")  
-  'Dim connectionString As String = ConfigurationManager.ConnectionStrings("{Name of application conn string or full tnsnames connection string}").ConnectionString
-  'Dim cn As New OracleConnection(connectionString)
-  'mmy dim objconn2m as MySqlConnection 'for SQL_recordset_TH=6
+
   
   dim randMother As Random = New Random() '產生新的隨機數用在 intrnd
   Sub Page_Load(ByVal sender As Object, ByVal e As EventArgs) 
      CCFD=Request.ServerVariables("PATH_TRANSLATED")
+     if notInside("webc", CCFD) then ssddg("you must put mip.aspx at a folder lookslike ***/***/webc")
      CCFD=left(CCFD, instr(CCFD, "webc")-1)   ' so CCFD="c:\main\"  
      runFord = CCFD & "webc\" : codFord = CCFD & "webc\"    :    tmpFord = CCFD & "webc\"     :  queFord = CCFD & "webc\" :   tmpy=left(right(tmpFord,5),4) 
      iisPermitWrite=1 'iif(inside("WebService", CCFD),  0, 1) 
@@ -97,7 +92,7 @@
     'dataTu=top1v          means no show               , and let var [top1r] be a string containing  all columns and concated by coma
     'dataTu=top1w          means show to Upar inputbox , only 1 recrod, for display and update later
     'dataTu=top9w          means show to Upar textArea many records
-    'dataTu=Film           the result will be written to server \webTmp\some*.txt with column delimeter be #! , result not shown on screen. markT
+    'dataTu=aa.bb          the result will be written to server \webT\aa.bb with column delimeter be #! , result not shown on screen. markT
     'dataTu=xxfile         means put  while table to file
            qrALL  = Request.ServerVariables("QUERY_STRING")
              act  = trimRequest("act").trim.toLower                                                       
@@ -144,10 +139,9 @@ end if
     Dim cookyUserID2 As string =""  : if not (Request.Cookies("userID2") is nothing) then cookyUserID2=Request.Cookies("userID2").value 	
 	
     strConnLogDB            = "" ' application("dbcs,LOG")
-    objConn2c               = Server.CreateObject("ADODB.Connection") 
-   'set rs2                 = server.CreateObject("ADODB.RecordSet")' no need to declare in asp.net , see  https://msdn.microsoft.com/zh-tw/library/aa719548(v=vs.71).aspx
-    objConn2c.CommandTimeOut = 1*3600 ' 1*3600=1hour
-	
+        define_objConn2c
+        
+    
     if 1=2 then
     elseIf spfily="logout" Then                                                                    '(w1) user just logout 
       Response.Cookies("userID2").Value = ""
@@ -204,25 +198,7 @@ end if
     If    inside("run",act) Then end_runLog()
   End Sub 'of main
   
-  sub objconn2_open()
-     select case SQL_recordset_TH
-	 case 2       : objconn2c.open(ddccss)                  'old fashion recordset
-	 case 3       : objconn2v=new SqlConnection(ddccss)     'use dataTable  
-     case 5       ' objconn2a=new OracleConnection(ddccss)  'for oracle, use recordset
-	 'mmy case 6  : objconn2m=new MySqlConnection(ddccss)   'might use dataTable
-	 case else    : objconn2c.open(ddccss)                  'old fashion recordset
-     end select
-  end sub
-  
-  sub objconn2_close()	 
-     select case SQL_recordset_TH
-	 case 2  : objconn2c.close()  
-	 case 3  : sqlClient.SqlConnection.clearPool(objconn2v)
-     case 5  
-     'mmy case 6  : mysqlConnection.clearPool(objconn2m) 
-	 case else : objconn2c.close()  
-     end select
-  end sub 
+
 
 
 
@@ -307,37 +283,13 @@ end if
    if inside(itab      ,line) then return itab
    return icoma
   end function
-  
-  sub prepareColumnHead(debugLine as int32)
-    Dim userHs() as string : trimSplit(HeadList, ",", userHs)
-    Dim uuh1 as int32= UBound(userHs)
-    Dim uuh2 as int32= rs4wk("fdub","") 
-    Dim eleHD,eleTP as string
-    dim j as int32
-    top1T = ""   '      column type[i], ...
-    top1h = ""   '      column name[i], ...
-    top1r = ""   ' top1 column data[i], ...
-	top1u = uuh2 '     =column Ubound       or =columns.count-1
-
-    For j = 0 To uuh2
-      eleHD=If( (j<=uuh1) andAlso (userHs(j)<>"")  , userHs(j) , rs4wk("fdnm","",0,j)  ) 
-      eleTP = rs4wk("gtyp","",0,j)
-      top1H = top1H & eleHD & iflt(j,uuh2,",") : top1Hz(j) = eleHD 
-      top1T = top1T & eleTP & iflt(j,uuh2,",") : top1Tz(j)=eleTP   : tdDecorate(j)=if(eleTP="c", "<td>", "<td align=right>")
-      eleHD = rs4wk("gval","",0,j) 
-      top1r = top1r & eleHD & iflt(j,uuh2,defaultDIT) 
-      top1rz(j) = eleHD
-    Next   
-    titleBar=tr0 & "<th>" & Replace(top1h, ",", "<th>")   
-  End sub 
 
   
  
   Function rs_top1Record(sql, headL1, outFormat) 'might return a html table, or a new Upar, or a vector string
     Dim eleU, rr, vecH3s, vecR3s,i
-    if rs4wk("build",sql   )="xx" then return "" 
-    prepareColumnHead(338)     
-    ssdd("in rs_top1Record",outFormat)
+    if rs4wk("build",sql   )="xx" then return ""     
+    'ssdd("in rs_top1Record",outFormat)
 
     if 1=2 then
   ' elseIf outFormat = "vec" Then
@@ -426,13 +378,7 @@ end if
   Function isnullMA(rr, defa)
     if IsDbNull(rr) orelse (rr Is Nothing) Then isnullMA = defa Else isnullMA = rr
   End Function
-  Sub begin_runLog()
-    wLog(" beginRun,intflow=" & intflow & ", uvar=" & Uvar & ienter & "  f2postSQ=" & ienter & f2postSQ & ienter & "  f2postDA=" & ienter & f2postDA)
-  End Sub
-  Sub end_runLog()
-    'wlog( "   endRun,intflow=" & intflow  & " ex=" & exitWord)
-    If nowDB<>"" Then objConn2_close()
-  End Sub
+
 
   'sub begin_runLog
   '  if strConnLogDB="" then exit sub
@@ -563,8 +509,6 @@ end if
     If InStr(fname, "/") > 0 Or InStr(fname, "\") > 0 Or InStr(fname, ":") > 0 Then 
        'ssddg("tmp name must look like flim* or simple.txt or simple.xml")
        tmpPath = fname
-    elseIf LCase(Left(fname, 4)) = "film" Then
-      tmpPath = gccwrite & Mid(fname, 5)
     Else
       tmpPath = tmpFord & fname
     End If
@@ -724,21 +668,21 @@ end sub
     Response.Write(ghh) : Response.End() 
   End Sub
 
-  Sub ssdd(m1 as string, optional m2 as string="", optional m3 as string="", optional m4 as string="", optional m5 as string="", optional m6 as string="")
-    const r1="<font color=red>            " , s1="</font>" 
-    const r2="<font color=green> ; </font>" , s2="       " 
-    const r3="<font color=green> ; </font>" , s3="       " 
-    const r4="<font color=green> ; </font>" , s4="       " 
-    const r5="<font color=green> ; </font>" , s5="       " 
-    const r6="<font color=green> ; </font>" , s6="       "
+  Sub ssdd(m1 as string, optional m2 as string="%", optional m3 as string="%", optional m4 as string="%", optional m5 as string="%", optional m6 as string="%")
+    const r1="<font color=red> # </font>" , s1="       " 
+    const r2="<font color=red> # </font>" , s2="       " 
+    const r3="<font color=red> # </font>" , s3="       " 
+    const r4="<font color=red> # </font>" , s4="       " 
+    const r5="<font color=red> # </font>" , s5="       " 
+    const r6="<font color=red> # </font>" , s6="       "
     
-                    buffW(r1 & nof(m1) & s1)
-    if m2<>""  then buffW(r2 & nof(m2) & s2)
-    if m3<>""  then buffW(r3 & nof(m3) & s3)
-    if m4<>""  then buffW(r4 & nof(m4) & s4)
-    if m5<>""  then buffW(r5 & nof(m5) & s5)
-    if m6<>""  then buffW(r6 & nof(m6) & s6)
-                    buffW("<br>")
+                     buffW(r1 & nof(m1) & s1)
+    if m2<>"%"  then buffW(r2 & nof(m2) & s2)
+    if m3<>"%"  then buffW(r3 & nof(m3) & s3)
+    if m4<>"%"  then buffW(r4 & nof(m4) & s4)
+    if m5<>"%"  then buffW(r5 & nof(m5) & s5)
+    if m6<>"%"  then buffW(r6 & nof(m6) & s6)
+                     buffW("<br>")
   End Sub  
 
   Sub ssddg(m1 as string, optional m2 as string="", optional m3 as string="", optional m4 as string="", optional m5 as string="", optional m6 as string="")
@@ -810,7 +754,10 @@ end sub
       dim k as int32
       if cut=ibest then cut=bestDIT(longStr)
       srr=split(longStr, cut) 
-      for k=0 to ubound(srr) : srr(k)=trim(srr(k)) :next
+      for k=0 to ubound(srr) : srr(k)=trim(srr(k)) : next
+      
+      'ssdd(7570,"in trimSplit", longStr, cut)
+      'for k=0 to ubound(srr) : ssdd(7571,srr(k))   : next
   end sub
 
 
@@ -821,7 +768,7 @@ end sub
       buffW("give parameters here, example pp==22<br>                                         ")
       buffW("<textarea cols=110 rows=05 wrap=off class=border2 name=Upar>" & Upar & "</textarea Upar>") 'hi=06 hihi
       buffW("<br>                                                              ")
-      buffW("give commands here, example show==add|pp|1  <br>                 ")
+      buffW("give commands here, example show==hello @[eval|1+1].  <br>        ")
       buffW("<textarea cols=110 rows=16 wrap=off class=border2 name=Upag>" & Upag & "</textarea Upag>     ") 'hi=18 hihi
       buffW("<input type=hidden name=f2postDA>                      ") 'f2postDA is used to collect large string, there permits ienter in f2postDA, f2postDA is independent with uvar
       buffW("<input type=hidden name=act     value=run>                                            ")
@@ -907,24 +854,22 @@ end sub
 
 
   Sub show_splist()
-    Dim lines, i,j, words, words1, sectionName, sectionKind, sawFirstCol, hideMa
+    Dim lines, i,j, words, words1, sectionName, sectionKind,  hideMa
 	dim spList2, spRunable as string
     Dim userMayViewKinds = Application(userID & ",vw")
     sectionKind = ""
-    buffW("<br><center><table class=cSPLIST for=splist><tr>") : sawFirstCol = 0	
+    buffW("<br><center><table class=cSPLIST for=splist><tr>") 
 	spList2=loadFromFile(codFord, csplist_mip) ':spList2=replace(spList2,"#","")
     spRunable=""
     lines = Split(spList2, ienter)
     For i = 0 To UBound(lines)
-      trimSplit(lines(i) & ",,",  ","  , words)
-      If words(0) = "[td]" Then '若換大段
-        buffW(ifeq(sawFirstCol, 1, "<td>&nbsp;&nbsp;", ""))
-        buffW("<td valign=top for=newColumn>")
-        sawFirstCol = 1
+      trimSplit(lines(i) & ",,",  ","  ,  words)
+      If     isLeftof("[td]", words(0) )  Then '若換大段
+                                             buffW("<td valign=top for=newColumnz" & words(0) & "z >")
       ElseIf isLeftof("[tf]", words(0) )  Then '若遇到小段落
-        sectionKind = Mid(words(0), 5)
-        sectionName = words(1)
-        If usr_can_see(userMayViewKinds, sectionKind, "show") Then buffW("<b>" & sectionName & ":</b><br><br>")
+                                             sectionKind = Mid(words(0), 5)
+                                             sectionName = words(1)
+                                             If usr_can_see(userMayViewKinds, sectionKind, "show") Then buffW("<b>" & sectionName & ":</b><br><br>")
       Else '若遇一程式
         If words(2) = "hide" Then hideMa = "hide" Else hideMa = "show"
         If usr_can_see(userMayViewKinds, sectionKind, hideMa) Then
@@ -1119,8 +1064,8 @@ if isLeftOf("comment",Dkey)Then elem = "<tr drew><td align=right>        <td ali
 	For i = 1 To cmN12
       If keyName = keys(i) Then return vals(i)
     Next
-    ssddg("err, no value for:(" & keyName & ")"  )
-    return       "err, no value for:(" & keyName & ")"
+    ssddg( "err, no value for:(" & keyName & ")"  )
+    return "err, no value for:(" & keyName & ")"
   End Function
   
 Sub setValue(keyName as string,   whatval as string)
@@ -1144,9 +1089,9 @@ sub appendStr(keyName as string, longString as string) 'similar as sub setValue 
 end sub
 
 sub addKV(keya as string, vv as string)
-    if len(keya)<minKeyLen then ssddg("err, key name too short:",keya)
-    if len(keya)>maxKeyLen then ssddg("err, key name too long: ",keya)
-    cmN12=cmN12+1 :keys(cmN12)=keya :    vals(cmN12)=vv  : vbks(cmN12)=vv: mayReplaceOther(cmN12)=true
+    if lenBB(keya)<minKeyLen then ssddg("error, key name too short:",keya)
+    if lenBB(keya)>maxKeyLen then ssddg("error, key name too long: ",keya)
+    cmN12=cmN12+1 :keys(cmN12)=keya :    vals(cmN12)=vv  : vbks(cmN12)=vv: mayReplaceOtheR(cmN12)=false 'set may=false when command new created  
 end sub
   
   Function nospace(ss as string) as string
@@ -1180,17 +1125,7 @@ end sub
     For i = 0 To UBound(ffs)         : fdt_needsum(i) = ffs(i)                      : Next
   End Sub
   
-  Sub switchDB(dbnm) 'this is call by: (1)conndb,  (2)the first sqlcmd without conndb(which will connect to HOME)
-    If nowDB<>"" Then objConn2_close()
-	
-	nowDB=ucase(dbnm)     
-    If                   Application("dbct,HOME")           = "" Then load_dblist()
-		
-    If                   Application("dbct," & ucase(dbnm) ) = "" Then ssddg("no such db:" & dbnm)
-    dbBrand =            Application("dbct," & ucase(dbnm) ) 
-	ddccss  =good_string(application("dbcs," & ucase(dbnm) ))
-	objconn2_open()  		
-  End Sub
+
 
   sub showVars(optional idf as string="key TH")
   dim i as int32
@@ -1249,13 +1184,13 @@ end sub
           'keya="comment" & i : vala=thisLine :typa="comment"
       end if
       
-      
+      cmNxy = cmNxy + 1 : keyjs(cmNxy)=keya  : mayReplaceOtheR(cmNxy)=false 'set may=false when command new created
       if part12=1 then     'scanning for drawing html input box 'similar to addKV()
- 		                    cmNxy = cmNxy + 1 : keyjs(cmNxy)          =keya : valjs(cmNxy)=atom(vala,  1,adj)  : mrks(cmNxy)=atom(vala,2,adj,"") : typs(cmNxy)=atom(vala,3,adj, typa)
-                                                mayReplaceOther(cmNxy)=false:  vbks(cmNxy)=atom(vala,  1,adj)   
+ 		                    valjs(cmNxy)=atom(vala,  1,adj)  : mrks(cmNxy)=atom(vala,2,adj,"") : typs(cmNxy)=atom(vala,3,adj, typa)
+                             vbks(cmNxy)=atom(vala,  1,adj)   
       elseif part12=2 then 'scanning for adding command from upag
-                            cmNxy = cmNxy + 1 : keyjs(cmNxy)          =keya : valjs(cmNxy)=vala 
-                                                mayReplaceOther(cmNxy)=false:  vbks(cmNxy)=vala
+                            valjs(cmNxy)=vala 
+                             vbks(cmNxy)=vala
       end if
     next i
   end sub
@@ -1331,7 +1266,7 @@ end sub
     endi   =atom(v1  ,  3, fcComma  )                          'endi    example: 64
     stpi   =atom(v1  ,  4, fcComma,  "1")                      'stpi    example: 2
     rrTH=iNOW(iLine, "forBeg")
-    sumc="Vari==add|Begi|-Stpi;; label==forr2beg;; Vari==add|Vari|Stpi;; goto==ifgt|Vari|Endi|forr2out"
+    sumc="Vari==eval|Begi-Stpi;; label==forr2beg;; Vari==eval|Vari+Stpi;; goto==ifsee|Vari>Endi|forr2out"
     return replaces(sumc, "Vari",vari, "Begi",begi, "Endi",endi,  "Stpi",stpi,     "forr2",  "forLP" & rrTH,     "|", fcComma)
   end function
 
@@ -1342,7 +1277,7 @@ end sub
     vari   =atom(v1,  1, fcComma  )                          'vari    example: ii
     vect   =atom(v1,  2, fcComma  )                          'vect    example: aa,bb,cc
     rrTH=iNOW(iLine, "forBeg") 
-    sumc="wwvTH==0;; label==forr2beg;; wwvTH==add|wwvTH|1;; Vari==atom|Vect|wwvTH|,||endVectOR ;; goto==ifeq|Vari|endVectOR|forr2out"
+    sumc="wwvTH==0;; label==forr2beg;; wwvTH==eval|wwvTH+1;; Vari==atom|Vect|wwvTH|,||endVectOR ;; goto==ifeq|Vari|endVectOR|forr2out"
     return replaces(sumc, "Vari",vari,   "Vect",vect,      "forr2",  "forLP" & rrTH) 
   end function
 
@@ -1462,7 +1397,7 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
       'seldom use so mark out; Upag= Replace(Upag, "#userOG"  , userOG)
       'seldom use so mark out; Upag= Replace(Upag, "#userWK"  , userWK)
       Upag= Replace(Upag, "$comp"      , atComp)
-      Upag= Replace(Upag, "$thisprog"  , spfily)
+      Upag= Replace(Upag, "$thispg"    , spfily)
       Upag= Replace(Upag, "$userID"    , userID)
       Upag= Replace(Upag, "$fromIP"    , Request.ServerVariables("REMOTE_ADDR"))
       Upag= Replace(Upag, "$serverIP"  , Request.ServerVariables("SERVER_NAME"))
@@ -1470,7 +1405,7 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
       Upag= Replace(Upag, "$postSQL"   , f2postSQ)
       Upag= Replace(Upag, "$postDATA"  , f2postDA)
       Upag= Replace(Upag, "okclick"    , "onclick"           )        
-      Upag= Replace(Upag, " ve("       , "@[gu1m|matrix|"    )        
+      Upag= Replace(Upag, " ve("       , " @[gu1m|matrix|"    )        
       Upag= Replace(Upag, ")er"        , "]."                )        
       
       Upag= Replace(Upag, "$add"     , "+"                 )
@@ -1698,7 +1633,10 @@ end sub
 
   Function fn_eval(expp as string) as string
     Dim tbl = new DataTable()
-    if expp="" then return ""
+    expp=trim(expp)
+    if expp="" orElse expp="+"  orElse expp="-" then return expp
+    'if not isnumeric(left(expp,1)) then return expp
+    
     try
      return Convert.ToString(tbl.Compute(expp, Nothing))
     catch ex as Exception
@@ -1811,6 +1749,7 @@ end function
 
     dim patt1,filterSYM, caserightHandPartYM1, caserightHandPartYM2, caserightHandPartYM3, caserightHandPartYM4 as string
     dim cifhay, glue, patty, oneLine , manyLines(),cols()  as string 
+    'ssdd(1749,arr02,arr03,selectedRULE)
     
 	  'stp1: arrOne is a matrix contains data
       'arrOne=arrOne
@@ -1905,7 +1844,7 @@ end function
                                        Call setValue(dataTu, rstable_to_varGrid(sqcmd,works)                )
                                        
        ElseIf inside(".", datatuL)   Then
-                                       'ssdd(2726,"going to write data", dataTu)
+                                       ssdd(2726,"going to write data", dataTu)
                                        rstable_to_dataF(sqcmd,works)  'in rstable_dataTu_somewhere
        Else
                                        ssddg("unknown name of dataTo: " & datatuL, "try new name of dataTo, maybe matrix2 or grid2") 
@@ -1914,26 +1853,9 @@ end function
   End Sub
 
 
-
- 
-'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-  sub makeRS3(sql as string)
-         if SQL_recordset_TH=3 then 
-            dim dapp as new   SqlDataAdapter : dapp=New SqlDataAdapter(sql, objconn2v): dapp.SelectCommand.CommandTimeout=600 
-            dim rs4 as new datatable
-            rs3=rs4  'using rs3.clear will only clear data, but column schema are kept. so I use a brad new rs4 to replace rs3
-            dapp.Fill(rs3) 
-            'ssdd(2009, rs3.columns.count, rs3.rows.count)
-         end if
-    'mmy if SQL_recordset_TH=4 then dim dapp as new MySqlDataAdapter : dapp=New mySqlDataAdapter(sql, objconn2m): dapp.SelectCommand.CommandTimeout=600 : rs3.clear: dapp.Fill(rs3) 
-  end sub 
-  
-
-'total 169k bytes 20190117
-
 </script>
 
-<!-- #Include virtual=MIPSQL.aspx"  --> 
+<!-- #Include virtual=MIPsql.aspx"  --> 
 <!-- #Include virtual=MIPrs4w.aspx" --> 
 <!-- #Include virtual=MIPkeys.aspx" --> 
 <!-- #Include virtual=MIPfunc.aspx" --> 

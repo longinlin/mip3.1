@@ -53,13 +53,23 @@
     dim ffs() as string  : fname = Replace(fname, "\", "/")  :  ffs=split(fname,"/")  :   return ffs(ubound(ffs))
   End Function
   
-  Function inner(text as string,   str1 as string,   str2 as string) as string
+  Function inner(text as string,   str1 as string,   str2 as string) as string 'tion mid
     Dim i as int32, text2 as string
-    i = InStr(text, str1) : If i <= 0 Then return "" 
+    if str1="" then
+                   i=1
+    else
+                   i = InStr(text, str1) : If i <= 0 Then return "" 
+    end if
+    
     text2 = Mid(text, i + Len(str1))
-    i = InStr(text2, str2) : If i <= 0 Then  return ""
+    if str2="" then
+                   return text2
+    else
+                   i = InStr(text2, str2) : If i <= 0 Then  return ""
+    end if
     return Mid(text2, 1, i - 1)
   End Function
+  
   
   function ifin(son as string, mother as string, ans1 as string, ans2 as string) as string
     if instr(mother,son)>0 then return ans1 
@@ -84,13 +94,7 @@
   function lowt(aa as string) as string
     return lcase(trim(aa))
   end function
-  Function midstring(ss, a1, a2)  ' if ss='xxx1234yyy', a1='xxx', a2='yyy' then ss=1234
-    Dim i, j
-    If Len(a1) > 0 Then i = InStr(ss, a1) + Len(a1) Else i = 1
-    If Len(a2) > 0 Then j = InStr(i, ss, a2) - 1 Else j = 65533
-    If j - i + 1 < 0 Then j = i + 10
-    midstring = Mid(ss, i, j - i + 1)
-  End Function
+
   
     Function encodeString(axH As String, dd As Int32) As String  'proc: let aps()=each ascii of ax string;  let aps(i)=chr(ascii(aps(i)-dd))
       Dim i, acii As Int32 
@@ -161,7 +165,7 @@ End Function
     Return tt
   End Function
   
-  function string3tb(aa as string) as string 'correspond to string2tb
+  function entery_to_cr(aa as string) as string 'correspond to string2tb
     return replace(aa, entery, vbnewline)
   end function
   

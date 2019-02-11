@@ -1,0 +1,115 @@
+wkii==askQcondi $,$, hidden  
+
+#1#2
+conndb==vini
+tbff==mapper
+matrix==
+cate , 大類   , 大[]類   , c,  iibx, kuq ,查某大類,
+myky , 名稱   , 名[]稱   , c,  mmbx, kuq ,查其名稱,
+myc1 , 其性質1, 其[]性質1, c,  iibx, vu  ,        ,
+mync1, 其性質2, 其[]性質2, nc, iibx, vu  ,        ,
+
+
+
+fdName,fdAccp,fdHead,fdType,fdBoxt, fdFILT,fdQexp,fdIexp ==are|[mi1],[mi2],[mi3],[mi4],[mi5],  [mi6],[mi7],[mi8]
+oldpCondi ==cate='OLDcate' and myky='OLDmyky'
+pkeyCondi ==gu1m|matrix    |fdName=   'fdAccp'      |$and|6k
+convertFD ==convert(varchar,isnull(fdName,''))
+keysValAre==gu1m|matrix    |'OLDfdName=='+convertFD+'$,$,hidden;[];' |+ |6k 
+newuCondi ==pkeyCondi
+moreActLink==     //empty or end by comma (example:  aa,bb,cc, )
+moreActComma==    //empty or few commas   (example:    ,  ,  , )
+SQL_afterUpdate==
+SQL_afterCopy==
+SQL_beforeDelete==
+ 
+goto==Lwkii
+label==LaskQcondi                        
+sqlcmd,,top1w==
+ select wk[]ii='toShowSome $, $, hidden',  comment='請輸入查詢條件', ve( fdAccp='$,fdQexp$,fdBoxt'||6q )er
+//exit==11
+showc==  以下是 tbff 表的前99筆， 可挑一筆修改 ， 或 <a href="?act=run&spfily=$thispg&uvar=wk[]ii==pleaseInst" > 新增一筆</a>  
+headlist==,,, moreActComma ve( fdHead )er
+digiList==,,, moreActComma ve( fdType  )er
+sqlcmd==
+ select top 99
+ 修改='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==pleaseUpd"                      >修改</a>', 
+ 複製='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==pleaseCpy"                      >複製</a>', 
+ 刪除='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==toDel"    okclick="return bk8()">刪除</a>', 
+ moreActLink  
+ ve( fdName )er  from tbff order by ve(fdName||6k)er
+exit.==show 99 done
+ 
+label==LtoShowSome                       
+showc==  以下是 tbff 表符合條件的前500筆， 可挑一筆修改 ， 或 <a href="?act=run&spfily=$thispg&uvar=wk[]ii==pleaseInst" > 新增一筆</a>
+headlist ==,,, moreActComma ve( fdHead )er
+digiList ==,,, moreActComma ve( fdType )er
+cond22==
+sqlcmd==
+ select top 500 
+ 修改='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==pleaseUpd"                      >修改</a>', 
+ 複製='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==pleaseCpy"                      >複製</a>', 
+ 刪除='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==toDel"    okclick="return bk8()">刪除</a>', 
+ moreActLink
+ ve(fdName)er from tbff where 1=1 ve(@[andRange|fdName|fdAccp]. |$space|6q)er order by ve(fdName||6k)er
+exit.==show 500 done
+
+label==LpleaseUpd
+oldppp==gu1m|matrix|O[]LDfdName=convertFD+'$,      $,hidden'||6k
+allFDS==gu1m|matrix|     fdHead=convertFD+'$,fdIexp$,fdBoxt'||6u
+sqlcmd,,top1w== 
+ select wk[]ii='toUpd$,$,hidden', oldppp, allFDS from tbff where oldpCondi
+exit==please edit the data
+label==LtoUpd
+headlist==Note,ve(fdHead)er
+sqlcmd==
+ if exists (select *    from tbff        where oldpCondi) begin
+  update tbff set ve(fdName=@[quote|fdType|fdAccp].||6u)er where oldpCondi;
+  SQL_afterUpdate;
+  select aaNote='已修改成:', ve(fdName)er from tbff where newuCondi;
+ end else begin
+  select aaNote='未能完成修改，可能剛剛有人刪改主鍵了，請重新查詢再修改'
+ end
+showc== <a href="?act=run&spfily=$thispg&uvar=wk[]ii==askQcondi">重新查詢</a> 
+exit.==upd ok
+
+label==SQL_insert 
+headlist==.,.
+sqlcmd==
+ if exists (select * from tbff where pkeyCondi) begin
+    select aa='這筆的   ve(fdHead||6k)er  @[red|早已存在].', '不可再增識別編號相同的記錄'
+ end else begin
+    insert into tbff  ( ve(fdName||6u)er )  values( ve(@[quote|fdType|fdAccp].||6u)er  )
+    SQL_afterCopy; select aa='已增一筆', bb='就此畫面可以再增一筆'
+ end
+return==
+
+label==LpleaseCpy
+showc==填好後按確定，將變成一筆新的資料
+sqlcmd,,top1w==select wk[]ii='toCpy$,$,hidden', ve( fdHead=convertFD+'$,fdIexp$,fdBoxt'||6u)er  from tbff where oldpCondi 
+exit.==開始填吧
+label==LtoCpy
+gosub==SQL_insert
+showc==可以<a href="?act=run&spfily=$thispg&uvar=wk[]ii==askQcondi">重新查詢</a> 
+exit.==cpok
+
+label==LpleaseInst
+//show==hhh ve( fdHead='$,fdIexp$,fdBoxt'||6v )er
+sqlcmd,,top1w==select wk[]ii='toIns $,$,hidden', comment1='請輸入新資料',  ve( fdHead='$,fdIexp$,fdBoxt'||6u )er
+exit.==please give some data 
+label==LtoIns
+gosub==SQL_insert
+showc==可以<a href="?act=run&spfily=$thispg&uvar=wk[]ii==askQcondi">重新查詢</a> 
+exit.==ins ok
+
+label==LtoDel
+sqlcmd==select result='這筆已刪', * from tbff where oldpCondi
+sqlcmd==
+ SQL_beforeDelete
+ delete                                  tbff where oldpCondi
+showc== <a href="?act=run&spfily=$thispg&uvar=wk[]ii==askQcondi">重新查詢</a> 
+exit.==DLok
+ 
+
+
+

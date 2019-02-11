@@ -144,9 +144,9 @@ End Function
   
   Sub SRCbeg() 'prepareSRC
     if 1=2 then
-    Elseif inside(":", dataFF)   then 'it looks like c:\tmp\123.dat
+    Elseif inside(".", dataFF)   then 'it looks like c:\tmp\123.dat
                                      SRCfromFile=true
-                                     tmpf = tmpo.openTextFile(        dataFF , 1)  '1 for reading
+                                     tmpf = tmpo.openTextFile( tmpPath(dataFF) , 1)  '1 for reading
     else                    'dataFF is a martrix name
                                      SRCfromFile=false
                                      wkds = Split(getValue(dataFF), ienter) 
@@ -281,12 +281,12 @@ End Function
         response = request.GetResponse()
         stm = New StreamReader(response.GetResponseStream())
         result = stm.ReadToEnd() : stm.Close() : response.Close()
-        Return string3tb(result)
+        Return entery_to_cr(result)
       Catch e As WebException
-        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & idotComa & "db say err2:" + e.Message) : Return ans
+        ans = entery_to_cr("sgid,ansrj1j2c,cj1j2 sg" & idotComa & "db say err2:" + e.Message) : Return ans
         'If e.Status = WebExceptionStatus.ProtocolError Then ...
       Catch e As Exception
-        ans = string3tb("sgid,ansrj1j2c,cj1j2 sg" & idotComa & "db say err3:" + e.Message) : Return ans
+        ans = entery_to_cr("sgid,ansrj1j2c,cj1j2 sg" & idotComa & "db say err3:" + e.Message) : Return ans
       End Try	  
   End Function
   

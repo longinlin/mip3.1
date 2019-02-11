@@ -1,4 +1,4 @@
-<script runat="server">
+<script runat="server"> 
 sub build_p123(inpStr as string, byref aaj1 as string,    byref aaj2 as string,     byref aaj3 as string,    byref keyLower as string)
 dim keyp() as string
       keyp=split(inpStr,icoma)
@@ -22,15 +22,13 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
     
     For i = begWI To cmN12	      	
       workN=workN+1: if workN>300 then ssddg("MIP have walked too many steps")
-      mayReplaceOther(i)=true ' if Left(keys(i),6)="matrix" then mayReplaceOther(i)=false
-      'ssdd(2235,i,keys(i),mayReplaceOther(i))
             
-      'parse_step[4.2] begin wash vals(i):  replace vbks(j=1..i-1) into vbks(i); except when vbks(j) like "matrix%"  
-        valFocus=vals(i): vals(i)=vbks(i)  'set value to the backuped initial value        
+      'parse_step[4.2] begin wash vals(i):  replace vbks(j=1..i-1) into vbks(i) 
+        valFocus=vals(i): vals(i)=vbks(i)  'retrieve value from the backuped value        
         For j =1 to cmN12
             if mayReplaceOther(j) then                 
                if j=i then 'use current value(i.e. valFocus) to edit original pattern(i.e. vals(i) )
-                           'imagine how this program run:    k==1;; label==bb;; k==add|k|1;; goto==bb
+                           'imagine how this program run:    k==1;; label==bb;; k==eval|k+1;; goto==bb
                   vals(i)=replace(vals(i),     keys(j), valFocus)
                else 
                   vals(i)=Replace(vals(i),     keys(j), vals(j))
@@ -54,10 +52,10 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       'parse_step[4.5] try reduce it to a simpler number
       'vals(i)=fn_eval(vals(i))
                                                      
-      mayReplaceOther(i)=false ' so below selected cases are keywords with mayReplace=false
       
       'parse_step[4.5] execute keys(i) with its vals(i)
       build_p123(keys(i), aaj1,aaj2,aaj3,keyLower)
+      mayReplaceOtheR(i)=false 'maybe keys(i)=preDefinedWord, anyway set may=false
 	  select case keyLower  'when see verb==some_description , then execute this verb
       case "show", "showc"   
                           if keyLower="showc" then vals(i)="<center>" & vals(i)  & "</center>" 
@@ -119,6 +117,8 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "sleep"       : Call sleepy(vals(i))
       case "headlist"    : headlistRepeat = tryCint(aaj1) : headlist = noSpace(vals(i))
       case "taillist"    : TailList = vals(i) : Call zeroize_sumTotal()  ' was named as needSumList
+      case "setfuncform" : setFuncForm(vals(i)) 'example: setFuncForm== beginer , ender
+      
       case "setfuncbegin" : fcBeg  =replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
       case "setfuncpara"  : fcComma=replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
       case "setfuncend"   : fcEnd  =replaces(vals(i),   "alpha", "@",    "pipe","|",    "curve","{",    "square","[")
@@ -127,17 +127,29 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "exit"         : if hasValue(vals(i)) then buffW(replace(vals(i), ienter,"<br>")          ) : exitWord =vals(i) : exit for                                 
       case else
            'keyLower is [programmer defined var]  , almost set mayReplaceOther to true  
-           if len(keyLower)<minKeyLen then ssddg("err, key name too short:",keyLower)
-           if len(keyLower)>maxKeyLen then ssddg("err, key name too long: ",keyLower)
-           mayReplaceOther(i)=true           
+           if lenBB(keyLower)<minKeyLen then ssddg("err, key name too short:",keyLower)
+           if lenBB(keyLower)>maxKeyLen then ssddg("err, key name too long: ",keyLower)
+           mayReplaceOtheR(i)=true  'keys(i) is not preDefinedWord so let may=true
            for j=1 to cmN12
-               if keys(j)=keys(i) and j<>i then mayReplaceOther(j)=false 'set other key(j) of the same name to [false]
+               if keys(j)=keys(i) and j<>i then mayReplaceOtheR(j)=false 'update may=false where key(j)=the same name, i.e. only one line can be true
            next      
 	  end select
     Next i
     subRetVal="" 'prepared for msiing [return] in a function
 end sub
 
+function setFuncForm(sy123 as string)
+ sy123=replace(sy123,"     ",ispace)
+ sy123=replace(sy123,"    " ,ispace)
+ sy123=replace(sy123,"   "  ,ispace)
+ sy123=replace(sy123,"  "   ,ispace)
+ sy123=trim(sy123)
+ fcBeg  =split(sy123,ispace)(0)
+ fcComma=split(sy123,ispace)(1)
+ fcEnd  =split(sy123,ispace)(2)
+end function
+
+ 
 function aheadSQL() as string
  return ifeq(dbBrand, "ms", "set nocount on;", "")
 end function

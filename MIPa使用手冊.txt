@@ -1,19 +1,22 @@
-## 這是一個軟體
-  它解譯一個程式語言MIP(Macro Interactive Processing)， 
-  並自帶編輯界面，用在快速生產商用程式，所以本軟體稱為MIP builder。 
-  它內建幾十個既定動詞，所以它能操控電腦， 
-  它認得模板(macro、宏、巨集)，所以它也能組合模板製造其他語言去操控電腦。
+## 一個生產程式的語言MIP                                       
+  這裏有一個程式語言MIP(Macro Interactive Processing)，可以用來生產程式，
+  也可以立即執行，立即取回結果再生產程式，所以本軟體稱為MIP builder。
+  它內建幾十個既定動詞，所以它能操控電腦，
+  它認得模板(macro、宏、巨集)，所以它能組合模板製造其他語言去操控電腦。
   .
   它是一個script解譯器，能在前端顯示互動式網頁，也能在後端連接資料庫；
   它是一個macro組合器，能組合變數與模板產生另一程式並且執行。
   它是一個語言，也是一個工具，用來縮短程式碼，提升資訊人員的生產力。
+  https://github/longinlin/MIP3.1 
   .
 ## 適用場合  
- (1)生產商用型程式 存取資料庫
-   在多年前，我看到有資訊人員每天都在下SQL指令，應付使用者的各種需求，
+ (1)生產商用型程式  
+   多年以來，常見資訊人員日常就是下SQL指令，應付使用者的各種需求，
    他說使用者的需求變來變去很難寫成程式，希望有一個網頁型的SQL輸入框，
-   可以任意調整參數。以後讓使用者自行調整參數，就成為應用功能。
-   從這構想開始，設計了一個生產程式的母機，這就是MIP的起初功能。
+   可以任意調整參數。以後讓使用者自行調整參數，就不要煩人自行使用功能。
+   從這構想開始，製作一個生產程式的母機給資訊人員使用，這就是MIP的出發點。
+   商用程式不僅是僵硬的增刪改查，實務上還有各種訊號聯動及資料轉移，
+   所以MIP不僅是產生程式硬框，也能讓你書寫框中軟體，也能廢除硬框。
    本文將舉例兩個MIP寫的應用系統: 庫存撿貨系統，問卷評分系統。
  (2)生產另一語言
    物件導向流行以來，資訊界的程式語言越來越繁瑣，於是近年來又回頭流行巨集、
@@ -81,11 +84,11 @@
   按[確定]即可看到今天加5天的日期，其中dateAdd是函數，直線符號後面是參數
   
      
-## 兩行的程式舉例: 
-   (例一)製造一段PL語言的程式
+## 兩行的程式舉例 
+   (例一)製造一段perl程式
          yName==John ;; helloWho==print "hello, yName"
          saveToFile==c:\tmp\a2.pl , helloWho
-    按[確定]即可製造出 a2.pl這程式。
+    按[確定]即可製造出 a2.pl這程式，這是可執行的perl語言。
     其中;;相當於換行符號
 
    (例二)呼叫資料庫
@@ -440,15 +443,7 @@
           有時候SQL指令錯誤，我們需要把SQL顯示在螢幕上查錯，
           這時候你就在sqlcmd候面加個h，使SQL句子顯示出來。
     
-   askURL 訪問某個網址，取回這網址的回應，例如:
-              answ==askURL|https://www.google.com/search?q=perl
-              show==inner|answ|UNIX|1987
-          將訪問www.google.com 取得回應結果後， 提取介於 UNIX 和 1987
-          這兩個字眼之間全部的字，然後顯示出來。
-   
-   askURLwithPOST 訪問網址，傳送資料給這網址，取回這網址的回應，例如:
-              answ==askURL|https://www.google.com/search?q=perl | 12345678
-          傳送資料的方法是用POST
+
               
    ftp
    headList 顯示sqlcmd所得資料時賦與各欄位一個欄位名稱，例如:
@@ -475,7 +470,13 @@
                              c1   22
                              ---------
                              合計 33
-                
+
+   setFuncForm 變更字裏行間函數的 頭、隔、尾
+               在寫明 頭、隔、尾 之間用空白隔開，例如:
+                      setFuncForm==  beginer      caca     ender
+                      show== hello   beginer eval caca 2+3 ender   John
+               將顯示        hello 5 john
+   
    
 ## 區塊標示類的既定詞
    goto (既定詞) 跳去某一行
@@ -587,62 +588,202 @@
                      return==$para2
        將顯示: hh-99 
   
-
+##其它既定詞  
    
-## 函數: 一般函數
+## 函數: 
       函數就是執行預先定義好的動作，傳回最後的結果，
       MIP裏有很多既定函數，上一節的例子也說明了你可以自己定義函數。
       為了方便，MIP不檢查函數名稱大小寫。 以下列舉各種函數。
       
-  eval函數，任意加減乘除:
-            show==eval | 1+2*3
-            畫面會顯示 7   
-            
+   [f] eval函數，任意加減乘除:
+             show==eval | 1+2*3
+             畫面會顯示 7   
+             
+   
+   [f] ifsee函數，若看到判斷式成立則做A，不成立則做B，例如:
+       x002==2 
+       show==ifsee|x002=2|yes2 |not2  
+       畫面會顯示yes2。
+   
+       ifsee可以搭配goto，例如:
+       x002==2 
+       goto==ifsee|x002=2|yes2 |not2  
+       這樣程式會跳到標號yes2的那一行繼續往下跑。
+   
+   [f] @函數， 利用@這個符號，可以在字裏行間夾雜函數，例如:
+           show== Hi, I was happy in recent @[eval|2*3+1]. days 
+       畫面將顯示 Hi, I was happy in recent 7 days    
+       也就是將某個函數用 @[  和  ]. 括住。 
+       @看起來像ca，所以@[---]. 唸作call，即時呼叫的意思。
+       @和[ 要緊連在一起寫，而 [---]內各參數則可鬆散，其前後空白將被忽略。
+   
+   [f] ifInside函數，檢查A字串有沒有在B字串裏，例如:
+       answ==inside| bc | abcd |y|n
+       show==answ
+       這程式檢查bc有沒有在abcd裏，有就輸出y，沒有就輸出n。 所以顯示y
+             
+   [f] 2@函數， 函數在字裏行間使用時，函數名可以退居第二格，例如:
+       ans2==hi,  @[ifInside| bc      | abcd |y|n].
+       ans3==hi, 2@[bc      | ifInside| abcd |y|n].
+       所得到的ans2和ans3完全相同。 函數名放第二格適合某些口語習慣。
+     
+   [f] ifBetween函數，檢查A數值有沒有BC之間，或A字串有沒有BC之間，例如:
+       show==ifBetween| 2  | 1:3   | y| n
+       show==ifBetween| pqr| aa:zz | y| n
+       檢查1有沒有在1到3之間， 有
+       檢查pqr有沒有在aa到zz之間， 有
+       
+       show==2@[pqr| ifBetween| aa:zz | y| n ].
+   
+   [f] edit函數，做文字置換，例如:
+       myWord==I like someOne
+       show==@[edit|myWord|like=love|someOne=Mary].
+       畫面會顯示            I love Mary 
+       這函數的參數用法是 舊字=將來新字 ， 各參數用直線號隔開。
+   [f] replace函數，做文字置換，等同於edit
   
-  ifsee函數，若看到判斷式成立則做A，不成立則做B，例如:
-      x002==2 
-      show==ifsee|x002=2|yes2 |not2  
-      畫面會顯示yes2。
-  
-      ifsee可以搭配goto，例如:
-      x002==2 
-      goto==ifsee|x002=2|yes2 |not2  
-      這樣程式會跳到標號yes2的那一行繼續往下跑。
-  
-  @函數， 其實函數也可以夾雜在字裏行間使用，例如:
-          show== Hi, I was happy in recent @[eval|2*3+1]. days 
-      畫面將顯示 Hi, I was happy in recent 7 days    
-      也就是整個函數用 @[  和  ]. 括住。 
-      @[---]. 是什麼意思呢? @看起來像ca，所以@[---]. 唸作call，即時呼叫的意思。
-      @和[ 要緊連在一起寫，而 [---]內各參數則可鬆散，其前後空白將被忽略。
+## 函數: 處理一維數據 
+   [f] gu1v
+   [f] gu2v
+   [f] gu2vx
+## 函數: 處理二維數據 
+   [f] gu1m
+## 函數: 其它既定函數
+ 
+ 二者擇一的一些函數:
+   [f] ifNum      若為數字         例: ifNum     | 1.2     |yes|no
+   [f] ifPosi     若為正數         例: ifPosi    | 123     |yes|no
+   [f] ifValueful 若有值非空字串   例: ifValueful| aaa     |yes|no                                  
+   [f] ifSee      若等於           例: ifSee     | 2=2     |yes|no   
+                  若小於           例: ifSee     | 1<2     |yes|no       
+                  若大於           例: ifSee     | 2>1     |yes|no
+                  若不等於         例: ifSee     | 1<>2    |yes|no
+                  若小於等於       例: ifSee     | 1<=2    |yes|no
+                  若大於等於       例: ifSee     | 1>=2    |yes|no   
+                                             
+   [f] ifUUEq     若改大寫後相等   例: ifUUEq    |HH |hh   |yes|no
+   [f] ifLenEq    若字的長度相等   例: ifLenEq   |ab |cd   |yes|no
+   [f] ifInside   若是個子字串於   例: ifInside  |bc |abcd |yes|no
+   [f] ifBetween  若介於某某之間   例: ifBetween |bb |aa:dd|yes|no
+   [f] ifValueful 若參數有值(非空字串)，舉例說明一下這函數:
+              jqty==456
+              cond==ifValueful|jqty|  and iqty=jqty
+              show==select * from tb where 1=1 cond          
+            將顯示      select * from tb where 1=1 and iqty=456
+            同樣的例子但這次jqty是空字串 
+              jqty== 
+              cond==ifValueful|jqty|and iqty=jqty
+              show==select * from tb where 1=1 cond          
+            將顯示      select * from tb where 1=1      因為 jqty無值
+            由於ifValueful太常用，它也可簡寫為ifv
+            上例又可以緊湊寫成一行:   
+              show==select * from tb where 1=1 @[ifv|jqty|and iqty=jqty].
+                 
+ 有關日期的一些函數:                     
+   [f] cdate       改正零亂日期寫法  例: dateConv    |Jan 9,91            將顯示 1991/01/09 也就是一律改為yyyy/mm/dd
+   [f] ifDate      是否有這個日期    例: ifDate |20040102  |y|n           將顯示 y
+   [f] dateDiff    兩日期之間距      例: dateDiff    |20040102|20040103   將顯示 1
+   [f] dateAdd     西元年加一些天數  例: dateAdd     |1991/01/09|3        將顯示 1991/01/12
+                                     例: dateAdd     |19910109  |4        將顯示 1991/01/13  
+                                                                                       
+   以下這三個函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是now，也就是民國年必須3位數。
+   [f] ifDateROC   是否有這個日期    例: ifDateROC   |1030102  |y|n       將顯示 y
+   [f] dateDiffROC 兩日期之間距      例: dateDiff    |1020304  |1020305   將顯示 1                  
+   [f] dateAddROC  民國年加天數      例: dateAddROC  |102/01/09|3         將顯示 102/01/12
+                                     例: dateAddROC  |1020109  |4         將顯示 102/01/13 
+                   這函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是空白，也就是年份必須3個字。
+               
+                   
+               
+               
+ 其它函數:
+   [f] ifeqs  檢查若z值等於xi則yi ，例如: 
+                    z999==2
+                    show==ifeqs|z999|  1|s1|   2|s2|   3|s3
+              將顯示  s2
+   [f] andRange  製造一段SQL的查詢條件 例:
+             input12==2004/01/02:2004/03/02
+             condit ==andRange|kdate|input12
+             show   ==where 1=1 condit     
+             將顯示   where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
+         又例如:         
+             kdateR1R2==
+             condition==andRange|kdate|kdateR1R2
+             show     ==where 1=1 condition     
+             將顯示     where 1=1         
+             也就是當使用者不填寫inputsR1R2時，讓SQL句子不含kdate這條件
+         又例如:         
+             kdateR1R2==2004/01/2
+             condition==andRange|kdate|kdateR1R2
+             show     ==where 1=1 condition     
+             將顯示     where 1=1 and( kdate like '2004/01/2%' )
+             它採用相似比對而不是等於。
+                   
+   [f] inner     取頭尾兩字內的字 例: show==inner    |I Love Mary|Lo|y 將顯示 ve Mar
+   [f] mobileTel 電話號碼前面補0  例: show==mobileTEL|988112233        將顯示 0988112233
+   [f] cookieW   對某cookie寫值   例: easy==cookieW  |cook22     |123  這idle是臨時定義一個不會用到的變數
+   [f] cookieR   對某cookie拿值   例: c22v==cookieR  |cook22           這樣c22v的值就是123， 網頁來回一直記得
+   [f] intrnd    取亂數           例: show==intrnd   |99               這樣將得一個0到98間的某個數  
+   [f] transport 轉置矩陣         例: mass==
+                                    a1,b1
+                                    a2,b2
+                                    a3,b3    
+                                    a4,b4                                    
+                                  show==transport|mass  
+                            將顯示
+                                  a1,a2,a3,a4
+                                  b1,b2,b3,b4
+                                  
+   [f] edit  編輯一個變數，例如: show==edit|abcd|a=1,b=2  
+                           將顯示         12cd
+                           其中 a=1表示a要換成1 ，b=2表示b要換成2
+                              
+   [f] replace   編輯一個變數，和上面的edit函數完全同義 
+   
+   [f] max       取最大，   舉例: show==max|Mary|John|Vivian 將顯示Vivian
+                            又例: show==max|12  |15  |9      將顯示9
+   [f] min       取最小，和上例相反
+                
+   [f] convert_to_clang
 
-  ifInside函數，檢查A字串有沒有在B字串裏，例如:
-      answ==inside| bc | abcd |y|n
-      show==answ
-      這程式檢查bc有沒有在abcd裏，有就輸出y，沒有就輸出n。 所以顯示y
-            
-  2@函數， 函數在字裏行間使用時，函數名可以退居第二格，例如:
-      ans2==hi,  @[ifInside| bc    | abcd |y|n].
-      ans3==hi, 2@[bc      | ifInside| abcd |y|n].
-      所得到的ans2和ans3完全相同。 這麼做是為了配合人類口語習慣。
-    
-  ifBetween函數，檢查A數值有沒有BC之間，或A字串有沒有BC之間，例如:
-      show==ifBetween| 2  | 1:3   | y| n
-      show==ifBetween| pqr| aa:zz | y| n
-      檢查1有沒有在1到3之間， 有
-      檢查pqr有沒有在aa到zz之間， 有
+   [f] atom
+   [f] ucase 取大寫，例如: show==ucase|abc  將顯示 ABC
+   [f] lcase 取小寫，例如: show==ucase|abc  將顯示 abc
+   [f] mid
+   [f] len
+   [f] left
+   [f] right
+   [f] intrnd
+   [f] ifhasfile
+
+   [f] askURL 訪問某個網址，取回這網址的回應，例如:
+              answ==askURL|https://www.google.com/search?q=perl
+              show==inner|answ|UNIX|1987
+          將訪問www.google.com 取得回應結果後， 提取介於 UNIX 和 1987
+          這兩個字眼之間全部的字，然後顯示出來。
+   
+   [f] askURLwithPOST 訪問網址，傳送資料給這網址，取回這網址的回應，例如:
+              answ==askURL|https://www.google.com/search?q=perl | 12345678
+          傳送資料的方法是用POST   
+
+   [f] top1r  對於剛執行完畢的SQL，取其結果的第一行的各欄位，製成變數，例如:
+          sqlcmd==select cate,myKy,myI1 from mapper
+          pppp,qqqq,rrrr==top1r|1,3,2
+          show==[pppp]+[qqqq]+[rrrr]
+          如果sqlcmd的結果的第一行是 c1, k11, 11 
+          將顯示:                  [c1]+[11]+[k11]
+          此函數在此例中建立了三個變數: pppp,qqqq,rrrr
+   [f] matchtodaycode
+   [f] ftpupload
+   [f] ftpdownload   
+   [f] postwall
+   [f] buildEmptyTable
+   [f] merge
+   [f] quote
+   [f] red
+
+
       
-      show==2@[pqr| ifBetween| aa:zz | y| n ].
-  
-  edit函數，做文字置換，例如:
-      myWord==I like someOne
-      show==@[edit|myWord|like=love|someOne=Mary].
-      畫面會顯示            I love Mary 
-      這函數的參數用法是 舊字=將來新字 ， 各參數用直線號隔開。
-  replace函數，做文字置換，等同於edit
-  
-## 函數: 一維數據函數 向量函數
-## 函數: 二維數據函數 矩陣函數
       
 ## 自定函數 (就是自定副程式最後給返回值)，例如: 
                answ==work2| 11|22
@@ -669,16 +810,17 @@
              return==@[fibo|$para1-1]. + @[fibo|$para1-2].
    
              
-## 程式跑前預解
-    (1)凡是程式開跑之前，先檢查有沒有提到include==*** ，有則載入成為程式的一部分。
-    (2)凡是跑前看到某一行有//則忽略其右方
-        a001==1 //;;b002==2 等效於a001==1 
-        //a001==12;;b002==2 等效於則整行忽略。但若這一行有:// 則整行都有效，不忽略。
+## MIP運行規則: 全部看看、洗染、解函、解罩
+  (程式開跑之前的準備動作)
+    (1)打開程式碼全部看看，有沒有提到include==*** ，有則載入成為程式的一部分。
+    (2)看到某一行有//則忽略其右方
+        a001==1 //;;b002==2 則b002忽略。
+        //a001==12;;b002==2 則整行忽略。但若這一行有:// 則整行不忽略。
      
-    (3)跑前看到;;這樣連續兩個分號，則置換為換行符號。但若這一行有'uvar'則不置換。   
-    (3)跑前看到某行有'for=='  ，下面又有一行'next==' ， 則MIP知道這是for區塊。
-## 程式開跑後每一行程式的運作: 洗染、解函、解罩
-  (一行程式內部動作1)洗染:
+    (3)看到;;這樣連續兩個分號，則置換為換行符號。但若這一行有'uvar'則不置換。   
+    (4)看到某行有'for=='  ，下面又有一行'next==' ， 則MIP知道這是for區塊。
+    (5)回到第一行，從第一行跑起。 
+  (每行程式動作1)洗染:
      MIP把每一行辨識為key=value，已記住的(key,value)將置換其下右方文字，例如
          a001==p
          ccbp==q
@@ -693,7 +835,7 @@
      程式往下跑，文字被上方文字置換，文字置換簡稱為洗染。
 
      
-  (一行程式內部動作2)解函:                      
+  (每行程式動作2)解函:                      
      洗染後，若字面上有函數將會被解開，
      舉例一:
             say2==said
@@ -708,7 +850,7 @@
      舉例三:
          若遇@函數內層還有@函數，應該先解開內層:
             aa02==1
-            kk02==see @[ifsee| 2 = @[add|aa02|1]. | two | unknown]. so what
+            kk02==see @[ifsee| 2 = @[eval|aa02+1]. | two | unknown]. so what
          則變化為
             kk02==see @[ifsee| 2 =  2              | two | unknown]. so what
          再變化為
@@ -717,11 +859,11 @@
      有時候當外層是gu**函數時，內層函數卻是延後解開，就是gu**函數先解，內層@函數後解。
      舉例四:
             aaaa==1
-            show==gu1v|4,5,6  |  @[add|aaaa|[vi]].  |  +
+            show==gu1v|4,5,6  |  @[eval|aaaa+[vi]]. |  +
          它被洗染變成
-            show==gu1v|4,5,6  |  @[add|1   |[vi]].  |  +
+            show==gu1v|4,5,6  |  @[eval|1   +[vi]]. |  +
          由於gu開頭的函數被設計成優先於內層，所以先解gu
-            show==@[add|1|4]. + @[add|1|5]. + @[add|1|6]. 
+            show==@[eval|1+4]. + @[eval|1+5]. + @[eval|1+6]. 
          再後解@函數
             show==5 + 6 + 7
          於是顯示
@@ -731,7 +873,7 @@
      只有後解開才能釋放出繽紛的程式碼，大量減低你的碼字寫作。
      給它取個英文名吧: call-inside-function-after-vector-solved 
                  
-  (一行程式內部動作3)解罩
+  (每行程式動作3)解罩
      當某個字不想被洗染，程式師可以故意把[]擠在這個字裏，例如:     
         aaaa==2
         show==I say a[]aaa=aaaa
@@ -751,7 +893,7 @@
      $fnpipe 換成 |
      
      
-  (一行程式內部動作,總結) MIP處理一行程式的動作順序是:
+  (每行程式動作,總結) MIP處理一行程式的動作順序是:
      凡是遇到 kkkk==vvvv 這樣的句子，前面認識的既定詞依序灌進去洗染右方，
      洗染後裏面也許有函數，那就解函。
      解函後裏面也許有遮罩，那就解罩。
@@ -759,145 +901,9 @@
      然後再跑下一行，程式就這麼一行一行運作。
                  
 
-##預先定義好的既定詞 全集 
-
-                   
-## 函數 全集 
- 
- 二者擇一的一些函數:
-   ifNum      若為數字         例: ifNum     | 1.2     |yes|no
-   ifPosi     若為正數         例: ifPosi    | 123     |yes|no
-   ifValueful 若有值非空字串   例: ifValueful| aaa     |yes|no                                  
-   ifSee      若等於           例: ifSee     | 2=2     |yes|no   
-              若小於           例: ifSee     | 1<2     |yes|no       
-              若大於           例: ifSee     | 2>1     |yes|no
-              若不等於         例: ifSee     | 1<>2    |yes|no
-              若小於等於       例: ifSee     | 1<=2    |yes|no
-              若大於等於       例: ifSee     | 1>=2    |yes|no   
-                                             
-   ifUUEq     若改大寫後相等   例: ifUUEq    |HH |hh   |yes|no
-   ifLenEq    若字的長度相等   例: ifLenEq   |ab |cd   |yes|no
-   ifInside   若是個子字串於   例: ifInside  |bc |abcd |yes|no
-   ifBetween  若介於某某之間   例: ifBetween |bb |aa:dd|yes|no
-   ifValueful 若參數有值(非空字串)，舉例說明一下這函數:
-                jqty==456
-                cond==ifValueful|jqty|  and iqty=jqty
-                show==select * from tb where 1=1 cond          
-              將顯示      select * from tb where 1=1 and iqty=456
-              同樣的例子但這次jqty是空字串 
-                jqty== 
-                cond==ifValueful|jqty|and iqty=jqty
-                show==select * from tb where 1=1 cond          
-              將顯示      select * from tb where 1=1      因為 jqty無值
-              由於ifValueful太常用，它也可簡寫為ifv
-              上例又可以緊湊寫成一行:   
-                show==select * from tb where 1=1 @[ifv|jqty|and iqty=jqty].
-                 
- 有關日期的一些函數:                     
-   cdate       改正零亂日期寫法  例: dateConv    |Jan 9,91            將顯示 1991/01/09 也就是一律改為yyyy/mm/dd
-   ifDate      是否有這個日期    例: ifDate |20040102  |y|n           將顯示 y
-   dateDiff    兩日期之間距      例: dateDiff    |20040102|20040103   將顯示 1
-   dateAdd     西元年加一些天數  例: dateAdd     |1991/01/09|3        將顯示 1991/01/12
-                                 例: dateAdd     |19910109  |4        將顯示 1991/01/13  
-                                                                                       
-   以下這三個函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是now，也就是民國年必須3位數。
-   ifDateROC   是否有這個日期    例: ifDateROC   |1030102  |y|n       將顯示 y
-   dateDiffROC 兩日期之間距      例: dateDiff    |1020304  |1020305   將顯示 1                  
-   dateAddROC  民國年加天數      例: dateAddROC  |102/01/09|3         將顯示 102/01/12
-                                 例: dateAddROC  |1020109  |4         將顯示 102/01/13 
-               這函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是空白
-               
-                   
-               
-               
- 其它函數:
-   eval     各種加減乘除     例: eval| (2*3+1)*2+1
-   ifeqs    z值若等於xii則yi 例: ifeqs|z999| x2|y2|  x3|y3|  x4|y4
-                              實例: 
-                                    z999==2
-                                    show==ifeqs|z999|  1|s1|   2|s2|   3|s3
-                            將顯示: s2
-   andRange  製造一段SQL的查詢條件 例:
-             input12==2004/01/02:2004/03/02
-             condit ==andRange|kdate|input12
-             show   ==where 1=1 condit     
-             將顯示   where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
-         又例如:         
-             kdateR1R2==
-             condition==andRange|kdate|kdateR1R2
-             show     ==where 1=1 condition     
-             將顯示     where 1=1         
-             也就是當使用者不填寫inputsR1R2時，讓SQL句子不含kdate這條件
-         又例如:         
-             kdateR1R2==2004/01/2
-             condition==andRange|kdate|kdateR1R2
-             show     ==where 1=1 condition     
-             將顯示     where 1=1 and( kdate like '2004/01/2%' )
-             它採用相似比對而不是等於。
-                   
-   inner     取界內的值       例: show==inner    |I Love Mary|I|M  將顯示 Love
-   mobileTel 電話號碼前面補0  例: show==mobileTEL|988112233        將顯示 0988112233
-   cookieW   對某cookie寫值   例: easy==cookieW  |cook22     |123  這idle是臨時定義一個不會用到的變數
-   cookieR   對某cookie拿值   例: c22v==cookieR  |cook22           這樣c22v的值就是123， 網頁來回一直記得
-   intrnd    取亂數           例: show==intrnd   |99               這樣將得一個0到98間的某個數  
-   transport 轉置矩陣         例: mass==
-                                    a1,b1
-                                    a2,b2
-                                    a3,b3    
-                                    a4,b4                                    
-                                  show==transport|mass  
-                              將顯示
-                                  a1,a2,a3,a4
-                                  b1,b2,b3,b4
-                                  
-   edit      編輯一個變數     例: show==edit|abcd|a=1,b=2  
-                              將顯示         12cd
-                              其中 a=1表示a要換成1 ，b=2表示b要換成2
-                              
-   replace   編輯一個變數， 和上面的edit函數完全同義 
-   
-   max       取最大         舉例: show==max|Mary|John|Vivian 將顯示Vivian
-                            又例: show==max|12  |15  |9      將顯示9
-   min       取最小，和上例相反
-                
-   convert_to_clang
-   gu1v
-   gu2v
-   gu2vx
-   gu1m
-   atom
-   ucase
-   lcase
-   mid
-   len
-   midstring
-   left
-   right
-   rightto
-   intrnd
-   ifhasfile
-   askurl
-   askurlwithpost
-
-   top1r     對於剛執行完畢的SQL，取其結果的第一行的各欄位，製成變數，例如:
-             sqlcmd==select cate,myKy,myI1 from mapper
-             pppp,qqqq,rrrr==top1r|1,3,2
-             show==[pppp]+[qqqq]+[rrrr]
-             如果sqlcmd的結果的第一行是 c1, k11, 11 
-             將顯示:                  [c1]+[11]+[k11]
-             此函數在此例中建立了三個變數: pppp,qqqq,rrrr
-   matchtodaycode
-   ftpupload
-   ftpdownload   
-   postwall
-   buildEmptyTable
-   merge
-   andrange
-   quote
-   red
 
 
-      
+
 		  
                          
 ##增刪修查 資料表
@@ -990,11 +996,11 @@
              update #p set iqty=iqty-1; delete #p where iqty<=0
            if exists (select * from #p) goto begin2
       show==入庫記錄完成
-  編輯文字檔完成，存起來。
+  在csplist.mip添加一行，寫上ou02.mip，它就變成功能。
    
   再列出另一個場景，是撿貨準備出庫
   有2顆蘋果2顆橘子要撿貨準備出庫，出庫單編號Q33已印成紙，紙上有商品明細。
-  希望讓電腦顯示商品位置以方便人員撿貨。於是編輯文字檔in02.mip，內容如下
+  希望讓電腦顯示商品位置以方便人員撿貨。於是編輯文字檔in03.mip，內容如下
       撿貨前請填入商品,數量。電腦會告訴你儲位
       填入前請先把下框文字清掉
       出庫明細==
@@ -1005,7 +1011,7 @@
       --最早入庫的 優先出庫 所以下一行寫order by flow
       select top ftv02 skno,ceno from oplife where skno='fdv01' order by flow
       show==應撿貨儲位如上
-  編輯文字檔完成，存起來。         
+  在csplist.mip添加一行，寫上in03.mip，它就變成功能。
   
    
   再列出另一個場景，是出庫完成後的登載。於是編輯文字檔ou02.mip，內容如下
@@ -1030,7 +1036,7 @@
           delete #q where iqty<=0
         if exists (select * from #q) goto begin2
       show==出庫記錄完成
-  編輯文字檔完成，存起來。
+  在csplist.mip添加一行，寫上ou02.mip，它就變成功能。
   
    
   再另一個功能，希望顯示商品平均放在倉庫多久。於是編輯文字檔LF01.mip，內容如下
@@ -1038,19 +1044,27 @@
       sqlcmd==
        select 平均庫齡=convert(
                                varchar, avg(  datediff(d,indt,getdate())  ) 
-                              )+'天'    from oplife where oudt is null
-  編輯文字檔完成，存起來。
+                              )+'天'    from oplife where oudt is null                              
+  在csplist.mip添加一行，寫上 LF01.mip，它就變成功能。
        
        
 
  
 
-## 跨資料庫傳輸: 把文字檔轉入DB
-            dataFrom
-            dataTo
+## 跨資料庫傳輸: 
+   例如有資料表要從資料庫DB3複製到DB4
+   (方法一)經由記憶體為中繼站
+     conndb==DB3
+     sqlcmd,,matrix3==select ff1,ff2 from table3
+     conndb==DB4
+     sqlcmd,matrix3==insert into table4 (gg1,gg2) values('fdv01','fdv02')
+     
+   (方法二)經由檔案為中繼站
+     conndb==DB3
+     sqlcmd,,mat3.txt==select ff1,ff2 from table3
+     conndb==DB4
+     sqlcmd,mat3.txt==insert into table4 (gg1,gg2) values('fdv01','fdv02')
 
-## 跨資料庫傳輸: 經記憶體傳輸資料
-## 跨資料庫傳輸: 經檔案多批次傳輸資料
 
 ## 呼叫外界: 發信
 ## 呼叫外界: 發簡訊
@@ -1122,23 +1136,23 @@
   這些串接的指位詞有時候散落程式各處，變成很難收攏的葉片，複雜度反而升高，
   不如前後端合併更節省編程時間，工程師要有智慧判斷。
   
-## 在古老的語言中 怎樣寫物件導向的程式?
-  物件導向主要用處就是封裝變數，改善變數太多被誤觸的問題。
-  所以這個問題應改為:一些古老的語言沒有物件導向的語法，如何封裝變數?
-  解法就是寫一個副程式，內部有靜態變數(也就是離開副程式後，變數的值不清空)。
+## 步驟導向的程式 怎樣改寫為物件導向的程式?
+  物件導向程式主要特點就是封裝變數，用來改善變數被誤觸的問題。
+  所以這個問題應改為:步驟導向的程式 怎樣封裝變數?
+  解法就是寫一個副程式，內部佈置靜態變數(也就是離開副程式後，變數的值不清空)。
   以 '取號器' 為例:
   有一個銀行，要讓辦理國幣的民眾排一路，要辦外匯的排一路。各路各發號碼牌。
-  銀行可以讓一個人站在門口發號碼牌，簡便則是在門口放一個印製號碼紙的機器。
+  可以考慮讓一個人站在門口發號碼牌，簡便則是在門口放一個印製號碼紙的機器。
   程式這樣寫:
-    n1=counter("addQu1") : print "國幣",n1
-    n2=counter("addQu2") : print "外匯",n2    
+    n1=counter("addM1") : print "國幣",n1
+    n2=counter("addM2") : print "外匯",n2    
     function counter(method) 
      static m1,m2 
-     if method="addQu1" then m1=m1+1: return m1
-     if method="addQu2" then m2=m2+1: return m2
+     if method="addM1" then m1=m1+1: return m1
+     if method="addM2" then m2=m2+1: return m2
     end function
-  這樣子 m1 只有預定的字眼addQu1才能驅動它，程式的其它部份都動不了它。
-  其中 n1=counter("addQu1") 就相當於物件導向的寫法 n1=counter.addQu1
+  這樣子 m1 只有預定的口令 addM1 才能驅動它，程式的其它部份都動不了m1。
+  其中 n1=counter("addM1") 就相當於物件導向的寫法 n1=counter.addM1
 
 
 ## 輸入畫面集解  
