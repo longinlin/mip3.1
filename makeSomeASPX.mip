@@ -1,7 +1,0 @@
-comment==make an asp file
-to_aspName==MIPSQL.aspx
-
-#1#2
-asNM==replace|to_aspName|.aspx=
-idle==askURL|http://localhost/mip/mip.aspx?act=run&spfily=asNM.aMacro
-exit==done asNM.aMacro
