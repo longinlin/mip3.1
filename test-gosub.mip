@@ -13,3 +13,14 @@ exit==ok
 
 label==mimi
 return==$para1 x $para2 =@[eval|$para1*$para2].
+
+
+//---------------------------------------------------------------
+show==sort|3,4,5,9,8,1,6
+func==sort
+a001==atom|$para1|1 ;; lis2== ;; lis4==
+for ==item|2|      @[ubound|$para1].
+lis2==lis2, @[ifsee| @[atom|$para1|item]. < a001 ].
+lis4==lis4, @[ifsee| @[atom|$para1|item]. < a001 ].
+next==
+return==@[sort|lis2]. ,a001, @[sort|lis4].

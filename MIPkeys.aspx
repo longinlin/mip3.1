@@ -51,8 +51,9 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
                                                      
       'parse_step[4.5] try reduce it to a simpler number
       'vals(i)=fn_eval(vals(i))
-                                                     
-      
+                                        
+                                        
+      ssdd(2400,i,keys(i),vals(i))
       'parse_step[4.5] execute keys(i) with its vals(i)
       build_p123(keys(i), aaj1,aaj2,aaj3,keyLower)
       mayReplaceOtheR(i)=false 'maybe keys(i)=preDefinedWord, anyway set may=false
@@ -111,7 +112,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "newhtm"     : newHtm(vals(i))
       case "zerohtm"    : zeroHtm(vals(i))
       case "datafromrange"   : records = Split(vals(i), ",") : record_cutBegin = CLng(Trim(records(0))) : record_cutEnd = CLng(Trim(records(1)))
-      case "change_password" : Call change_password(vals(i))
+      case "editpassword" : Call change_password(vals(i))
       case "showexcel"   : showExcel = (vals(i) = 1)
       case "showschema"  : needSchema = vals(i)
       case "sleep"       : Call sleepy(vals(i))

@@ -16,7 +16,7 @@
    可以任意調整參數。以後讓使用者自行調整參數，就不要煩人自行使用功能。
    從這構想開始，製作一個生產程式的母機給資訊人員使用，這就是MIP的出發點。
    商用程式不僅是僵硬的增刪改查，實務上還有各種訊號聯動及資料轉移，
-   所以MIP不僅是產生程式硬框，也能讓你書寫框中軟體，也能廢除硬框。
+   所以MIP不是產生僵硬的框架，而是全面的減少編碼文字，簡潔描述動作。
    本文將舉例兩個MIP寫的應用系統: 庫存撿貨系統，問卷評分系統。
  (2)生產另一語言
    物件導向流行以來，資訊界的程式語言越來越繁瑣，於是近年來又回頭流行巨集、
@@ -68,8 +68,9 @@
   本軟體MIP目前只能在windows+IIS作業環境下使用，
   請到 https://github/longinlin/MIP3.1 點擊畫面上的[view code]下載全部檔案，
   複製到你的電腦的一個資料夾裏面(舉例c:\MIP\webc)。
-  打開IIS管理員，在IIS裡建立虛擬目錄MIP，實際位置指向你的資料夾
-  若安裝不順(微軟IIS換版常讓人一肚子不順)， 請看文末的'安裝問題集解'。
+
+  接著打開IIS管理員，在IIS裡建立虛擬目錄MIP，實際位置指向你的資料夾。
+  若安裝不順(微軟IIS換版常不順)， 請看文末的安裝問題集解。  
   打開瀏覽器，打入網址localhost/MIP/MIP.aspx，看到提示請你輸入帳密 即完成。
   
 ## 一行的簡單程式
@@ -77,7 +78,10 @@
   輸入帳密(admin,admin9)，網頁畫面變成上下兩個輸入框。
   你於下框寫 
     show== Hello world 
-  按[確定] 即可看到結果
+  按[確定] 即可看到
+           Hello world 
+  在MIP語言裏不用引號或雙引號來包夾字串
+  
   
   (例二)寫一個日期的加法
     show==dateAdd|now|5|yyyy-mm-dd
@@ -238,11 +242,11 @@
   既定詞就是預先定義好的字，使用時一定要寫在等號的左手方。
   例如show==123 這個show就是既定詞。既定詞大部分是動詞，舉例如下:
   
-  show (既定詞) 促使電腦顯示等號後面的字
+  [既定詞] show ，促使電腦顯示等號後面的字
          show==123
        將顯示123
       
-  append (既定詞) 促使電腦添加文字 
+  [既定詞] append ，促使電腦添加文字 
          append,cAdr==台北市
          append,cAdr==文山區
          show==cAdr
@@ -260,7 +264,7 @@
          show==cAdr   
        將顯示 台北市文山區
           
-  saveToFile (既定詞) 存檔
+  [既定詞] saveToFile，存檔
      (例一 儲存變數內容):     
          append,cAdr==台北市
          append     ==文山區
@@ -281,19 +285,19 @@
          saveToFile==c:\tmp\fnpp.txt , mass
       
       
-  loadFromFile (既定詞) 取檔
+  [既定詞] loadFromFile ，取出檔案內容
          loadFromFile==c:\tmp\t22.txt , mass
          show==mass
       這促使電腦去取得等號後面的檔案內容，放進mass這變數裏。
       
-  dosCmd (既定詞) 呼叫作業系統
+  [既定詞] dosCmd ，呼叫作業系統
          dosCmd==
            echo 123 >  c:\tmp\t22.dat
            echo 456 >  c:\tmp\t23.dat
       這促使電腦連續執行了兩個指令。
       
   
-  conndb (既定詞) 連接資料庫
+  [既定詞] conndb ，連接資料庫
           conndb==db22
           sqlcmd==select * from mapper
       起初要定義db22在 c:\MIP\webc\cdblist.mip裏，這樣conndb才能夠接上。
@@ -436,50 +440,9 @@
       其中toY  是SQL輸出樣式      (預設值 screen)
       其中DIP  是SQL輸出分隔符    (預設值 #!    )
   以上是sqlcmd這個既定詞的詳細說明，全部有哪些既定詞，請看[既定詞全集]那一節
-        
-## 常用的既定詞
-  sqlcmdh 這個詞等於show。 
-          我們常常使用 sqlcmd==SQL指令 這樣的句子來查資料庫，
-          有時候SQL指令錯誤，我們需要把SQL顯示在螢幕上查錯，
-          這時候你就在sqlcmd候面加個h，使SQL句子顯示出來。
-    
-
-              
-   ftp
-   headList 顯示sqlcmd所得資料時賦與各欄位一個欄位名稱，例如:
-                headList==aa,bb
-                sqlcmd==select cate,myI1 from mapper
-            將顯示
-                             aa   bb
-                             ---------
-                             c1   11
-                             c1   22
-            如果不規定headList 則顯示原始欄位名稱:
-                             cate myI1
-                             ---------
-                             c1   11
-                             c1   22   
-   tailList 顯示每欄合計，例如:
-                headList==aa,bb
-                tailList==  ,y
-                sqlcmd==select cate,myI1 from mapper
-            將顯示
-                             aa   bb
-                             ---------
-                             c1   11
-                             c1   22
-                             ---------
-                             合計 33
-
-   setFuncForm 變更字裏行間函數的 頭、隔、尾
-               在寫明 頭、隔、尾 之間用空白隔開，例如:
-                      setFuncForm==  beginer      caca     ender
-                      show== hello   beginer eval caca 2+3 ender   John
-               將顯示        hello 5 john
-   
    
 ## 區塊標示類的既定詞
-   goto (既定詞) 跳去某一行
+   [既定詞] goto ，跳去某一行
                  item==2
                  goto==ifsee| item = 2| work2
                  exit==.
@@ -489,20 +452,20 @@
        這例子會顯示 say2 . 
 
          
-   if else endif (既定詞) 區塊
+   [既定詞] if else endif ，註明區塊
            if==ifsee|1=1|then
              show==eq
            else==
              show==neq
            endif==
 
-   most but endmost (既定詞) 是if的變型，延遲到後面才訴說條件。
+   [既定詞] most but endmost ，這是if的變型，延遲幾行後才陳訴條件。
            most==
              show==11
            but==ifsee|1=2|then
              show==22
            endmost==
-        這most是說大部份情況進去show==11，但偶爾有符合but情況時，做but。
+        這most是說大部份情況進去show==11，但偶爾but情況時，做but。
         這是為了適合長程式的閱讀。想像某一段程式平常都跑得好好的，
         但偶遇情況要特別處理。按一般程式做法，我們會寫
            if 有特別情況 then
@@ -511,20 +474,20 @@
               做主要的事
            endif
         這樣的語法使得小判斷擋在主要的事之前，干擾閱讀流暢，應改為主要事情在前:
-           if 沒有特別情況 then ' most case
+           if 沒有特別情況 then 
               做主要的事
            else
               做特別的事
            endif
-        這就是most用詞的由來
+        沒有特別情況 就 大部份是如此，用英文most表達。
         
-   for next (既定詞)
+   [既定詞] for next ，這標示區塊
            for==i|1|10|2
               show==i-
            next==
        將顯示1-3-5-7-9-
               
-   foreach next (既定詞)
+   [既定詞] foreach next ，這標示區塊
            foreach==i|1,3,5,7,9
               show==i-
            next==
@@ -539,8 +502,7 @@
            show==gu1v|1,3,5,7,9|[vi]|-
        將顯示1-3-5-7-9   ， 後面章節再說明向量語法。
        
-   call (既定詞)
-       這 call 是跳去某一段副程式，類似goto，但call是跳去又跳回，例:
+   [既定詞] call，跳去某段副程式，類似goto，但call是跳去又跳回，例:
                call==work2  
                show==s4,
                exit==t
@@ -588,7 +550,44 @@
                      return==$para2
        將顯示: hh-99 
   
-##其它既定詞  
+        
+## 常用的既定詞
+  [既定詞] sqlcmdh ，這個詞等於show。 
+            我們常常使用 sqlcmd==SQL指令 這樣的句子來查資料庫，
+            有時候SQL指令錯誤，我們需要把SQL顯示在螢幕上查錯，
+            這時候你就在sqlcmd候面加個h，使SQL句子顯示出來。
+    
+  [既定詞] headList ，顯示sqlcmd所得資料時賦與各欄位一個欄位名稱，例如:
+                headList==aa,bb
+                sqlcmd==select cate,myI1 from mapper
+            將顯示
+                             aa   bb
+                             ---------
+                             c1   11
+                             c1   22
+            如果不規定headList 則顯示原始欄位名稱:
+                             cate myI1
+                             ---------
+                             c1   11
+                             c1   22   
+   [既定詞] tailList， 顯示每欄合計，例如:
+                headList==aa,bb
+                tailList==  ,y
+                sqlcmd==select cate,myI1 from mapper
+            將顯示
+                             aa   bb
+                             ---------
+                             c1   11
+                             c1   22
+                             ---------
+                             合計 33
+
+   [既定詞] setFuncForm ，變更字裏行間函數的 頭、隔、尾
+               在寫明 頭、隔、尾 之間用空白隔開，例如:
+                      setFuncForm==  beginer      caca     ender
+                      show== hello   beginer eval caca 2+3 ender   John
+               將顯示        hello 5 john
+   
    
 ## 函數: 
       函數就是執行預先定義好的動作，傳回最後的結果，
@@ -642,13 +641,13 @@
        這函數的參數用法是 舊字=將來新字 ， 各參數用直線號隔開。
    [f] replace函數，做文字置換，等同於edit
   
-## 函數: 處理一維數據 
+## 處理一維數據的函數
    [f] gu1v
    [f] gu2v
    [f] gu2vx
-## 函數: 處理二維數據 
+## 處理二維數據的函數 
    [f] gu1m
-## 函數: 其它既定函數
+## 常用函數
  
  二者擇一的一些函數:
    [f] ifNum      若為數字         例: ifNum     | 1.2     |yes|no
@@ -693,10 +692,7 @@
                                      例: dateAddROC  |1020109  |4         將顯示 102/01/13 
                    這函數的參數必須是yyy/mm/dd型態或yyymmdd型態或是空白，也就是年份必須3個字。
                
-                   
-               
-               
- 其它函數:
+ 各種函數:
    [f] ifeqs  檢查若z值等於xi則yi ，例如: 
                     z999==2
                     show==ifeqs|z999|  1|s1|   2|s2|   3|s3
@@ -794,11 +790,11 @@
              這程式呼叫函數work2，結果將顯示 33
              
    自定一個求N階乘的函數，例如: 
-       answ==factory|7
+       answ==factorial|7
        exit==eval|answ       
-             func==factory
+             func==factorial
              return==ifsee|$para1=1 |1 
-             return==$para1*@[factory|$para1-1].
+             return==$para1*@[factorial|$para1-1].
 
              
    自定 費波那契 函數，例如: 
@@ -810,15 +806,16 @@
              return==@[fibo|$para1-1]. + @[fibo|$para1-2].
    
              
-## MIP運行規則: 全部看看、洗染、解函、解罩
-  (程式開跑之前的準備動作)
-    (1)打開程式碼全部看看，有沒有提到include==*** ，有則載入成為程式的一部分。
-    (2)看到某一行有//則忽略其右方
+## MIP運行規則: 全篇掃描、洗染、解函、解罩
+  (程式開跑之前有一個準備動作，把程式全篇掃描一遍)
+    (1)看到某一行寫include==*** ，有則載入成為程式的一部分。
+    (2)看到某一行寫//則忽略其右方
         a001==1 //;;b002==2 則b002忽略。
-        //a001==12;;b002==2 則整行忽略。但若這一行有:// 則整行不忽略。
+        //a001==12;;b002==2 則整行忽略。
+        但若這一行看起來像是:// 則整行不忽略。
      
     (3)看到;;這樣連續兩個分號，則置換為換行符號。但若這一行有'uvar'則不置換。   
-    (4)看到某行有'for=='  ，下面又有一行'next==' ， 則MIP知道這是for區塊。
+    (4)看到某行寫for== ，下面又有一行寫next== ， 則MIP知道這之間是區塊。
     (5)回到第一行，從第一行跑起。 
   (每行程式動作1)洗染:
      MIP把每一行辨識為key=value，已記住的(key,value)將置換其下右方文字，例如

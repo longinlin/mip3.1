@@ -116,6 +116,7 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
       cutt=arr(3): If cutt = "" Then cutt =bestDIT(funcLet)
       dval=arr(4)  'dval means default value if such atom not exists
       return atom(funcLet, tmpb, cutt, dval)
+    case "ubound" : return atom(arr(1), 9999, "best")
     case "sumvxxx"          ' example  sumv|11,22,33,44,55!c[ith]=f([vi])
 	  return gu1v(arr(1), arr(2), arr(3))	  
     case "ucase" 
@@ -157,9 +158,11 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
 	  funcLet=encodeString(         arr(1)  ,    day(now())    ) 
 	  if funcLet=arr(2) then return arr(3)  else return arr(4) 
     case "ftpupload"
-       FTPupload(arr(1),arr(2) )  'FTPUpload("c:\tmp\p2.txt", "q3.txt")  ' so write to ftp://61.56.80.250/Receive/q3.txt
+      'FTPUpload("user",   "pass",    "ftp://123.100.1.2/upd/",    "c:\tmp\p2.txt")  'write to ftp://123.100.1.2/rcv/p2.txt
+       FTPupload( arr(1),   arr(2),    arr(3),                      arr(4) )
     case "ftpdownload"
-       FTPdownload(arr(1),arr(2) )  'FTPdownload( "q3.txt", "c:\tmp\p2.txt")  ' so download from ftp://61.56.80.250/Send/q3.txt
+      'FTPDownload("user", "pass",    "ftp://123.100.1.2/dwn/",    "c:\tmp\p2.txt")  'source file=ftp://123.100.1.2/dwn/p2.txt
+       FTPdownload(arr(1),  arr(2),    arr(3),                      arr(4) ) 
 	case "postwall" '布告牆 可貼 可看
 	  verb2=arr(1) : wallTH=arr(2): info3=arr(3)
 	  if verb2="write" then

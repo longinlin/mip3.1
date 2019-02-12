@@ -260,7 +260,8 @@ end if
 
   Function atom(mother as string,   idx as int32,   sepa as string,   optional overFlowVAL as string="bad_index") as string
     if trim(sepa)="" then ssddg("[function atom] got empty separater")
-    Dim pps = Split(mother, sepa) : Dim UB as int32=UBound(pps)  
+    Dim pps() as string: trimSplit(mother,sepa, pps) 
+    Dim UB as int32=UBound(pps)  
 	if idx=9999 then 'idx is #n
 	                                         return cstr(UB+1)
 	elseif idx=999 then                     'return the last atom

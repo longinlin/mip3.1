@@ -167,19 +167,17 @@ End Function
       if SRCfromFile then tmpf.close()
   End Sub  
 
-     'example: FTPUpload("c:\tmp\p2.txt", "q3.txt")  ' so write to ftp://61.56.80.250/Receive/q3.txt
-    Sub FTPUpload(localFileName As String, ftpFileName As String)
-        Const ftpUser     As String = "sata"        'ftp user
-        Const ftpPassword As String = "1234"        'ftp passw
-        Const rcvX = "ftp://61.56.80.250/Receive/"
-        
+     'example: FTPUpload("user",       "pass",             "ftp://123.100.1.2/upd/",    "c:\tmp\p2.txt")  'write to ftp://123.100.1.2/rcv/p2.txt
+    Sub FTPUpload(ftpUser as string, ftpPassword as string, ftpFolder as string,         localFileName As String)       
         Dim localFile As FileInfo = New FileInfo(localFileName)
         Dim ftpWebRequest As FtpWebRequest
         Dim localFileStream As FileStream
         Dim requestStream As Stream = Nothing
+        dim ftpFileName,fff() As String
+          fff=split( replace( trim(localFileName), "\", "/")  ,"/") :ftpFileName=fff(ubound(fff))        
         Try
 
-            Dim Uri As String = rcvX & ftpFileName
+            Dim Uri As String = ftpFolder & ftpFileName
             ftpWebRequest = FtpWebRequest.Create(New Uri(Uri))
             ftpWebRequest.Credentials = New NetworkCredential(ftpUser, ftpPassword)
             ftpWebRequest.UseBinary = True 
@@ -205,18 +203,17 @@ End Function
         End Try
     End Sub
 
-   Sub FTPDownload(ftpFileName As String, localFileName As String)
-        Const ftpUser     As String = "sata"   
-        Const ftpPassword As String = "1234"  
-        Const rcvX = "ftp://61.56.80.250/SendBK/"  
-
+      'example: FTPDownload("user",       "pass",             "ftp://123.100.1.2/dwn/",    "c:\tmp\p2.txt")  ' source file=ftp://123.100.1.2/dwn/p2.txt
+   Sub FTPDownload(ftpUser as string, ftpPassword as string, ftpFolder as string,         localFileName As String)
         Dim ftpWebRequest As FtpWebRequest
         Dim FtpWebResponse As FtpWebResponse
         Dim ftpResponseStream As Stream
         Dim outputStream As FileStream
+        dim ftpFileName,fff() As String
+          fff=split( replace( trim(localFileName), "\", "/")  ,"/") :ftpFileName=fff(ubound(fff))        
         Try
             outputStream = New FileStream(localFileName, FileMode.Create)
-            Dim Uri As String = rcvX & ftpFileName
+            Dim Uri As String = ftpFolder & ftpFileName
             ftpWebRequest = FtpWebRequest.Create(New Uri(Uri))
             ftpWebRequest.Credentials = New NetworkCredential(ftpUser, ftpPassword)
             ftpWebRequest.UseBinary = True
