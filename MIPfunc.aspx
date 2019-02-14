@@ -1,6 +1,6 @@
 <script runat="server">      
 Function translateFunc(varTH as int32, rightHandPart as string) as string 'translate yy=func|x1|x2
-'purpose: after previous keys() are wahsed into rightHandPart, and see there is a @[translateFuncName|para1|para2] in rightHandPart, then translate it
+'purpose: after previous keys() are wahsed into rightHandPart, and see there is a [@translateFuncName|para1|para2] in rightHandPart, then translate it
     Dim j,LB_loc, idleI1,idleI2 as int32
     dim ftxt, i1ftxt, i2ftxt, cifhay,  ftxta, ftxtb,   ftxtc, kmcader, cutt, dval as string
     dim funcLet,tmpa,tmpb,tmpc,  idle, newSymbol, oldSymbol ,   verb2, info3, wallTH, arr0L, patt as string
@@ -11,9 +11,9 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
     
     arr0L=LCase(arr(0)) :tryERR=0 : for j=1 to ubound(arr): arr(j)=fn_eval(arr(j)):next
   try
-	select case arr0L               
+	select case arr0L        
+    case "cj"     : return fn_eval("1=1 and 2=2")    
     case "ifsee"  :return ifsee(arr(1),arr(2),arr(3))
-    
     case "ifuueq"         :if ucase(arr(1))=ucase(arr(2))Then return arr(3) else return arr(4) 
     case "ifleneq"        :If Len(arr(1)) = len(arr(2))  Then return arr(3) Else return arr(4)
     case "ifinside"       :If inside(arr(1), arr(2)) Then return arr(3) Else return arr(4) ' ifin a b --> if a in b
@@ -116,7 +116,7 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
       cutt=arr(3): If cutt = "" Then cutt =bestDIT(funcLet)
       dval=arr(4)  'dval means default value if such atom not exists
       return atom(funcLet, tmpb, cutt, dval)
-    case "ubound" : return atom(arr(1), 9999, "best")
+    case "atomcount" : return atom(arr(1), 9999, "best")
     case "sumvxxx"          ' example  sumv|11,22,33,44,55!c[ith]=f([vi])
 	  return gu1v(arr(1), arr(2), arr(3))	  
     case "ucase" 
@@ -124,10 +124,11 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
     case "lcase" 
       return LCase(arr(1))
     case "mid" 
-      return Mid(arr(1), arr(2), arr(3))
+      return if( arr(3)="", Mid(arr(1), arr(2)),   Mid(arr(1), arr(2), arr(3)) )
     case "len" 
       return Len(arr(1))
     case "left"       : return left(arr(1), arr(2))
+    case "invmid"     : return left(arr(1), len(arr(1))-arr(2))  ' invMid|abcd|2 =abc  means begin from right hand and go inversely mid(string,2)
     case "right"      : return Right(arr(1), arr(2))
     'case "datalinecount" : return cnInFilm
     case "ifhasfile" 
@@ -214,11 +215,12 @@ Function translateFunc(varTH as int32, rightHandPart as string) as string 'trans
       ' var2==myFF|x1|2  --> calling function myFF and return value to var2
       ' call==myFF|x1|2  --> calling function myFF and discard ret value 
       ' var3==myvr|x1|2  --> error, the correct writing is var3=edit|myvr|x1=2
+      'ssdd("else-of-translateFunc:right", rightHandPart)
       return Val_of_myFunc( arr(0), arr)   
     End select
-      tryERR=1 : ssdd("unknown func name, keyword-TH:" & varTH,   "unknown rightHand: " & rightHandPart): return rightHandPart
+      tryERR=1 : ssdd("keyword-TH:" & varTH,   "is calling func with instruction: " & rightHandPart, "no such func"             ): return rightHandPart
   catch ex as exception
-      tryERR=1 : ssdd("bad func exec    , keyword-TH:" & varTH,   "unknown rightHand: " & rightHandPart, "funcNm:" & arr0L,  "rise: " & ex.Message): return rightHandPart
+      tryERR=1 : ssdd("keyword-TH:" & varTH,   "is calling func with instruction: " & rightHandPart, "rise error: " & ex.Message): return rightHandPart
   end try
 End Function 'translateFunc
 

@@ -103,13 +103,13 @@
   
    (例三)寫一個九九乘法表
          uuuu==1,2,3 ;; vvvv==4,5,6
-         show==gu2vx|uuuu|vvvv| [ui]x[vi]= @[eval|[ui]*[vi]].  |td 
+         show==gu2vx|uuuu|vvvv| [ui]x[vi]= [@eval|[ui]*[vi]  .]  |td 
     按[確定]即可看到九九乘法表之一角:
          1x4=4  2x4=8  3x4=12  4x4=16
          1x5=5  2x5=10 3x5=15  4x5=20
-    其中 @[...]. 是把函數放在字裏行間的立即表達法。
+    其中 [@...  .] 是把函數放在字裏行間的立即表達法。
     @  這個符號看起來像ca， 此處可以唸作call, 
-    ]. 用來表示函數結束
+      .] 用來表示函數結束
   
 ## 輸入、運算、輸出
   所有的電腦程式都可分解為(輸入、運算、輸出)三段，MIP語言的三段分解如下:
@@ -239,13 +239,20 @@
        在c001後面緊接著定義d001，則c001就是空字串。
        
 ## 既定詞
-  既定詞就是預先定義好的字，使用時一定要寫在等號的左手方。
-  例如show==123 這個show就是既定詞。既定詞大部分是動詞，舉例如下:
+  既定詞就是預先定義好的字，使用時一定要寫在等號的左手方。舉例如下:
   
-  [既定詞] show ，促使電腦顯示等號後面的字
-         show==123
-       將顯示123
+  [既定詞] show ，使電腦顯示文字
+       show ==123  -->  將顯示123在螢幕左方，下一次show在同一行。
+       showC==123  -->  將顯示123在螢幕中央，下一次show在下一行。
+       showL==123  -->  將顯示123在螢幕左方，下一次show在下一行。
       
+  [既定詞] exit  ，使程式停止
+       exit==abcd    -->  在螢幕顯示abcd     然後程式停止
+       exit==        -->  等號右方空白       程式不停止
+               
+       exit.==abcd   -->  不顯示  然後程式停止
+       exit.==       -->  不顯示  然後程式停止 
+
   [既定詞] append ，促使電腦添加文字 
          append,cAdr==台北市
          append,cAdr==文山區
@@ -388,7 +395,7 @@
       sqlcmd,***,screen  ==   則輸出一個html表格到螢幕
       sqlcmd,***         ==   則輸出一個html表格到螢幕
       sqlcmd             ==   則輸出一個html表格到螢幕
-      sqlcmd,***,dataString== 則將輸出一長串字到螢幕 [begData]...[endData]
+      sqlcmd,***,dataString== 則將輸出一長串字到螢幕 [begData  .]..[endData]
                               如果這sqlcmd是包在某mip程式裏，
                               而這mip程式是被另一程式B經由http喚起，
                               則輸出字串就不是到螢幕，而是被程式B接收，
@@ -511,10 +518,11 @@
                      return==.
        將顯示 s2, s4, t
        這裏跳去work2之後，遇到return 程式就跳回去。
-       return的右方要有值才會觸發動作，return,exit,goto的行為都類似:       
-           exit==右方為空白則不動作，有值則跳回。
-           exit==右方為空白則不動作，有值則程式結束。
-           goto==右方為空白則不動作，有值則跳走。
+       return的右方值若是 noUU 則不會跳回去。
+       return,exit,goto的行為比較一下:       
+           return==noUU  則不動作，等號右方有值則跳回。
+             exit==空白  則不動作，等號右方有值則程式結束。
+             goto==空白  則不動作，等號右方有值則跳走。
        
        
        return==空白，則程式不跳回去，例如:       
@@ -610,33 +618,38 @@
        這樣程式會跳到標號yes2的那一行繼續往下跑。
    
    [f] @函數， 利用@這個符號，可以在字裏行間夾雜函數，例如:
-           show== Hi, I was happy in recent @[eval|2*3+1]. days 
+           show== Hi, I was happy in recent [@eval|2*3+1  .] days 
        畫面將顯示 Hi, I was happy in recent 7 days    
-       也就是將某個函數用 @[  和  ]. 括住。 
-       @看起來像ca，所以@[---]. 唸作call，即時呼叫的意思。
-       @和[ 要緊連在一起寫，而 [---]內各參數則可鬆散，其前後空白將被忽略。
+       也就是將某個函數用 [@  和    .] 括住。 
+       @看起來像ca，所以[@---  .] 唸作call，即時呼叫的意思。
+       [和@ 要緊連在一起寫，而 [---]內各參數則可鬆散，其前後空白將被忽略。
    
    [f] ifInside函數，檢查A字串有沒有在B字串裏，例如:
        answ==inside| bc | abcd |y|n
        show==answ
        這程式檢查bc有沒有在abcd裏，有就輸出y，沒有就輸出n。 所以顯示y
              
-   [f] 2@函數， 函數在字裏行間使用時，函數名可以退居第二格，例如:
-       ans2==hi,  @[ifInside| bc      | abcd |y|n].
-       ans3==hi, 2@[bc      | ifInside| abcd |y|n].
-       所得到的ans2和ans3完全相同。 函數名放第二格適合某些口語習慣。
+   [f] @2函數， 函數在字裏行間使用時，函數名可以退居第二格，例如:
+       ans1==hi, [@   ifInside| bc      | abcd |y|n  .]
+       ans2==hi, [@2  bc      | ifInside| abcd |y|n  .]
+       ans1和ans2完全相同。 函數名放第二格為了適合某些口語習慣。
+       
+       ans3==hi, [@ifInside| bc      | abcd |y|n  .]
+       ans4==hi, [@2bc     | ifInside| abcd |y|n  .]
+       ans1、ans2、ans3、ans4 完全相同。 也就是[@和函數名稱可以緊靠。
+       
      
    [f] ifBetween函數，檢查A數值有沒有BC之間，或A字串有沒有BC之間，例如:
        show==ifBetween| 2  | 1:3   | y| n
        show==ifBetween| pqr| aa:zz | y| n
-       檢查1有沒有在1到3之間， 有
-       檢查pqr有沒有在aa到zz之間， 有
+       檢查  1有沒有在 1到 3之間， 確實有。
+       檢查pqr有沒有在aa到zz之間， 確實有。
        
-       show==2@[pqr| ifBetween| aa:zz | y| n ].
+       show==[@2 pqr| ifBetween| aa:zz | y| n   .]
    
    [f] edit函數，做文字置換，例如:
        myWord==I like someOne
-       show==@[edit|myWord|like=love|someOne=Mary].
+       show==[@edit|myWord|like=love|someOne=Mary  .]
        畫面會顯示            I love Mary 
        這函數的參數用法是 舊字=將來新字 ， 各參數用直線號隔開。
    [f] replace函數，做文字置換，等同於edit
@@ -676,7 +689,7 @@
             將顯示      select * from tb where 1=1      因為 jqty無值
             由於ifValueful太常用，它也可簡寫為ifv
             上例又可以緊湊寫成一行:   
-              show==select * from tb where 1=1 @[ifv|jqty|and iqty=jqty].
+              show==select * from tb where 1=1 [@ifv|jqty|and iqty=jqty  .]
                  
  有關日期的一些函數:                     
    [f] cdate       改正零亂日期寫法  例: dateConv    |Jan 9,91            將顯示 1991/01/09 也就是一律改為yyyy/mm/dd
@@ -782,10 +795,10 @@
       
       
 ## 自定函數 (就是自定副程式最後給返回值)，例如: 
-               answ==work2| 11|22
+               answ==work2| a1=11|a2=22
                exit==answ
                      func==work2
-                     cacc==eval|$para1+$para2
+                     cacc==eval|a1+a2
                      return==cacc
              這程式呼叫函數work2，結果將顯示 33
              
@@ -794,20 +807,47 @@
        exit==eval|answ       
              func==factorial
              return==ifsee|$para1=1 |1 
-             return==$para1*@[factorial|$para1-1].
+             return==$para1*[@factorial|$para1-1  .]
 
              
-   自定 費波那契 函數，例如: 
-       answ==fibo|5   // 這函數主要就是 f(n)= f(n-1) + f(n-2)
-       exit==eval|answ       
-             func==fibo
-             return==ifsee|$para1=0 |0  
-             return==ifsee|$para1=1 |1 
-             return==@[fibo|$para1-1]. + @[fibo|$para1-2].
+## 自定函數 費波那契 
+   //費波那契函數就是 f(x)= f(x-1) + f(x-2)
+   answ==fibo|ax=5  //現在想知道 fibo(5) 是多少
+   exit==eval|answ  //顯示答案並停止程式   
+   func==fibo                                //func宣佈一個函數的開始
+   return==ifsee |ax=0 |0                    //傳回0 ，若參數ax是0
+   return==ifsee |ax=1 |1                    //傳回1 ，若參數ax是1
+   return==[@fibo|ax-1 .] + [@fibo|ax-2 .]   //傳回f(x-1)+f(x-2)
    
+## 自定函數 快速排序 
+   //其方法是先抓住第一個數8，然後掃描後面的數，
+   //凡是比8小的排一列，排在8左邊，比8大的排一列，排在8右邊
+   //然後左邊那一列內部按照同方法自行排序，
+   //然後右邊那一列內部按照同方法自行排序，
+   //顯示最後結果
+   show==qsort|jlist=8,3,6,19,4,81,2,9,5,1,19,7  //想要顯示這數列排序後的結果
+   func==qsort                                       //func宣佈一個函數的開始
+   a001==atom|jlist|1                               //抓住數列的第一個元素                 
+   leftL==                                          //宣佈左邊那一列現在是空的
+   riteL==                                          //宣佈右邊那一列現在是空的
+   cnnt==atomCount|jlist                            //讓cnnt是數列的元素個數
+   return==ifsee|cnnt<=1|jlist|noUU                 //若cnnt<=1 則不用排序 回傳jlist
+                                                    //若cnnt> 1 則noUU，就是不要迴轉，也就是往下做
+   
+   for==iith|2|cnnt                                 //相當於VB的 for iith=2 to cnnt step 1
+     item==atom|jlist|iith                          //讓item是jlist的第iith個元素
+     leftL==leftL [@ifsee| item < a001 | ,item  .]  //若item較小，加到leftL去
+     riteL==riteL [@ifsee| item > a001 | ,item  .]  //若item較大，加到riteL去
+   next==
+   
+   leftL==mid|leftL|2                                             //為了刪除字首的逗點，所以從第二個字開取字
+   riteL==mid|riteL|2                                             //為了刪除字首的逗點，所以從第二個字開取字
+   showL==half done: (jlist) becomes (leftL * a001 * riteL)       //顯示中間運算過程
+   return==[@qsort|j[]list=leftL .],a001,[@qsort|j[]list=riteL .] //讓leftL排在左方，riteL排右方，然後回傳
+
              
-## MIP運行規則: 全篇掃描、洗染、解函、解罩
-  (程式開跑之前有一個準備動作，把程式全篇掃描一遍)
+## MIP程式運行規則: 洗染、解函、解罩
+  (起步):程式開跑之前有一個準備動作，把程式全篇掃描一遍
     (1)看到某一行寫include==*** ，有則載入成為程式的一部分。
     (2)看到某一行寫//則忽略其右方
         a001==1 //;;b002==2 則b002忽略。
@@ -816,8 +856,8 @@
      
     (3)看到;;這樣連續兩個分號，則置換為換行符號。但若這一行有'uvar'則不置換。   
     (4)看到某行寫for== ，下面又有一行寫next== ， 則MIP知道這之間是區塊。
-    (5)回到第一行，從第一行跑起。 
-  (每行程式動作1)洗染:
+    (5)回到第一行，從第一行跑起。每一行程式都經歷下述三道處置:
+  (每行程式處置1)洗染:
      MIP把每一行辨識為key=value，已記住的(key,value)將置換其下右方文字，例如
          a001==p
          ccbp==q
@@ -832,7 +872,7 @@
      程式往下跑，文字被上方文字置換，文字置換簡稱為洗染。
 
      
-  (每行程式動作2)解函:                      
+  (每行程式處置2)解函:                      
      洗染後，若字面上有函數將會被解開，
      舉例一:
             say2==said
@@ -841,26 +881,26 @@
             kkkk==said y
      舉例二: 
             say2==said     
-            kkkk==hello @[ifsee|1=1| say2 y |say2 n].,cc 
+            kkkk==hello [@ifsee|1=1| say2 y |say2 n  .],cc 
          這@函數夾雜於字裏行間，於是@函數被解開，成為
             kkkk==hello said y, cc
      舉例三:
          若遇@函數內層還有@函數，應該先解開內層:
             aa02==1
-            kk02==see @[ifsee| 2 = @[eval|aa02+1]. | two | unknown]. so what
+            kk02==see [@ifsee| 2 = [@eval|aa02+1  .] | two | unknown  .] so what
          則變化為
-            kk02==see @[ifsee| 2 =  2              | two | unknown]. so what
+            kk02==see [@ifsee| 2 =  2              | two | unknown  .] so what
          再變化為
             kk02==see two so what
     
      有時候當外層是gu**函數時，內層函數卻是延後解開，就是gu**函數先解，內層@函數後解。
      舉例四:
             aaaa==1
-            show==gu1v|4,5,6  |  @[eval|aaaa+[vi]]. |  +
+            show==gu1v|4,5,6  |  [@eval|aaaa+[vi]  .] |  +
          它被洗染變成
-            show==gu1v|4,5,6  |  @[eval|1   +[vi]]. |  +
+            show==gu1v|4,5,6  |  [@eval|1   +[vi]  .] |  +
          由於gu開頭的函數被設計成優先於內層，所以先解gu
-            show==@[eval|1+4]. + @[eval|1+5]. + @[eval|1+6]. 
+            show==[@eval|1+4  .] + [@eval|1+5  .] + [@eval|1+6  .] 
          再後解@函數
             show==5 + 6 + 7
          於是顯示
@@ -870,7 +910,7 @@
      只有後解開才能釋放出繽紛的程式碼，大量減低你的碼字寫作。
      給它取個英文名吧: call-inside-function-after-vector-solved 
                  
-  (每行程式動作3)解罩
+  (每行程式處置3)解罩
      當某個字不想被洗染，程式師可以故意把[]擠在這個字裏，例如:     
         aaaa==2
         show==I say a[]aaa=aaaa
@@ -885,9 +925,10 @@
      []      換成 無
      $space  換成 一個空白格
      $enter  換成 一個換行符號 ( ascii_10+ ascii_13 )
-     $and    換成 一個空白格and一個空白格
-     $fncall 換成 @
-     $fnpipe 換成 |
+     $empty  換成 空字串
+     $and    換成 一個空白格 and 一個空白格
+     $alfa   換成 @
+     $vert   換成 |
      
      
   (每行程式動作,總結) MIP處理一行程式的動作順序是:

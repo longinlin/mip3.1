@@ -33,7 +33,7 @@
   const SQL_recordset_TH=3 'when 2 using recordset    , 3 using sqlAdapter and datatable
   const iisFolder="/MIP/"
 
-  dim fcBeg as string="@["     , fcBeg2 as string="2@[",  fcEnd as string="]."      ,  fcComma as string="|"
+  dim fcBeg as string="[@"     , fcEnd as string=" .]"      ,  fcComma as string="|"
   dim CCFD, runFord, codFord,  tmpFord, queFord, tmpy,   table0,table0End,tr0, th0, td0, thriz,tdriz, saying as string
   Dim qrALL,act, Uvar, Upar, Upag, f2postSQ, f2postDA, spfily, spDescript, usnm32, pswd32, logID, exitWord, userID,userNM, userCP,userOG,userWK, siteName       as string
   Dim digilist, FilmFDlist, cnInFilm, headlist, atComp,   dataFF,dataTu, ddccss, dataToDIL       as string
@@ -70,7 +70,7 @@
      if notInside("webc", CCFD) then ssddg("you must put mip.aspx at a folder lookslike ***/***/webc")
      CCFD=left(CCFD, instr(CCFD, "webc")-1)   ' so CCFD="c:\main\"  
      runFord = CCFD & "webc\" : codFord = CCFD & "webc\"    :    tmpFord = CCFD & "webc\"     :  queFord = CCFD & "webc\" :   tmpy=left(right(tmpFord,5),4) 
-     iisPermitWrite=1 'iif(inside("WebService", CCFD),  0, 1) 
+     iisPermitWrite=1
      uslistFromDB  =0 
      siteName      ="銷售管理系統"
     
@@ -261,13 +261,16 @@ end if
   Function atom(mother as string,   idx as int32,   sepa as string,   optional overFlowVAL as string="bad_index") as string
     if trim(sepa)="" then ssddg("[function atom] got empty separater")
     Dim pps() as string: trimSplit(mother,sepa, pps) 
-    Dim UB as int32=UBound(pps)  
+    Dim UB as int32=UBound(pps) 
 	if idx=9999 then 'idx is #n
+                                             if UB=0 andAlso pps(0)="" then UB=-1
 	                                         return cstr(UB+1)
-	elseif idx=999 then                     'return the last atom
-	                                         return pps(UB).trim
+	elseif idx=999 then                      
+                                             return pps(UB) 
+	elseif idx=299 then                      
+                                             return rightPart(mother,sepa)
     elseif  (1<=idx and  idx<= UB+1) Then 
-	                                         return pps(idx-1).trim 
+	                                         return pps(idx-1) 
     end if
     return overFlowVAL    
   End Function
@@ -563,21 +566,21 @@ end if
       buffW("  function right(str, num){return str.substring(str.length-num,str.length) }                         ")	
       buffW("  function bk1(){ f2.act.value='run'; var c2chk,tyy; f2p='';                                         ")
       buffW("                  for(i=0;i<f2.elements.length;i++){                                                 ")	              
-      buffW("                    typa=f2.elements[i].type;  tyy=0;                                                ")
-      buffW("                    if(  f2.elements[i].name =='parstop'){break;}                                    ")
+      buffW("                    typa=f2.elements[i .]type;  tyy=0;                                                ")
+      buffW("                    if(  f2.elements[i .]name =='parstop'){break;}                                    ")
       buffW("                    if( ( typa == 'text'){tyy=1}                                                     ")
       buffW("                    if( ( typa == 'hidden'){tyy=1}                                                   ")
       buffW("                    if( ( typa == 'textarea'){tyy=1}                                                 ")
       buffW("                    if( ( typa == 'select-one'){tyy=1}                                               ")
       buffW("                    if(tyy==1){                                                                      ")
-      buffW("                      f2p=f2p+ f2.elements[i].name+'=='+mightEnter(typa)+f2.elements[i].value;       ")
-      buffW("                      f2p=f2p+f2.elements[i].title+';;'                                              ")
+      buffW("                      f2p=f2p+ f2.elements[i .]name+'=='+mightEnter(typa)+f2.elements[i .]value;       ")
+      buffW("                      f2p=f2p+f2.elements[i .]title+';;'                                              ")
 	  buffW("                    }                                                                                ")
-	  buffW("                    if( typa=='checkbox'){ if(f2.elements[i].checked){c2chk='Y'}else{c2chk='N'};     ")
-	  buffW("                      f2p=f2p+ f2.elements[i].name+'=='+c2chk+ '" & adj2 & "checkbox;;'              ")
+	  buffW("                    if( typa=='checkbox'){ if(f2.elements[i .]checked){c2chk='Y'}else{c2chk='N'};     ")
+	  buffW("                      f2p=f2p+ f2.elements[i .]name+'=='+c2chk+ '" & adj2 & "checkbox;;'              ")
 	  buffW("                    }                                                                                ")
 	  buffW("                    if( typa=='file'){                                                               ")
-	  buffW("                      f2p=f2p+ f2.elements[i].name+'==any.dat" & adj2 & "file;;'                     ")
+	  buffW("                      f2p=f2p+ f2.elements[i .]name+'==any.dat" & adj2 & "file;;'                     ")
 	  buffW("                    }                                                                                ")
 	  buffW("                  }                                                                                  ")
       buffW("         f2.Upar.value=f2p.replace(/\+/g, '$add');                                                   ")
@@ -693,7 +696,7 @@ end sub
   End Sub  
 
   Function nof(sss as string) as string
-    return replaces(sss,  ">", "]",     "<", "[",      ienter, "<br>" )
+    return replaces(sss,  ">", " .gt. ",     "<", " .lt. ",      ienter, "<br>" )
   End Function
   
   'module mask.asp 'kernel code.......... no edit when deploy
@@ -769,7 +772,7 @@ end sub
       buffW("give parameters here, example pp==22<br>                                         ")
       buffW("<textarea cols=110 rows=05 wrap=off class=border2 name=Upar>" & Upar & "</textarea Upar>") 'hi=06 hihi
       buffW("<br>                                                              ")
-      buffW("give commands here, example show==hello @[eval|1+1].  <br>        ")
+      buffW("give commands here, example show==hello [@eval|1+1 .]  <br>        ")
       buffW("<textarea cols=110 rows=16 wrap=off class=border2 name=Upag>" & Upag & "</textarea Upag>     ") 'hi=18 hihi
       buffW("<input type=hidden name=f2postDA>                      ") 'f2postDA is used to collect large string, there permits ienter in f2postDA, f2postDA is independent with uvar
       buffW("<input type=hidden name=act     value=run>                                            ")
@@ -1102,7 +1105,7 @@ end sub
     return Replace(Replace(ss, " ", ""), ienter, "")
   End Function
 
-  function buildEmptyTable(cp as string) as string'cp is the yy of @[xx|yy].    of  sqlcmd==@[buildEmptyTable|#p, f1-c-50, f2-c-51, f3-i,f4-c-20].
+  function buildEmptyTable(cp as string) as string'cp is the yy of [@xx|yy .]    of  sqlcmd==[@buildEmptyTable|#p, f1-c-50, f2-c-51, f3-i,f4-c-20 .]
     dim tbnm as string
     cp=replace( cp,  " "  , ""  ) 
     tbnm= leftPart(cp,",")
@@ -1267,8 +1270,9 @@ end sub
     endi   =atom(v1  ,  3, fcComma  )                          'endi    example: 64
     stpi   =atom(v1  ,  4, fcComma,  "1")                      'stpi    example: 2
     rrTH=iNOW(iLine, "forBeg")
-    sumc="Vari==eval|Begi-Stpi;; label==forr2beg;; Vari==eval|Vari+Stpi;; goto==ifsee|Vari>Endi|forr2out"
-    return replaces(sumc, "Vari",vari, "Begi",begi, "Endi",endi,  "Stpi",stpi,     "forr2",  "forLP" & rrTH,     "|", fcComma)
+    sumc="exit==ifnum|Begi.-Endi.-0Stpi.||badly see for-loop range is not number:(Begi., Endi., Stpi.);;"  'checking
+    sumc=sumc & "Vari.==eval|Begi.-Stpi. ;; label==forr2beg ;; Vari.==eval|Vari.+Stpi. ;; goto==ifsee|Vari.>Endi.|forr2out"
+    return replaces(sumc, "Vari.",vari, "Begi.",begi, "Endi.",endi,  "Stpi.",stpi,     "forr2",  "forLP" & rrTH,     "|", fcComma)
   end function
 
   function build_few_line_vs_forch(iLine as int32, kv as string) as string     'kv      example: foreach==ii|aa,bb,cc  
@@ -1372,9 +1376,9 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
         
         
 
-        if isLeftOf("for=="           ,ctmp) then lines(i)=build_few_line_vs_forii(i,ctmp)     :  continue for
-        if isLeftOf("foreach=="       ,ctmp) then lines(i)=build_few_line_vs_forch(i,lines(i))     :  continue for
-        if isLeftOf("next=="          ,ctmp) then lines(i)=build_few_line_vs_nexti(i,ctmp)     :  continue for
+        if isLeftOf("for=="           ,ctmp) then lines(i)=build_few_line_vs_forii(i,cLin)      :  continue for
+        if isLeftOf("foreach=="       ,ctmp) then lines(i)=build_few_line_vs_forch(i,lines(i))  :  continue for
+        if isLeftOf("next=="          ,ctmp) then lines(i)=build_few_line_vs_nexti(i,ctmp)      :  continue for
         if isLeftOf("call=="          ,ctmp) andAlso notInside(fcComma, ctmp) then lines(i)=lines(i) & "|"  :  continue for
         if isLeftOf("func=="          ,ctmp) then lines(i)="exit.==end_before_func_begin;;" & lines(i)      :  continue for
         if isLeftOf("loadfromfile=="  ,ctmp) then lines(i)=left(ctmp,len(ctmp)-1) & "[]" & right(ctmp,1)    :  continue for
@@ -1406,8 +1410,8 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
       Upag= Replace(Upag, "$postSQL"   , f2postSQ)
       Upag= Replace(Upag, "$postDATA"  , f2postDA)
       Upag= Replace(Upag, "okclick"    , "onclick"           )        
-      Upag= Replace(Upag, " ve("       , " @[gu1m|matrix|"    )        
-      Upag= Replace(Upag, ")er"        , "]."                )        
+      Upag= Replace(Upag, " ve("       , " [@gu1m|matrix|"    )        
+      Upag= Replace(Upag, ")er"        , " .]"                )        
       
       Upag= Replace(Upag, "$add"     , "+"                 )
       Upar= Replace(Upar, "$add"     , "+"                 )
@@ -1418,7 +1422,7 @@ Sub wash_UparUpag_exec() 'with Upar,upag ready
     cmN12=cmN12:Call textToPair("toExec",2,  Upag, keys,vals,cmN12) 'in sub wash_UparUpag_exec
     'showvars("after textToPair done")		
     
-    exec_sentence_since(1, split("",icoma) ) 'parse_step[4.2]+[4.3]
+    exec_sentence_since(1, split("1234","abcd") ) 'parse_step[4.2]+[4.3]
 End Sub 'wash_UparUpag_exec
   
 
@@ -1430,51 +1434,57 @@ sub showApplication
 		                  ssddg("show all application vars done")
 end sub    
 
-  '會尋找最內層的 @[---].
-  sub cut_to_3_parts(mstr as string, begg as string,  endd as string,   byref aa1 as string,byref bb2 as string,byref cc3 as string) 
+  '會尋找最內層的 [@--- .]
+  'example:          p[@ abcd|a1=1  .]z       [@                .]                 p                    abcd|a1=1            z
+  sub getPart123(mstr as string,       begg as string,  endd as string,   byref aa1 as string, byref bb2 as string, byref cc3 as string) 
     dim ib,loopi,i1,i2 as int32  : dim st1,st23,st2,st3, tmp, pfp() as string
     
     ib=1: loopi=0
     ibBegin:
-	i1=instr(ib,mstr,begg) : if i1<=0 then  ssddg(string.format("MIP encounter a string:{0}, not begin by {1}", mstr, begg))
+	i1=instr(ib,mstr,begg) : if i1<=0 then  ssddg(string.format("getpart123 encounter a string:{0}, not begin by {1}", mstr, begg))
 	st1=left(mstr, i1-1) 
 	st23=Mid(mstr, i1 + Len(begg))      
-    loopi=loopi+1 : if loopi>10 then ssddg("finding part123, but encounter too deep nesting")
+    loopi=loopi+1 : if loopi>10 then ssddg("in getPart123, but encounter too deep nesting")
     
-	i2=instr(st23,endd) : if i2<=0 then ssddg(string.format("MIP encounter a string:{0}, begin by {1} , but not end by {2}", st23, begg, endd))
+	i2=instr(st23,endd) : if i2<=0 then ssddg(string.format("getpart123 encounter a string:{0}, begin by {1} , but not end by {2}", st23, begg, endd))
     st2=left(st23, i2-1)
 	st3 =Mid(st23, i2 + Len(endd))
     if inside(begg, st2) then ib=i1+1: goto ibBegin ' go again if there is inner @function
     
-    'below treat 2@[p1|func|p2].  into  @[func|p1|p2].
-    if right(st1,1)="2" then 
-       st1=left(st1,len(st1)-1)
+    'below treat [@2 p1|func|p2  .]  into  [@ func|p1|p2  .]
+    if left(st2,1)="2" then 'this code is good when begg=[@
+       st2=mid(st2,2)
            pfp=split(st2, fcComma): tmp=pfp(0): pfp(0)=pfp(1): pfp(1)=tmp
        st2=string.join(   fcComma, pfp)
     end if    
+    'if right(st1,1)="2" then 'this code is good when begg=[@
+    '   st1=left(st1,len(st1)-1)
+    '       pfp=split(st2, fcComma): tmp=pfp(0): pfp(0)=pfp(1): pfp(1)=tmp
+    '   st2=string.join(   fcComma, pfp)
+    'end if    
     
     'final output
     aa1=st1: bb2=st2: cc3=st3
   end sub
     
-  function reduceComplexSentence(varTH as int32,   leftPart as string, rightPart as string              ) as string 'translate gu1m|matrix|patt=@[ff]                  
-  'example: key==hhhh @[fun1|p1|p2]. mm  --> leftPart:key      , rightpart:hhh     @[fun1|p1|p2].          mm  
+  function reduceComplexSentence(varTH as int32,   leftPart as string, rightPart as string              ) as string 'translate gu1m|matrix|patt=[@ff]                  
+  'example: key==hhhh [@fun1|p1|p2 .] mm  --> leftPart:key      , rightpart:hhh     [@fun1|p1|p2 .]          mm  
   'also                                  -->                           hh1:hhh , par2:fun|p1|p2     ,  mm3:mm
-  'if rightpart lookslike abc|p1|p2  ; then edit it to:                             @[abc|p1|p2].
+  'if rightpart lookslike abc|p1|p2  ; then edit it to:                             [@abc|p1|p2 .]
    dim rightHandQ,hh1,focus2,mm3 as string    :   dim findingBracket as int32  
    rightHandQ=rightPart
    for findingBracket=1 to 16
      'ssdd(string.format("oneByOne, varth={0}, finding={1}, lef={2}, rit={3}",varth,findingBracket,leftpart,rightHandQ))
      'below 3 if-conditions are in good order, not alter it
      
-     '(1)看右手方 有沒有@[---].，若有，也就是有內層函數未解開，則:
+     '(1)看右手方 有沒有[@--- .]，若有，也就是有內層函數未解開，則:
      if inside(fcBeg , rightHandQ) then 
-       cut_to_3_parts(rightHandQ,fcBeg,fcEnd,  hh1,focus2,mm3)  '[focus] means (fn1|p1|p2) of the @[fn|p1|p2].  ， 就是目前最內層的函數名及參數
+       getPart123(rightHandQ,fcBeg,fcEnd,  hh1,focus2,mm3)  '[focus] means (fn1|p1|p2) of the [@fn|p1|p2 .]  ， 就是目前最內層的函數名及參數
        'ssdd("inside reduceComplexSentence,cond 1")
-       if oneInside("gu1,gu2", hh1) andAlso oneInside("[ui,[vi,[mi", focus2) then         '遇到gu函數內部包著 @[---] ， 應壓抑 暫時不解開@[---]
+       if oneInside("gu1,gu2", hh1) andAlso oneInside("[ui,[vi,[mi", focus2) then         '遇到gu函數內部包著 [@---] ， 應壓抑 暫時不解開[@---]
                rightHandQ=hh1 & gcBeg & replace(focus2, fcComma , gcComma) & gcEnd & mm3  '為了壓抑 不解開函數，技巧是把fcComma暫時改為gcComma
                'ssdd("inside reduceComplexSentence,cond 1-1-1")
-       else                                                                               '不是遇到gu函數內部包著 @[---]，於是解開它
+       else                                                                               '不是遇到gu函數內部包著 [@---]，於是解開它
                focus2=translateFunc(varTH, focus2) :if tryERR=1 then dumpEnd
                rightHandQ=hh1 & focus2 & mm3
        end if

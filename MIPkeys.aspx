@@ -15,12 +15,19 @@ dim keyp() as string
          'dataGu = aaj3 'this is the column separator. 20190112: I would not let dataGu change bcause SRC is always divided by best_cutter when reading_SRC_into_sql.  reading_SRC_into_sql does not use dataGu
       end if
 end sub
+
+function unmask(cc as string) as string
+      cc = Replaces(cc,   "[]"  ,""         ,     "$enter" ,ienter    ,     "$space" ,ispace  ,  "$empty", iempty   ) 
+      cc = replaces(cc,   "$and"," and "    ,     "$alfa"  ,"@"       ,     "$vert"  ,"|"                           )   
+      return cc
+end function 
       
 sub exec_sentence_since(begWI as int32, pamas() as string) 
 dim i,j,workN,okma,loopM as int32
-dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
+dim valFocus, records(),  aaj1,aaj2,aaj3, pamK,pamV,keyLower, m_part, subAnsw as string
     
     For i = begWI To cmN12	      	
+      'ssdd(3000, keys(i), vals(i))
       workN=workN+1: if workN>300 then ssddg("MIP have walked too many steps")
             
       'parse_step[4.2] begin wash vals(i):  replace vbks(j=1..i-1) into vbks(i) 
@@ -35,32 +42,29 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
                end if
             end if
         Next
-        if inside("$para1",vals(i)) then vals(i)=replace(vals(i), "$para1", pamas(1))
-        if inside("$para2",vals(i)) then vals(i)=replace(vals(i), "$para2", pamas(2))
-        if inside("$para3",vals(i)) then vals(i)=replace(vals(i), "$para3", pamas(3))
+        for j=1 to ubound(pamas)
+         if inside("=",pamas(j)) then 
+          pamK=atom(pamas(j),1,"="):pamK=unmask(pamK) '在quicksort那例子中mapK用到jlist這個字需要解罩
+          pamV=atom(pamas(j),2,"="):vals(i)=replace(vals(i),pamK,pamV) ' $para1=newVal
+         end if
+        next
       'end wash    
       
       'parse_step[4.3] translateCall on vals(i)
-      If Inside(fcComma, vals(i)) then vals(i)=reduceComplexSentence(i, keys(i), vals(i) ) 'translate yy==func|x1|x2| @[func2|p1|p2].
+      If Inside(fcComma, vals(i)) then vals(i)=reduceComplexSentence(i, keys(i), vals(i) ) 'translate yy==func|x1|x2| [@func2|p1|p2 .]
       if tryERR=1 then dumpEnd
-
-      'parse_step[4.4] clear mask[] on vals(i) 
-      vals(i) = Replaces(vals(i),   "[]"  ,""         ,     "$enter" ,ienter    ,     "$space" ,ispace     ) 
-      vals(i) = replaces(vals(i),   "$and"," and "    ,     "$fncall","@"       ,     "$fnpipe","|"        )       
-      'take out mask [] , 這就是'解罩'只此兩行 必須在translateFunc之後
-                                                     
-      'parse_step[4.5] try reduce it to a simpler number
-      'vals(i)=fn_eval(vals(i))
+      
+      vals(i)=unmask(vals(i)) 'parse_step[4.4] clear mask[] 解罩  必須在 reduceComplexSentence 之後                                                           
                                         
-                                        
-      ssdd(2400,i,keys(i),vals(i))
+      'ssdd(2400,i,keys(i),vals(i))
       'parse_step[4.5] execute keys(i) with its vals(i)
       build_p123(keys(i), aaj1,aaj2,aaj3,keyLower)
       mayReplaceOtheR(i)=false 'maybe keys(i)=preDefinedWord, anyway set may=false
 	  select case keyLower  'when see verb==some_description , then execute this verb
-      case "show", "showc"   
+      case "show", "showc", "showl"   
                           if keyLower="showc" then vals(i)="<center>" & vals(i)  & "</center>" 
                           buffW( replace(vals(i), ienter,"<br>") ) 
+                          if keyLower="showl" then buffW( "<br>")
       case "append"        'example: append,abcd==longString  'this serves for appending string
                            appendStr(aaj1, vals(i))  
       case "savetofile"  : aaj1=trim(leftPart(vals(i),icoma)) : aaj2=trim(rightPart(vals(i),icoma)) :                 saveToFileD(""     ,aaj1, aaj2)  
@@ -92,7 +96,7 @@ dim valFocus, records(),  aaj1,aaj2,aaj3,keyLower, m_part, subAnsw as string
       case "call"    'no real work to do, but I list it as a key so that it is not recognized as a [programmer defined var]
                      'I have replaced   call==myFn  into   call==myFn|
       case "goto"    : j=label_location("label",vals(i)) : i=if(j>0,j,i)
-      case "return"  : if trim(vals(i))<>"" then subRetVal=vals(i):exit sub
+      case "return"  : if trim(vals(i))<>"noUU" then subRetVal=vals(i):exit sub
       case "retrun","erturn","ertrun","retun" : ssddg("err, you did wrong spell, correct word is: return")
       case"datatodil": dataToDIL=vals(i)       
       case "digilist"   : digilist = Replaces(vals(i), "y", "i", "r", "i") : digis = Split(nospace(digilist), ",")  'let (yes,real,int)=(y,r,i) mean column align right
@@ -170,7 +174,7 @@ Function Label_location(labelly as string, wishLabel as string)
   Next
   if icn=1 then return iok 
   if icn>1 then ssddg("there are two " & labelly & " of the same name", wishLabel)
-  ssddg(labelly & " not found: (" & wishLabel & ")" )  : return 0
+  ssddg("no such ["& labelly &"] " & wishLabel  )  : return 0
 End Function
 
  

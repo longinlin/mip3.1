@@ -55,7 +55,7 @@ exit==ok ans5
 
 label==prod
 return==ifsee|$para1=1| 1|notYet
-return==$para1*@[prod| $para1-1 ].
+return==$para1*[@prod| $para1-1  .]
 
 
 //below for SQL

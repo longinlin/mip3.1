@@ -55,7 +55,7 @@ sqlcmd==
  複製='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==pleaseCpy"                      >複製</a>', 
  刪除='<a href="?act=run&spfily=$thispg&uvar='+keysValAre+'wk[]ii==toDel"    okclick="return bk8()">刪除</a>', 
  moreActLink
- ve(fdName)er from tbff where 1=1 ve(@[andRange|fdName|fdAccp]. |$space|6q)er order by ve(fdName||6k)er
+ ve(fdName)er from tbff where 1=1 ve([@andRange|fdName|fdAccp .] |$space|6q)er order by ve(fdName||6k)er
 exit.==show 500 done
 
 label==LpleaseUpd
@@ -68,7 +68,7 @@ label==LtoUpd
 headlist==Note,ve(fdHead)er
 sqlcmd==
  if exists (select *    from tbff        where oldpCondi) begin
-  update tbff set ve(fdName=@[quote|fdType|fdAccp].||6u)er where oldpCondi;
+  update tbff set ve(fdName=[@quote|fdType|fdAccp .]||6u)er where oldpCondi;
   SQL_afterUpdate;
   select aaNote='已修改成:', ve(fdName)er from tbff where newuCondi;
  end else begin
@@ -81,9 +81,9 @@ label==SQL_insert
 headlist==.,.
 sqlcmd==
  if 1=2 begin
-    select aa='這筆的   ve(fdHead||6k)er  @[red|早已存在].', '不可再增識別編號相同的記錄'
+    select aa='這筆的   ve(fdHead||6k)er  [@red|早已存在 .]', '不可再增識別編號相同的記錄'
  end else begin
-    insert into tbff  ( ve(fdName||6u)er )  values( ve(@[quote|fdType|fdAccp].||6u)er  )
+    insert into tbff  ( ve(fdName||6u)er )  values( ve([@quote|fdType|fdAccp .]||6u)er  )
     SQL_afterCopy; select aa='已增一筆', bb='就此畫面可以再增一筆'
  end
 return==
