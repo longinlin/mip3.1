@@ -1,0 +1,1338 @@
+## 一个生产程式的语言MIP
+  这里有一个资料夹，里面有一个MIP语言解译器(MIP=Macro Interactive Processing)，
+  可以用来操控本地电脑或外地资料库，输出画面结果。也可以是程式产生器，
+  用来输出一整个资料夹的程式原始码。
+  .
+  简单用它的时候，你可以对它输入一句接一句的指令。
+  扩大用它的时候，你可以巨集里再叫用巨集(macro、宏、巨集)。
+  复杂用它的时候，你可以定义变数、回圈、副程式。
+  .
+  它是一个script解译器，在前端显示互动式网页，也在后端连接资料库；
+  它是一个macro组合器，组合变数、一维文字序列(向量)、二维文字序列(矩阵)、
+  文字区块、含变数的模板 甚至 runTime才变化的模板。
+  .
+  资料夹位置在 https://github.com/longinlin/MIP3.1 ， 复制到本机后，
+  设定资料夹成为微软IIS的虚拟目录就可执行。免安装。
+  以更少的写字，表达更长的语意，提升资讯人员的生产力。
+  .
+## 适用场景
+ (1)生产类似的程式
+   多年以来，常见资讯人员日常就是下SQL指令，应付使用者的各种需求。
+   使用者的需求变来变去很难写成程式，如果能用简语表达网页输入框，
+   又能用简语连接资料库，这样资讯人员才能正常上下班，这就是MIP的出发点。
+   商用程式不仅是僵硬的增删改查，实务上还有各种讯号联动及资料转移，
+   所以MIP不是产生僵硬的框架，而是全面的减少编码写字，简洁描述动作。
+   本文将举例两个MIP写的应用系统: 库存捡货系统，问卷评分系统。
+   .
+ (2)以组合代替写码(减少复制贴上)
+   物件导向流行以来，资讯界的程式语言越来越繁琐，于是近年来又回头流行巨集、
+   模板、宏编程、元编程。 MIP就是元编程语言，可以用来组合程式原始码。
+   你可以准备好模组文字，叫起MIP，由它产生多份文字档。
+   也可以准备好模组文字，叫起MIP，由它不断输出新变数，变数又即时变更文字档。
+   .
+   我们可以把MIP和java 混杂写简码，输出一个好几倍长的java。
+   我们可以把MIP和C方言混杂写简码，输出一个好几倍长的C程式。
+   .
+   复制贴上的缺点大家是知道的，范本一变，复制本都要跟着改写。
+   现在的程式模组分离法，功能分离法已减少复制贴上，但巨集组合可以减得更少。
+   .
+ (3)收拢多条向量，成为一个矩阵
+   物件导向的程式语越来越长了，程式中不断宣告物件的属性。
+   1个属性占1行，1个物件有9个属性，8个物件就72行，这些物件都长得很像，
+   读完72行，程式重点还没开始。何不把它们排成9乘8的矩阵，整齐清楚。
+   用在商业程式，一行一行写程式的一维思考，就可以转为矩阵化的二维思考。
+   .
+ (4)微缩程式码，从真空管微缩到积体电路
+   MIP不仅缩短一支程式，还可以缩短几十支程式。当你有几十支程式要写，
+   你找出这几十支程式共同的部份，分离相异的部份，呼叫MIP就组合出几十支程式。
+   .
+## 语言的特点
+ (特点1 网页输入输出)
+    它的预设操作环境是网页，输入是网页，输出也是网页。
+    输出网页里还可以有输入框，让你再输入下一波，再输出下一波的网页。
+    所以它运作起来是一个完整互动的应用功能。你也可以把输出转到档案，
+    以方便传递给另一电脑。
+  .
+ (特点2 元编程)
+    凡是你写一行 "短字 等于 "一串字"， MIP就认为是赋值给短字，
+    若短字是内建既定词，那么MIP执行既定动作，例如操作SQL，或发http给其它电脑。
+    若短字非内建既定词，那就是你定义了一个变数，用来代表那一串长字。
+    变数可以组合，也可以用goto,call,if,for编辑之，也可以立即执行之，
+    或把它当做是参数丢给下一段程式。
+  .
+ (特点3 向量式指令)
+    变数只能置换一字一词，代称词可以置换一整个向量，或置换一整个矩阵，
+    例如在SQL常写 姓名=csName, 住宅电话=csTELE, 手机=csMobi, 地址=csAddr...
+    在MIP只要写 v( fdTITL=fdNAME )s 。这 v(...)s 就是向量句。
+    用了向量句，以后只要改向量值，一个程式模板可以用于几十支程式。
+  .
+ (特点4 外接任意软体)
+    MIP可以搭配另一个独立的软体，把组合出来的文字传给那软体执行。
+    MIP最常搭配的软体是资料库引擎，传SQL句子给资料库，又收回结果。
+    MIP可以把收回结果再传入另一资料库，或传给人阅览修改。
+    MIP也可以搭配 C编译器，传递文字给它编译立刻执行。这时MIP像是个预编器。
+    MIP也内建有http递送句，传讯给外机后收回结果，再进一步处理。
+    
+  
+## 安装
+  本软体MIP目前只能在windows+IIS作业环境下使用，
+  请到 https://github/longinlin/MIP3.1 点击画面上的[view code]下载全部档案，
+  复制到你的电脑的一个资料夹里面(举例c:\MIP\webc)。
+
+  接着打开IIS管理员，在IIS里建立虚拟目录MIP，实际位置指向你的资料夹。
+  若安装不顺(微软IIS换版常不顺)， 请看文末的安装问题集解。
+  打开浏览器，打入网址localhost/MIP/MIP.aspx，看到提示请你输入帐密 即完成。
+  
+## 一行的简单程式
+  (例一)打开浏览器，打入网址localhost/MIP/MIP.aspx，看到请你输入帐密，
+  输入帐密(admin,admin9)，网页画面变成上下两个输入框。
+  你于下框写
+    show== Hello world
+  按[确定] 即可看到
+           Hello world
+  在MIP语言里不用引号或双引号来包夹字串
+  
+  
+  (例二)写一个日期的加法
+    show==dateAdd|now|5|yyyy-mm-dd
+  按[确定]即可看到今天加5天的日期，其中dateAdd是函数，直线符号后面是参数
+  
+     
+## 两行的程式举例
+   (例一)制造一段perl程式
+         yName==John ;; helloWho==print "hello, yName"
+         saveToFile==c:\tmp\a2.pl , helloWho
+    按[确定]即可制造出 a2.pl这程式，这是可执行的perl语言。
+    其中;;相当于换行符号
+
+   (例二)呼叫资料库
+         conndb==db55 //连接资料库 ;; 详情请看 编辑资料库清单 那一小节
+         sqlcmd==select * from mapper
+    按[确定]即可看到 mapper 这表格的内容。
+    其中//之后的文字是注解
+  
+   (例三)写一个九九乘法表
+         uuuu==1,2,3 ;; vvvv==4,5,6
+         show==gu2vx|uuuu|vvvv| [ui]x[vi]= [@eval|[ui]*[vi] .] |td
+    按[确定]即可看到九九乘法表之一角:
+         1x4=4 2x4=8 3x4=12 4x4=16
+         1x5=5 2x5=10 3x5=15 4x5=20
+    其中 [@... .] 是把函数放在字里行间的立即表达法。
+    @ 这个符号看起来像ca， 此处可以念作call,
+      .] 用来表示函数结束
+  
+## 输入、运算、输出
+  所有的电脑程式都可分解为(输入、运算、输出)三段，MIP语言的三段分解如下:
+ 
+  打开浏览器，网址打localhost/MIP/MIP.aspx，看到 请输入帐密，
+  打入帐密(admin,admin9)，网页画面变成上下两个输入框
+  你于上框写 name==Joe 这就是输入
+  你于下框写 add9==eval|2+3 这就是运算
+  下框再一行 show==name, add9 这就是输出
+  按[确定]后，画面出现 Joe, 5 输出到萤幕上
+  
+  如果要输出到档案也很容易:
+  你于上框写 name==Joe
+  你于下框写
+             add9==eval|2+3
+             answ==name, add9
+             saveToFile==a123.txt, answ
+  按[确定]就会输出到档案c:/MIP/webc/a123.txt
+  
+## 规划使用者看到的输出
+  (输入、运算、输出)三段都有了，想把以上的程式变成一般人使用的功能，怎么做?
+  看到萤幕最下方还有两个细细的输入框，分别填上 test2.mip 和 测试2，
+  再按[save new ]，网页就会显示'储存完成'，
+  再按[show spList]，网页就会显示功能清单，有一选项'测试2' 就是刚刚制造的功能。
+  
+  存起来的test2.mip 可以用记事本打开来看，内容是:
+    name==Joe
+    #1#2
+    add9==eval|2+3
+    answ==name, add9
+    saveToFile==a123.txt, answ
+  MIP自动加了第二行#1#2，这行之上对应上框，这行之下对应下框。
+  当这程式给使用者用时，上框将变成他填资料的画面，下框他看不到。
+
+  因为当初你用admin 的身分登入，所以你能在网页上编程，这是[工程模式]。
+  如果当初你以其它人的身分登入，只能看到功能，看不到程式，就是[应用模式]。
+  现在请你从功能列表中选择[登出]，萤幕画面变成 请你输入帐密，
+  输入帐密(0800,0809)后， 你看到网页画面中有一个 [测试2]的超连结。
+  现在你可以点击它，操作它。这就是 应用模式。
+  
+  在'应用模式'下，程式里的上框会变成使用者填资料的输入区。
+  你可以用记事本编辑 test2.mip ，对输入区做点变化，例如
+        名字==
+        电话==
+        #1#2
+        show==看到了 名字 电话
+  然后再次点击[测试2]的超连结，你将看到画面上有新的输入框，
+  输入区有多种变化，详情请看 [输入画面集解]那一节。
+  
+## 发挥MIP的功能
+  从上面的例子可以看到==是指定符号，
+  指定符号左右方可以任意空白，这些空白都会清掉不要管它。
+  不要在乎左右方是数字或文字，因为本软体里面只有一种资料型态，那就是文字。
+  你要在乎文字之上的一维序列，就是向量，再往上可以建立二维序列就是矩阵，
+  几十行文字可以组成一段文章，就是模板。文字、向量、矩阵、模板可以任意组合。
+
+  要发挥MIP的功能，让我们分几个小段落逐步介绍。
+    首先了解: 变数、既定词、函数、@函数(inline function)
+    接着了解: 资料库及向量函数: sqlcmd, gu1v, gu2v, gu2vx, gu1m
+    接着了解: 预解、洗染、解函、解罩
+    看看范例: 资料增删修查、跨资料库传输、资料直转横(Excel所谓的枢纽分析)
+    应用范例: 库存管理系统、问卷调查系统、用程式制造程式、抽象图形辨认
+    权限管理: 功能清单、 使用者清单、 资料库清单
+  以下从变数开始说明。
+
+  
+## 变数
+  你可以写三行程式:
+      x002==2
+      x003==3
+      show==x002+x003
+  其中的x002和x003就是自定变数，MIP原本不认识x002和x003，由你定义了它们。
+  其中这show就是既定词，MIP认识show，执行它既定的动作，于是显示了 2+3
+　上数变数x002能写成x2吗，不行，MIP会警示变数名太短，为了防错至少要4个字母。
+  上述画面只显示2+3 ，MIP会加在一起吗，会，请使用eval
+      show==eval|x002+x003
+  画面会显示5 ， eval是做加减乘除的函数，直线符号后面是参数。
+  
+  (变数性质一)变数名称可以含中文，或空格以及各种符号
+       例如下面这程式:
+           采购单号==
+           sqlcmd==select * from pur1m where prno='采购单号'
+       用中文变数写应用功能，使用者看到的输入框就是中文提示，很方便。
+       
+       又例如下面这程式:
+           cond2==and iqty=1
+           cond3==and iamt=10
+           1=1 and==
+           show==select * from tb2 where 1=1 cond2 cond3
+       萤幕将显示:
+           select * from tb2 where iqty=1 and iamt=10
+       它擦掉多余的1=1 ，可以擦掉文字是MIP的编程特色。
+
+  (变数性质二)变数可以置换其下方文字，变更其下方变数的值
+       例如下面这程式:
+           采购单号==123
+           sqlcmd==select * from pur1m where prno='采购单号'
+       这里123将置换sql内的中文，于是形成:
+           sqlcmd==select * from pur1m where prno='123'
+  
+  (变数性质三)变数可以变更它自己的值
+       例如下面这程式:
+                 iqty==1
+                 iqty==eval|iqty+1
+       当MIP第二次看到iqty后，不记得iqty以前是1，iqty现在就是2。
+       又例如:
+                 iqty==0
+                 label==op2
+                   iqty==eval|iqty+1
+                   show==iqty,
+                 goto==op2
+       这里一再变更iqty的值。执行这段程式将显示
+           1, 2, 3, ...98, 99, MIP have walked too many steps
+       这段程式本是无限回圈，但MIP限制只能回圈99次，所以MIP停下来。
+       
+  (变数性质四)变数的值可以含换行符号
+       例如下面这程式:
+               c001==
+                     bb,123
+                     cc,456
+               d001==ff
+       MIP发现 c001 这一行后面没有字，就往下继续找，直到下一个==出现，所以
+               c001 的值变成 bb,123 (cr) cc,456 其中(cr)代表换行符号
+       如果你写:
+               c001==
+               d001==ff
+       在c001后面紧接着定义d001，则c001就是空字串。
+       
+## 既定词
+  既定词就是预先定义好的字，使用时一定要写在等号的左手方。举例如下:
+  
+  [既定词] show ，使电脑显示文字
+       show ==123 --> 将显示123在萤幕左方，下一次show在同一行。
+       showC==123 --> 将显示123在萤幕中央，下一次show在下一行。
+       showL==123 --> 将显示123在萤幕左方，下一次show在下一行。
+      
+  [既定词] exit ，使程式停止
+       exit==abcd --> 在萤幕显示abcd 然后程式停止
+       exit== --> 等号右方空白 程式不停止
+               
+       exit.==abcd --> 不显示 然后程式停止
+       exit.== --> 不显示 然后程式停止
+
+  [既定词] append ，促使电脑添加文字
+         append,cAdr==台北市
+         append,cAdr==文山区
+         show==cAdr
+       将显示 台北市(cr)文山区 其中(cr)代表换行符号
+       若不要自动添加换行符号的场合，则这么写:
+         append,addEnter==n //想要就y
+         append,cAdr==台北市
+         append,cAdr==文山区
+         show==cAdr
+       将显示 台北市文山区
+       
+       若你曾经声明append要添加到哪个变数，可以不用再声明:
+         append,cAdr==台北市
+         append ==文山区
+         show==cAdr
+       将显示 台北市文山区
+          
+  [既定词] saveToFile，存档
+     (例一 储存变数内容):
+         append,cAdr==台北市
+         append ==文山区
+         saveToFile==c:\tmp\abcd.txt , cAdr
+       这促使电脑把cAdr内容存放到c:\tmp\abcd.txt
+     (例二 储存变数内容其实是程式):
+         mass==
+               1234
+               5678
+               print 1+2;
+               print 3+4;
+         saveToFile==c:\tmp\abcd.txt , mass
+     (例三 档名可变):
+         fnpp==t22
+         mass==
+               1234
+               5678
+         saveToFile==c:\tmp\fnpp.txt , mass
+      
+      
+  [既定词] loadFromFile ，取出档案内容
+         loadFromFile==c:\tmp\t22.txt , mass
+         show==mass
+      这促使电脑去取得等号后面的档案内容，放进mass这变数里。
+      
+  [既定词] dosCmd ，呼叫作业系统
+         dosCmd==
+           echo 123 > c:\tmp\t22.dat
+           echo 456 > c:\tmp\t23.dat
+      这促使电脑连续执行了两个指令。
+      
+  
+  [既定词] conndb ，连接资料库
+          conndb==db22
+          sqlcmd==select * from mapper
+      起初要定义db22在 c:\MIP\webc\cdblist.mip里，这样conndb才能够接上。
+      也可以定义HOME在 c:\MIP\webc\cdblist.mip里，这样conndb预设接上它。
+      从此写sqlcmd==select * from mapper 一行即可
+
+## 重要既定词 sqlcmd
+  sqlcmd 用法一: 执行SQL一次，把结果显示到萤幕上。
+            sqlcmd==
+            select * into #p from mapper
+            select hi='hello', * from #p
+         上面这例子展示了SQL可以是多句构成，也可以是纯操作update不显示结果。
+         
+  sqlcmd 用法二: 执行SQL一次，把结果存到档案。
+            sqlcmd,,f.out==
+            select * into #p from mapper
+            select hi='hello', * from #p
+         这sqlcmd后面两个逗点，将档案存到c:\MIP\webc\f.out ，存起内容是:
+         hello#!1200
+         hello#!2200
+         hello#!3200
+         其中#!是预设的分隔符。
+               
+         
+  sqlcmd 用法三: 执行SQL多次，把结果显示到萤幕上。
+         一个SQL句形，可以执行多次，其变化来自矩阵，例如:
+             mass==
+             11,12
+             21,22
+             31,32
+             sqlcmd,mass==select a='c:fdv01', b=fdv02*100
+         在sqlcmd后面接矩阵当参数来源，来源的每一行推动一次SQL，
+         现在来源mass有三行，SQL就执行3遍。每次SQL执行前，MIP将
+         fdv01置换为当前这一行的第一个元素，fdv02置换为第二个元素，...
+         结果显示
+             c:11 ,1200
+             c:21 ,2200
+             c:31 ,2300
+         
+
+  sqlcmd 用法四: 执行SQL多次，把结果存到档案
+             matrix==
+             11,12
+             21,22
+             31,32
+             sqlcmd,matrix,f.out==select a='c:fdv01', b=fdv02*100
+         在sqlcmd后面接参数来源，来源的每一行推动一次SQL，
+         再后面接输出档f.out，其储存内容将是
+             c:11#!1200
+             c:21#!2200
+             c:31#!2300
+         其中#!是预设的资料分隔符号。
+             
+  sqlcmd 用法五: 执行SQL多次，每一次的变化参数来自档案
+             sqlcmd, f.inp, f.out == select a='oka:fdv01', b='okb:fdv02'
+
+
+  
+  sqlcmd ，其输入参数的变化:
+      sqlcmd ==SQL 句内不含fdv0这字眼，则SQL只做一次
+      sqlcmd,matrix==SQL 句内含有fdv0这字眼，则SQL将做多次
+      所以你要预先准备好一个matrix变数，例如:
+                      matrix==
+                        11,12,13,14
+                        21,22,23,24
+                      sqlcmd,matrix==select 'fdv01'
+      当参数来源是matrix时，matrix这个字可以省略不写，若是其它就要写明:
+      换个来源变数名，例如
+                      mass2==
+                        11,12,13,14
+                        21,22,23,24
+                      sqlcmd,mass2==select 'fdv01'
+      变数名也可以换成档名，例如
+                      sqlcmd,f.inp==select 'fdv01'
+      其中f.inp是一个档案，内容是:
+                        11 #! 12 #! 13 #! 14
+                        21 #! 22 #! 23 #! 24 其中 #! 是预设分隔符。
+                      或者内容是
+                        11 (tab) 12 (tab) 13 (tab) 14
+                        21 (tab) 22 (tab) 23 (tab) 24 其中 (tab) 是跳位符。
+                      或者内容是
+                        11,12,13,14
+                        21,22,23,24
+                      栏位间的前后空白无所谓，执行SQL前都忽略。
+      
+  
+  sqlcmd ，其输出变化:
+      sqlcmd,***,screen == 则输出一个html表格到萤幕
+      sqlcmd,*** == 则输出一个html表格到萤幕
+      sqlcmd == 则输出一个html表格到萤幕
+      sqlcmd,***,dataString== 则将输出一长串字到萤幕 [begData .]..[endData]
+                              如果这sqlcmd是包在某mip程式里，
+                              而这mip程式是被另一程式B经由http唤起，
+                              则输出字串就不是到萤幕，而是被程式B接收，
+                              是谓rest呼叫 (restful API)
+      sqlcmd,***,top1s == 则将SQL所得的第一行以表格样式显示到萤幕上:
+                                  栏位1名称, 第一行栏位1的值
+                                  栏位2名称, 第一行栏位2的值
+                                  栏位3名称, 第一行栏位3的值
+                              
+      sqlcmd,***,top1w == 则将SQL所得的第一行显示到萤幕上，每一栏都可修改:
+                                  栏位1名称, 输入框[第一行栏位1的值]
+                                  栏位2名称, 输入框[第一行栏位2的值]
+                                  栏位3名称, 输入框[第一行栏位3的值]
+                              下方有一个[确定]按钮，用来接收user新改值，
+                              详请请看 往返式输入范例1。
+                              
+      sqlcmd,***,top99w == 则将SQL所得的每一行每一栏包在一个输入框里，显示到萤幕上:
+                                  多行文字输入框[
+                                    第一行栏位1的值, 第一行栏位2的值, 第一行栏位3的值,...
+                                    第一行栏位1的值, 第一行栏位2的值, 第一行栏位3的值,...
+                                    第一行栏位1的值, 第一行栏位2的值, 第一行栏位3的值,...
+                                  ]输入框结束
+                              下方有一个[确定]按钮，用来接收user新改值，
+                              详请请看 往返式输入范例2。
+                              
+                              若要每一行有各自的输入框，请看 往返式输入范例3。
+                              
+      sqlcmd,***,xyz == 则将收集SQL所得的每一行的一二三栏，接着新制一表:
+                              凡是第一栏的各种值往下延伸，
+                              凡是第二栏的各种值往右延伸，
+                              凡是第三栏的值填在横竖延伸出来的表格里面。
+                              用microsoft excel 的名词来说，就是枢纽分析
+                              
+                              若是想收集SQL所得的一二三四栏也可以，详情看[枢纽分析]那一节
+                              
+      sqlcmd,***,xyzsum == 同xyz，但枢纽表之外缘加挂小计与合计，详情看[枢纽分析]那一节
+
+      
+      sqlcmd,***,matrix2 == 则将结果以字串型态存到变数matrix2里，变数名称一定要用matrix开头
+      sqlcmd,***,grid3 == 则将结果以字串型态存到变数 grid3里，变数名称一定要用 grid开头，此处结果字串已装饰好<table> <tr> <td>表格字眼
+      sqlcmd,***,abc.txt == 则将结果存到档案c:\MIP\webc\abc.txt里
+      sqlcmd,***,abc.xml == 则将结果以XML 格式存到档案c:\MIP\webc\abc.xml里
+      sqlcmd,***,abc.json== 则将结果以JSON格式存到档案c:\MIP\webc\abc.json里
+      
+  sqlcmd 语法总结:
+      sqlcmd,fromX,toY,DIP==
+        some SQL lines(多行)
+      其中fromX是SQL输入区的指称词(预设词 matrix)
+      其中toY 是SQL输出样式 (预设值 screen)
+      其中DIP 是SQL输出分隔符 (预设值 #! )
+  以上是sqlcmd这个既定词的详细说明，全部有哪些既定词，请看[既定词全集]那一节
+   
+## 区块标示类的既定词
+   [既定词] goto ，跳去某一行
+                 item==2
+                 goto==ifsee| item = 2| work2
+                 exit==.
+                 
+                 label==work2
+                 show==say2
+       这例子会显示 say2 .
+
+         
+   [既定词] if else endif ，注明区块
+           if==ifsee|1=1|then
+             show==eq
+           else==
+             show==neq
+           endif==
+
+   [既定词] most but endmost ，这是if的变型，延迟几行后才陈诉条件。
+           most==
+             show==11
+           but==ifsee|1=2|then
+             show==22
+           endmost==
+        这most是说大部份情况进去show==11，但偶尔but情况时，做but。
+        这是为了适合长程式的阅读。想像某一段程式平常都跑得好好的，
+        但偶遇情况要特别处理。按一般程式做法，我们会写
+           if 有特别情况 then
+              做特别的事
+           else
+              做主要的事
+           endif
+        这样的语法使得小判断挡在主要的事之前，干扰阅读流畅，应改为主要事情在前:
+           if 没有特别情况 then
+              做主要的事
+           else
+              做特别的事
+           endif
+        没有特别情况 就 大部份是如此，用英文most表达。
+        
+   [既定词] for next ，这标示区块
+           for==i|1|10|2
+              show==i-
+           next==
+       将显示1-3-5-7-9-
+              
+   [既定词] foreach next ，这标示区块
+           foreach==i|1,3,5,7,9
+              show==i-
+           next==
+       将显示1-3-5-7-9-
+       再举一例:
+           list3==5,7,9
+           foreach==i|1,3,list
+              show==i-
+           next==
+       将显示1-3-5-7-9-
+       有人说9的后面还有一个减号，不喜欢。可以改用向量语法
+           show==gu1v|1,3,5,7,9|[vi]|-
+       将显示1-3-5-7-9 ， 后面章节再说明向量语法。
+       
+   [既定词] call，跳去某段副程式，类似goto，但call是跳去又跳回，例:
+               call==work2
+               show==s4,
+               exit==t
+                     func==work2
+                     show== s2,
+                     return==.
+       将显示 s2, s4, t
+       这里跳去work2之后，遇到return 程式就跳回去。
+       return的右方值若是 noUU 则不会跳回去。
+       return,exit,goto的行为比较一下:
+           return==noUU 则不动作，等号右方有值则跳回。
+             exit==空白 则不动作，等号右方有值则程式结束。
+             goto==空白 则不动作，等号右方有值则跳走。
+       
+       
+       return==空白，则程式不跳回去，例如:
+               call==work2
+               exit==t
+                     func==work2
+                     show== s2,
+                     return==ifsee|1=1| |wrong
+                     show==s3,
+                     return==end123
+       第一个return 右方经过计算是空白，继续往下走
+       第二个return 右方end123不是空白，程式就跳回主程式。
+       所以显示: s2, s3, t
+       
+       若副程式要传参数，用直线号分隔，用$para1,$para2接收，例如:
+               call==work2|88|99
+               show==s4,
+               exit==g123t
+                     func==work2
+                     g123==$para1
+                     show== s2,g123,$para2,
+                     return==.
+       上例传了参数88,99所以显示: s2,88,99, s4, 88t
+       
+       上例也指出，副程式里的变数是全程看得到的(golbal variable)。
+       
+        
+       若是副程式的结果要传出来，把结果写在return即可，例如:
+               ret4==work2|88|99
+               exit==hh-ret4
+                     func==work2
+                     g123==$para1
+                     return==$para2
+       将显示: hh-99
+  
+        
+## 常用的既定词
+  [既定词] sqlcmdh ，这个词等于show。
+            我们常常使用 sqlcmd==SQL指令 这样的句子来查资料库，
+            有时候SQL指令错误，我们需要把SQL显示在萤幕上查错，
+            这时候你就在sqlcmd候面加个h，使SQL句子显示出来。
+    
+  [既定词] headList ，显示sqlcmd所得资料时赋与各栏位一个栏位名称，例如:
+                headList==aa,bb
+                sqlcmd==select cate,myI1 from mapper
+            将显示
+                             aa bb
+                             ---------
+                             c1 11
+                             c1 22
+            如果不规定headList 则显示原始栏位名称:
+                             cate myI1
+                             ---------
+                             c1 11
+                             c1 22
+   [既定词] tailList， 显示每栏合计，例如:
+                headList==aa,bb
+                tailList== ,y
+                sqlcmd==select cate,myI1 from mapper
+            将显示
+                             aa bb
+                             ---------
+                             c1 11
+                             c1 22
+                             ---------
+                             合计 33
+
+   [既定词] setFuncForm ，变更字里行间函数的 头、隔、尾
+               在写明 头、隔、尾 之间用空白隔开，例如:
+                      setFuncForm== beginer caca ender
+                      show== hello beginer eval caca 2+3 ender John
+               将显示 hello 5 john
+   
+   
+## 函数:
+      函数就是执行预先定义好的动作，传回最后的结果，
+      MIP里有很多既定函数，上一节的例子也说明了你可以自己定义函数。
+      为了方便，MIP不检查函数名称大小写。以下列举各种函数。
+      
+   [f] eval函数，任意加减乘除:
+             show==eval | 1+2*3
+             画面会显示 7
+             
+   
+   [f] ifsee函数，若看到判断式成立则做A，不成立则做B，例如:
+       x002==2
+       show==ifsee|x002=2|yes2 |not2
+       画面会显示yes2。
+   
+       ifsee可以搭配goto，例如:
+       x002==2
+       goto==ifsee|x002=2|yes2 |not2
+       这样程式会跳到标号yes2的那一行继续往下跑。
+   
+   [f] @函数， 利用@这个符号，可以在字里行间夹杂函数，例如:
+           show== Hi, I was happy in recent [@eval|2*3+1 .] days
+       画面将显示 Hi, I was happy in recent 7 days
+       也就是将某个函数用 [@ 和 .] 括住。
+       @看起来像ca，所以[@--- .] 念作call，即时呼叫的意思。
+       [和@ 要紧连在一起写，而 [---]内各参数则可松散，其前后空白将被忽略。
+   
+   [f] ifInside函数，检查A字串有没有在B字串里，例如:
+       answ==inside| bc | abcd |y|n
+       show==answ
+       这程式检查bc有没有在abcd里，有就输出y，没有就输出n。所以显示y
+             
+   [f] @2函数， 函数在字里行间使用时，函数名可以退居第二格，例如:
+       ans1==hi, [@ ifInside| bc | abcd |y|n .]
+       ans2==hi, [@2 bc | ifInside| abcd |y|n .]
+       ans1和ans2完全相同。函数名放第二格为了适合某些口语习惯。
+       
+       ans3==hi, [@ifInside| bc | abcd |y|n .]
+       ans4==hi, [@2bc | ifInside| abcd |y|n .]
+       ans1、ans2、ans3、ans4 完全相同。也就是[@和函数名称可以紧靠。
+       
+     
+   [f] ifBetween函数，检查A数值有没有BC之间，或A字串有没有BC之间，例如:
+       show==ifBetween| 2 | 1:3 | y| n
+       show==ifBetween| pqr| aa:zz | y| n
+       检查 1有没有在 1到 3之间， 确实有。
+       检查pqr有没有在aa到zz之间， 确实有。
+       
+       show==[@2 pqr| ifBetween| aa:zz | y| n .]
+   
+   [f] edit函数，做文字置换，例如:
+       myWord==I like someOne
+       show==[@edit|myWord|like=love|someOne=Mary .]
+       画面会显示 I love Mary
+       这函数的参数用法是 旧字=将来新字 ， 各参数用直线号隔开。
+   [f] replace函数，做文字置换，等同于edit
+  
+## 处理一维数据的函数
+   [f] gu1v
+   [f] gu2v
+   [f] gu2vx
+## 处理二维数据的函数
+   [f] gu1m
+## 常用函数
+ 
+ 二者择一的一些函数:
+   [f] ifNum 若为数字 例: ifNum | 1.2 |yes|no
+   [f] ifPosi 若为正数 例: ifPosi | 123 |yes|no
+   [f] ifValueful 若有值非空字串 例: ifValueful| aaa |yes|no
+   [f] ifSee 若等于 例: ifSee | 2=2 |yes|no
+                  若小于 例: ifSee | 1<2 |yes|no
+                  若大于 例: ifSee | 2>1 |yes|no
+                  若不等于 例: ifSee | 1<>2 |yes|no
+                  若小于等于 例: ifSee | 1<=2 |yes|no
+                  若大于等于 例: ifSee | 1>=2 |yes|no
+                                             
+   [f] ifUUEq 若改大写后相等 例: ifUUEq |HH |hh |yes|no
+   [f] ifLenEq 若字的长度相等 例: ifLenEq |ab |cd |yes|no
+   [f] ifInside 若是个子字串于 例: ifInside |bc |abcd |yes|no
+   [f] ifBetween 若介于某某之间 例: ifBetween |bb |aa:dd|yes|no
+   [f] ifValueful 若参数有值(非空字串)，举例说明一下这函数:
+              jqty==456
+              cond==ifValueful|jqty| and iqty=jqty
+              show==select * from tb where 1=1 cond
+            将显示 select * from tb where 1=1 and iqty=456
+            同样的例子但这次jqty是空字串
+              jqty==
+              cond==ifValueful|jqty|and iqty=jqty
+              show==select * from tb where 1=1 cond
+            将显示 select * from tb where 1=1 因为 jqty无值
+            由于ifValueful太常用，它也可简写为ifv
+            上例又可以紧凑写成一行:
+              show==select * from tb where 1=1 [@ifv|jqty|and iqty=jqty .]
+                 
+ 有关日期的一些函数:
+   [f] cdate 改正零乱日期写法 例: dateConv |Jan 9,91 将显示 1991/01/09 也就是一律改为yyyy/mm/dd
+   [f] ifDate 是否有这个日期 例: ifDate |20040102 |y|n 将显示 y
+   [f] dateDiff 两日期之间距 例: dateDiff |20040102|20040103 将显示 1
+   [f] dateAdd 西元年加一些天数 例: dateAdd |1991/01/09|3 将显示 1991/01/12
+                                     例: dateAdd |19910109 |4 将显示 1991/01/13
+                                                                                       
+   以下这三个函数的参数必须是yyy/mm/dd型态或yyymmdd型态或是now，也就是民国年必须3位数。
+   [f] ifDateROC 是否有这个日期 例: ifDateROC |1030102 |y|n 将显示 y
+   [f] dateDiffROC 两日期之间距 例: dateDiff |1020304 |1020305 将显示 1
+   [f] dateAddROC 民国年加天数 例: dateAddROC |102/01/09|3 将显示 102/01/12
+                                     例: dateAddROC |1020109 |4 将显示 102/01/13
+                   这函数的参数必须是yyy/mm/dd型态或yyymmdd型态或是空白，也就是年份必须3个字。
+               
+ 各种函数:
+   [f] ifeqs 检查若z值等于xi则yi ，例如:
+                    z999==2
+                    show==ifeqs|z999| 1|s1| 2|s2| 3|s3
+              将显示 s2
+   [f] andRange 制造一段SQL的查询条件 例:
+             input12==2004/01/02:2004/03/02
+             condit ==andRange|kdate|input12
+             show ==where 1=1 condit
+             将显示 where 1=1 and( kdate between '2004/01/2' and '2004/03/02')
+         又例如:
+             kdateR1R2==
+             condition==andRange|kdate|kdateR1R2
+             show ==where 1=1 condition
+             将显示 where 1=1
+             也就是当使用者不填写inputsR1R2时，让SQL句子不含kdate这条件
+         又例如:
+             kdateR1R2==2004/01/2
+             condition==andRange|kdate|kdateR1R2
+             show ==where 1=1 condition
+             将显示 where 1=1 and( kdate like '2004/01/2%' )
+             它采用相似比对而不是等于。
+                   
+   [f] inner 取头尾两字内的字 例: show==inner |I Love Mary|Lo|y 将显示 ve Mar
+   [f] mobileTel 电话号码前面补0 例: show==mobileTEL|988112233 将显示 0988112233
+   [f] cookieW 对某cookie写值 例: easy==cookieW |cook22 |123 这idle是临时定义一个不会用到的变数
+   [f] cookieR 对某cookie拿值 例: c22v==cookieR |cook22 这样c22v的值就是123， 网页来回一直记得
+   [f] intrnd 取乱数 例: show==intrnd |99 这样将得一个0到98间的某个数
+   [f] transport 转置矩阵 例: mass==
+                                    a1,b1
+                                    a2,b2
+                                    a3,b3
+                                    a4,b4
+                                  show==transport|mass
+                            将显示
+                                  a1,a2,a3,a4
+                                  b1,b2,b3,b4
+                                  
+   [f] edit 编辑一个变数，例如: show==edit|abcd|a=1,b=2
+                           将显示 12cd
+                           其中 a=1表示a要换成1 ，b=2表示b要换成2
+                              
+   [f] replace 编辑一个变数，和上面的edit函数完全同义
+   
+   [f] max 取最大， 举例: show==max|Mary|John|Vivian 将显示Vivian
+                            又例: show==max|12 |15 |9 将显示9
+   [f] min 取最小，和上例相反
+                
+   [f] convert_to_clang
+
+   [f] atom
+   [f] ucase 取大写，例如: show==ucase|abc 将显示 ABC
+   [f] lcase 取小写，例如: show==ucase|abc 将显示 abc
+   [f] mid
+   [f] len
+   [f] left
+   [f] right
+   [f] intrnd
+   [f] ifhasfile
+
+   [f] askURL 访问某个网址，取回这网址的回应，例如:
+              answ==askURL|https://www.google.com/search?q=perl
+              show==inner|answ|UNIX|1987
+          将访问www.google.com 取得回应结果后， 提取介于 UNIX 和 1987
+          这两个字眼之间全部的字，然后显示出来。
+   
+   [f] askURLwithPOST 访问网址，传送资料给这网址，取回这网址的回应，例如:
+              answ==askURL|https://www.google.com/search?q=perl | 12345678
+          传送资料的方法是用POST
+
+   [f] top1r 对于刚执行完毕的SQL，取其结果的第一行的各栏位，制成变数，例如:
+          sqlcmd==select cate,myKy,myI1 from mapper
+          pppp,qqqq,rrrr==top1r|1,3,2
+          show==[pppp]+[qqqq]+[rrrr]
+          如果sqlcmd的结果的第一行是 c1, k11, 11
+          将显示: [c1]+[11]+[k11]
+          此函数在此例中建立了三个变数: pppp,qqqq,rrrr
+   [f] matchtodaycode
+   [f] ftpupload
+   [f] ftpdownload
+   [f] postwall
+   [f] buildEmptyTable
+   [f] merge
+   [f] quote
+   [f] red
+
+
+      
+      
+## 自定函数 (就是自定副程式最后给返回值)，例如:
+               answ==work2| a1=11|a2=22
+               exit==answ
+                     func==work2
+                     cacc==eval|a1+a2
+                     return==cacc
+             这程式呼叫函数work2，结果将显示 33
+             
+   自定一个求N阶乘的函数，例如:
+       answ==factorial|7
+       exit==eval|answ
+             func==factorial
+             return==ifsee|$para1=1 |1
+             return==$para1*[@factorial|$para1-1 .]
+
+             
+## 自定函数 费波那契
+   //费波那契函数就是 f(x)= f(x-1) + f(x-2)
+   answ==fibo|ax=5 //现在想知道 fibo(5) 是多少
+   exit==eval|answ //显示答案并停止程式
+   func==fibo //func宣布一个函数的开始
+   return==ifsee |ax=0 |0 //传回0 ，若参数ax是0
+   return==ifsee |ax=1 |1 //传回1 ，若参数ax是1
+   return==[@fibo|ax-1 .] + [@fibo|ax-2 .] //传回f(x-1)+f(x-2)
+   
+## 自定函数 快速排序
+   //其方法是先抓住第​​一个数8，然后扫描后面的数，
+   //凡是比8小的排一列，排在8左边，比8大的排一列，排在8右边
+   //然后左边那一列内部按照同方法自行排序，
+   //然后右边那一列内部按照同方法自行排序，
+   //显示最后结果
+   show==qsort|jlist=8,3,6,19,4,8​​1,2,9,5,1,19,7 //想要显示这数列排序后的结果
+   func==qsort //func宣布一个函数的开始
+   a001==atom|jlist|1 //抓住数列的第一个元素
+   leftL== //宣布左边那一列现在是空的
+   riteL== //宣布右边那一列现在是空的
+   cnnt==atomCount|jlist //让cnnt是数列的元素个数
+   return==ifsee|cnnt<=1|jlist|noUU //若cnnt<=1 则不用排序 回传jlist
+                                                    //若cnnt> 1 则noUU，就是不要回转，也就是往下做
+   
+   for==iith|2|cnnt //相当于VB的 for iith=2 to cnnt step 1
+     item==atom|jlist|iith //让item是jlist的第iith个元素
+     leftL==leftL [@ifsee| item < a001 | ,item .] //若item较小，加到leftL去
+     riteL==riteL [@ifsee| item > a001 | ,item .] //若item较大，加到riteL去
+   next==
+   
+   leftL==mid|leftL|2 //为了删除字首的逗点，所以从第二个字开取字
+   riteL==mid|riteL|2 //为了删除字首的逗点，所以从第二个字开取字
+   showL==half done: (jlist) becomes (leftL * a001 * riteL) //显示中间运算过程
+   return==[@qsort|j[]list=leftL .],a001,[@qsort|j[]list=riteL .] //让leftL排在左方，riteL排右方，然后回传
+
+             
+## MIP程式运行规则: 洗染、解函、解罩
+  (起步):程式开跑之前有一个准备动作，把程式全篇扫描一遍
+    (1)看到某一行写include==*** ，有则载入成为程式的一部分。
+    (2)看到某一行写//则忽略其右方
+        a001==1 //;;b002==2 则b002忽略。
+        //a001==12;;b002==2 则整行忽略。
+        但若这一行看起来像是:// 则整行不忽略。
+     
+    (3)看到;;这样连续两个分号，则置换为换行符号。但若这一行有'uvar'则不置换。
+    (4)看到某行写for== ，下面又有一行写next== ， 则MIP知道这之间是区块。
+    (5)回到第一行，从第一行跑起。每一行程式都经历下述三道处置:
+  (每行程式处置1)洗染:
+     MIP把每一行辨识为key=value，已记住的(key,value)将置换其下右方文字，例如
+         a001==p
+         ccbp==q
+         show==hi ccba001
+     当程式焦点来到第二行，a001企图置换这行右方，但没有符合的字。
+     当程式焦点来到第三行，a001仍想置换这行右方，于是第三行变成
+         show==hi ccbp
+     当程式焦点在于第三行，ccbp也想置换这行右方，于是第三行变成
+         show==hi q
+     于是显示
+               hi q
+     程式往下跑，文字被上方文字置换，文字置换简称为洗染。
+
+     
+  (每行程式处置2)解函:
+     洗染后，若字面上有函数将会被解开，
+     举例一:
+            say2==said
+            kkkk==ifsee|1=1| say2 y |say n
+         这kkkk等号右方是一个函数，于是解开函数，成为
+            kkkk==said y
+     举例二:
+            say2==said
+            kkkk==hello [@ifsee|1=1| say2 y |say2 n .],cc
+         这@函数夹杂于字里行间，于是@函数被解开，成为
+            kkkk==hello said y, cc
+     举例三:
+         若遇@函数内层还有@函数，应该先解开内层:
+            aa02==1
+            kk02==see [@ifsee| 2 = [@eval|aa02+1 .] | two | unknown .] so what
+         则变化为
+            kk02==see [@ifsee| 2 = 2 | two | unknown .] so what
+         再变化为
+            kk02==see two so what
+    
+     有时候当外层是gu**函数时，内层函数却是延后解开，就是gu**函数先解，内层@函数后解。
+     举例四:
+            aaaa==1
+            show==gu1v|4,5,6 | [@eval|aaaa+[vi] .] | +
+         它被洗染变成
+            show==gu1v|4,5,6 | [@eval|1 +[vi] .] | +
+         由于gu开头的函数被设计成优先于内层，所以先解gu
+            show==[@eval|1+4 .] + [@eval|1+5 .] + [@eval|1+6 .]
+         再后解@函数
+            show==5 + 6 + 7
+         于是显示
+                5 + 6 + 7
+     为什么有时候内层函数要后解?
+     就像一颗糖球外壳先溶解，里面的小球再溶解，瞬间在舌尖释放出缤纷的味道。
+     只有后解开才能释放出缤纷的程式码，大量减低你的码字写作。
+     给它取个英文名吧: call-inside-function-after-vector-solved
+                 
+  (每行程式处置3)解罩
+     当某个字不想被洗染，程式师可以故意把[]挤在这个字里，例如:
+        aaaa==2
+        show==I say a[]aaa=aaaa
+     画面应显示
+        I say a[]aaa=2
+     这个[]是一个既定词，我们可以把它念作'遮罩'其用途是防止洗染。
+     凡是当左方既定词要接收右方值之前，MIP自动把[]去掉，称为'解罩'。
+     在这例中，当show要接收右方值之前，MIP自动把[]去掉，所以实际显示为:
+        I say aaaa=2
+     
+     什么样的字在进入左方之前会被'解罩'呢，这样的字只有几个:
+     [] 换成 无
+     $space 换成 一个空白格
+     $enter 换成 一个换行符号 ( ascii_10+ ascii_13 )
+     $empty 换成 空字串
+     $and 换成 一个空白格 and 一个空白格
+     $alfa 换成 @
+     $vert 换成 |
+     
+     
+  (每行程式动作,总结) MIP处理一行程式的动作顺序是:
+     凡是遇到 kkkk==vvvv 这样的句子，前面认识的既定词依序灌进去洗染右方，
+     洗染后里面也许有函数，那就解函。
+     解函后里面也许有遮罩，那就解罩。
+     处理后的值传给左方kkkk，若kkkk是一个既定词，那就做既定的事，
+     然后再跑下一行，程式就这么一行一行运作。
+                 
+
+
+
+
+
+                         
+##增删修查 资料表
+ #查询多笔资料
+ #新增多笔资料
+ #新增一笔资料
+ #删除一笔资料
+ #修改一笔资料
+ #增删修查一起工作
+
+##显示资料直转横(显示枢纽报表)
+
+##多维度灵活查询
+
+  
+## 编辑功能清单
+  本软体把一个公司需要的众多功能显示在一页画面上，让使用者点选。
+  要编辑功能清单就打开c:\MIP\webc\cSPlist.mip，看到如下内容:
+    [td]
+    [tf]功能段代号A, 功能段名称A
+        程式档名1, 程式名称1
+        程式档名2, 程式名称2
+    [tf]功能段代号B, 功能段名称B
+        程式档名3, 程式名称3
+        程式档名4, 程式名称4
+  以[td]开头的这一行使功能清单向右换栏，以免清单往下太长。
+  以[tf]开头的这一行代表其下方一小段是一个功能段，
+  将来在cusList.txt里可以指定某人可以操作几个功能段。
+ 
+## 编辑使用者清单
+  本软体可以管理使用者权限，
+  打开c:\MIP\webc\cUSlist.mip
+  每一行的栏位依序是姓名、帐号、密码、 公司名称、 部门名称、 员工工号、 可允许使用的功能段
+  本软体可以允许多个公司多个部门的人员一起使用 所以要写下 公司名称 部门名称 员工工号
+  若只允许某人仅能使用某3个功能段 则在 "可允许使用的功能段" 那栏写上3个功能段名称，例如 aa bb cc，
+  若要允许某人可以使用全部功能段 则在 "可允许使用的功能段" 那栏写上all
+
+## 编辑资料库清单
+  MIP的基本运作不需资料库，若你让它连接到多个资料库，它就如虎添翼。
+  连接方式如下，打开 c:\MIP\webc\cDBlist.mip 看到如下内容
+     HOME : ms : some connection string1
+     db123 : ms : some connection string2
+     db456 : ms : some connection string3
+  第一行宣告一个预设的资料库，将来写程式没说连接哪个资料库，就是连接这一个
+  第二行宣告一个称谓db123，以后只要说连接db123， MIP就去连接这资料库
+  接着在MIP工程画面输入一些字，举例:
+      conndb==db123
+      sqlcmd==select * from tb2
+  就可看到资料表 tb2 了
+  
+## 库存捡货系统
+  想像你要建造一个库存捡货系统，软体工程第一步收集需求。需求是:
+  (1)仓库要有储位，入库时随意放置，出库时要显示储位引导人员捡货。
+  (2)要能显示存放最久的那些商品，进仓库商品的平均存放时间是多久?
+  
+  软体工程第二步 设计能显示上述资料的记录簿，也就是资料表格。
+  既然要看商品的进出时间，何不让记录的每一行就是记载着商品的入库到出库过程?
+  当入库3颗苹果，每颗出库时间都不同，何不让每一行就记载着单一颗商品的过程?
+  于是表格命名为 oplife 栏位如下:
+  每行流水号, flow int(1,1) 资料库引擎会自动填入值，由1起，每行加1
+  入库批号, inno varchar(16)
+  入库日期, indt varchar(16)
+  商品代号, skno varchar(16)
+  放置储位, ceno varchar(16)
+  出库批号, ouno varchar(16)
+  出库日期, oudt varchar(16)
+  
+  软体工程第三步 列出各个场景，其中之一是入库
+  有3颗苹果5颗橘子要入库，随货附有商品清单，清单上有采买编号。
+  人员带着商品站到储位A2，放上3颗苹果，在货单上苹果那一行注记A2,3
+  人员带着商品站到储位B2，放上3颗橘子，在货单上橘子那一行注记B2,3
+  人员带着商品站到储位C2，放上2颗橘子，在货单上橘子那一行注记C2,2
+  人员回到办公桌，要把注记输入电脑。
+   
+  软体工程第四步 写这个入库功能，编辑文字档in02.mip，内容如下
+      采买编号==
+      以下填入商品,储位,数量(填入前先把下框文字清掉)
+      入库明细==
+      苹果,A1,1
+      橘子,B2,2
+      #1#2
+      opdt==dateadd||0
+      sqlcmd==
+           select inno,indt,skno,ceno, iqty=0 into #p from oplife where 1=2
+      sqlcmd,入库明细==
+           insert into #p ('采买编号', 'opdt', 'fdv01','fdv02','fdv03')
+      sqlcmd==
+           begin2:
+             insert into oplife (inno,indt,skno,ceno) from #p where iqty>0
+             update #p set iqty=iqty-1; delete #p where iqty<=0
+           if exists (select * from #p) goto begin2
+      show==入库记录完成
+  在csplist.mip添加一行，写上ou02.mip，它就变成功能。
+   
+  再列出另一个场景，是捡货准备出库
+  有2颗苹果2颗橘子要捡货准备出库，出库单编号Q33已印成纸，纸上有商品明细。
+  希望让电脑显示商品位置以方便人员捡货。于是编辑文字档in03.mip，内容如下
+      捡货前请填入商品,数量。电脑会告诉你储位
+      填入前请先把下框文字清掉
+      出库明细==
+      苹果,1
+      橘子,2
+      #1#2
+      sqlcmd,出库明细==
+      --最早入库的 优先出库 所以下一行写order by flow
+      select top ftv02 skno,ceno from oplife where skno='fdv01' order by flow
+      show==应捡货储位如上
+  在csplist.mip添加一行，写上in03.mip，它就变成功能。
+  
+   
+  再列出另一个场景，是出库完成后的登载。于是编辑文字档ou02.mip，内容如下
+      出库编号==
+      以下填入商品,储位,数量(填入前先把下框文字清掉)
+      出库明细==
+      苹果,A1,1
+      橘子,B2,2
+      #1#2
+      opdt==dateadd||0
+      sqlcmd==
+        select inno,indt,skno,ceno, iqty=0 into #q from oplife where 1=2
+      sqlcmd,入库明细==
+        insert into #p ('采买编号', 'opdt', 'fdv01','fdv02','fdv03')
+      sqlcmd==
+        begin2:
+          declare @flow as int, @skno as varchar(16)
+          select @flow=min(flow), @skno=min(skno) from oplife where
+            skno=(select top 1 skno from #q where iqty>0) and ouno is null
+          update oplife set ouno='出库编号', oudt='opdt' where flow=@flow
+          update #q set iqty=iqty-1 where skno=@skno
+          delete #q where iqty<=0
+        if exists (select * from #q) goto begin2
+      show==出库记录完成
+  在csplist.mip添加一行，写上ou02.mip，它就变成功能。
+  
+   
+  再另一个功能，希望显示商品平均放在仓库多久。于是编辑文字档LF01.mip，内容如下
+      #1#2
+      sqlcmd==
+       select 平均库龄=convert(
+                               varchar, avg( datediff(d,indt,getdate()) )
+                              )+'天' from oplife where oudt is null
+  在csplist.mip添加一行，写上 LF01.mip，它就变成功能。
+       
+       
+
+ 
+
+## 跨资料库传输:
+   例如有资料表要从资料库DB3复制到DB4
+   (方法一)经由记忆体为中继站
+     conndb==DB3
+     sqlcmd,,matrix3==select ff1,ff2 from table3
+     conndb==DB4
+     sqlcmd,matrix3==insert into table4 (gg1,gg2) values('fdv01','fdv02')
+     
+   (方法二)经由档案为中继站
+     conndb==DB3
+     sqlcmd,,mat3.txt==select ff1,ff2 from table3
+     conndb==DB4
+     sqlcmd,mat3.txt==insert into table4 (gg1,gg2) values('fdv01','fdv02')
+
+
+## 呼叫外界: 发信
+## 呼叫外界: 发简讯
+## 呼叫外界: URL get, post
+## 呼叫外界: ftp
+## 呼叫外界: 呼叫window command 或呼叫exe
+
+## 被外界呼叫: URL get,post
+## 被外界呼叫: 被VB, 被排程器
+
+## 宏编程的优点: 编程可以分层次
+   其实程式会慢慢长大，长大成一只恐龙，你无法想像它原始模样。
+   例如有一个程式，原本3个步骤结束，很短。
+   后来你觉得在某情形下，应执行另外3个步骤，于是添加if上去，程式变长了。
+   后来又想记录程式过程，每一步骤都要写档记住开始，记住结束，程式更长。
+   若以宏写作，凡是添加的句子都命名为一段宏，
+   那么当你把宏清空，就可以显出小娃模样，当你把宏充满，就显示恐龙模样。
+   
+   
+## 矩阵式编程的优点: 程式可以对比
+   例如有两个程式，
+   A程式为aa; bb; cc; dd; ff
+   B程式为aa; forEach;bb;if item=1 then cc; dd;endEach; ee; ff
+   其中aa,bb,cc,dd,ee,ff 都是几十行程式。当你铺陈开来就造成视觉困扰。
+   若把aa,bb,cc,dd,ee,ff 都写成副程式更麻烦，因为有很多参数要传递。
+   若把程式改用矩阵式表达法，却很简单:
+       matrix==
+          aa , aa
+              , forEach
+          bb , bb
+          cc ,
+              , if item=1 then cc
+          dd , dd
+              , endEach
+              , ee
+          ff , ff
+       programA==gu1m|matrix|[mi1]|$enter
+       programB==gu1m|matrix|[mi2]|$enter
+   这样是不是很清楚呢
+   
+   也可以改成这么写:
+       matrix==
+          AB, aa
+          .B, forEach
+          AB, bb
+          A., cc
+          .B, if item=1 then cc
+          AB, dd
+          .B, endEach
+          .B, ee
+          AB, ff
+       programA==gu1m|matrix|[mi2]|$enter|1A
+       programB==gu1m|matrix|[mi2]|$enter|1B
+   在matrix中第一个栏位中有A，就是A程式会用到，
+   在matrix中第一个栏位中有B，就是B程式会用到，
+   这样是不是更清楚又简短呢
+   
+   
+## 怎样减少软体编程的时间
+  要减少编程的时间，其方法都是把软体写作由申论题降为填充题，再降为选择题。
+  先由资深人员定骨架，骨架间留有空格，再由资浅人员把材料填进空格里。
+  但世界没这么美好，某套骨架只能适用于某些场景，换场景要换别套。
+  
+  有人宣传物件导向的作法，也就是变数应尽量封装，宣传说编程的时间减少。
+  然而过度的物件导向也就过度的封装，多出很多封装纸，封装间传讯息就变难了。
+  所以变数全部封装或和变数全部裸露，工程师要有智慧判断。
+
+  有人宣传前端后端分解法，前后之间由各种指位词串接，宣传说编程的时间减少。
+  这些串接的指位词有时候散落程式各处，变成很难收拢的叶片，复杂度反而升高，
+  不如前后端合并更节省编程时间，工程师要有智慧判断。
+  
+## 步骤导向的程式 怎样改写为物件导向的程式?
+  物件导向程式主要特点就是封装变数，用来改善变数被误触的问题。
+  所以这个问题应改为:步骤导向的程式 怎样封装变数?
+  解法就是写一个副程式，内部布置静态变数(也就是离开副程式后，变数的值不清空)。
+  以 '取号器' 为例:
+  有一个银行，要让办理国币的民众排一路，要办外汇的排一路。各路各发号码牌。
+  可以考虑让一个人站在门口发号码牌，简便则是在门口放一个印制号码纸的机器。
+  程式这样写:
+    n1=counter("addM1") : print "国币",n1
+    n2=counter("addM2") : print "外汇",n2
+    function counter(method)
+     static m1,m2
+     if method="addM1" then m1=m1+1: return m1
+     if method="addM2" then m2=m2+1: return m2
+    end function
+  这样子 m1 只有预定的口令 addM1 才能驱动它，程式的其它部份都动不了m1。
+  其中 n1=counter("addM1") 就相当于物件导向的写法 n1=counter.addM1
+
+
+## 输入画面集解
+  输入框基本型:
+        名字==
+        #1#2
+        show==hello 名字
+            使用者看到的画面就是 名字 冒号 一个输入框
+            使用者填写Mary
+            使用者看到hello Mary
+  输入框后加字:
+        名字== $, 请写人名
+        #1#2
+        show==hello 名字
+            使用者看到的画面就是 名字 冒号 一个输入框 请写人名
+            使用者填写Mary
+            使用者看到hello Mary
+  输入框拉长:
+        名字== $, 请写人名 $, iibx~50
+        #1#2
+        show==hello name2
+            使用者看到的画面就是 名字 冒号 一个输入框 请写人名
+            输入框的长度变长了，可以容纳50个字以上
+
+  框右之框:
+        x001==1 $,请写数字 $, iibx
+        x002==2 $,请写数字 $, iib2
+        #1#2
+        show==(x001,x002)
+               则使用者看到一个输入框x001， 在其右方还有一个输入框x002
+
+  框右之框:
+        x001==1 $,请写数字 $, iibx
+        x002==2 $,请写数字 $, iib2
+        x003==3 $,请写数字 $, iib2
+        #1#2
+        show==(x001,x002,x003)
+               则使用者看到一框x001， 右方还有一框x002， 右方还有一框x003
+               这样设计当然是为了占满萤幕，一框占萤幕一行很浪费
+  
+  多行输入框:
+        name2==John $, 请写人名 $, mmbx~20x80
+        #1#2
+        show==hello name2
+            画面就是一个大型输入框，框往下20行 往右80格，框右有字 请写人名
+   
+  下拉选择框:
+        name2== $, 请写人名 $, comb~John$s1,Tony$s2,Jack$s3
+        #1#2
+        show==hello name2
+            画面就是一个下拉选择框。选一个人名，按确定后
+            画面显示 hello s1 (或是 hello s2 如果你选了Tony)
+     
+  勾选框:
+        answ== $, yes or no $, checkbox
+        #1#2
+        show==hello answ
+            则使用者看到的画面就是一个勾选框。
+            不勾按确定 则显示N
+            勾了按确定 则显示Y
+  上传框:
+        请选一档案== $, $, file
+        你好吗 ==
+        #1#2
+        show==你好吗
+            则使用者除了看到你好吗，还会把档案传到主机的这资料夹 c:\MIP\webc\
+               
+  无框 纯粹一行说明字:
+        name2==
+        give a boy name
+        #1#2
+        show==hello name2
+            输入框下方有一行字: give a boy name
+   
+  无框 纯粹一行说明字的第二种写法，用comment开头来命名变数
+        name2==John $, 请写人名 $, mmbx~20x80
+        comment2==write something
+        #1#2
+        show==hello name2
+            画面就是一个输入框，下方有字 write something
+   
+  无框 纯粹一行说明字的第三种写法，用comment暗示
+        name2==John $, 请写人名 $, mmbx~20x80
+        anything==write something $, $, comment
+        #1#2
+        show==hello name2
+            画面就是一个输入框，下方有字write something
+   下面这一行 在应用模式下 会显示成 a002: 后面带一个输入框，长度20
+       a002==hello
+
+   下面这一行 在应用模式下 会显示成 a002: 后面带一个输入框，长度20，框右方有提示文字 say anything
+       a002==hello $, say anything
+
+   下面这一行 在应用模式下 会显示成 a002: 后面带一个输入框，长度30，框之右方有提示文字 say anything
+       a002==hello $, say anything $, 30
+
+   下面这一行 在应用模式下 会显示成 a002: 后面带一个输入框 框之右方有提示文字 say anything 而框的长度拉长为30
+       a002 ==hello $, say anything $, iibx~30
+key ==value $, explainWord $, typeWord ( typeWord could be "epwd" "iibx" "iib2" "entr" "hidn" "mmbx" "comb" "ckbx" )
+ikey(cmNxy) ival(cmNxy) imrk(cmNxy) ptyps(cmNxy)
+       
+## 往返式输入范例123
+## 枢纽分析
+
+## 安装问题集解
+  (问)找不到这电脑上的IIS管理员
+  (解) 若有看到[伺服器管理员]这图示，点它，进去看到角色，
+          角色下有网页伺服器， 对它按右键新增角色服务，就可显示IIS
+    
+  (问)输入网址 MIP/MIP.aspx 看不到登入画面， 却看到 HTTP错误404.17
+  (解) 应检查ASP.NET有没有安装，也就是:
+          开始> 控制面板> 程序和功能> 打开或关闭Windows功能>
+          Internet信息服务> 网际网路服务> 应用程序开发功能> ASP.NET
+          把这个勾起来
+    
+  (问)当webc目录被设定共用后，IIS却说虚拟目录不存在，说没有web.config
+  (解) 不须添加web.config ，只要进iis-manager 按右键> 管理虚拟目录>
+          进阶设定> 实体路径认证， 打入有存取权限的帐号密码即可
+          顺便的，IIS写档案不成功的问题也解了
+    
+  (问)画面说程式有错，但不能显示明确原因
+  (解) 在github档案区还有一个小档案web.config，复制到c:\MIP\webc即可。
+    
+  (问)画面说 c:\mip\webc 不能写档
+  (解) 进iis-manager 按右键> 管理虚拟目录> 进阶设定> 实体路径认证， 打入有存取权限的帐号密码
+          或是用档案总管
+
+    
+  (问)资料库设定档会被使用者看到，想隐蔽它
+  (解) 在c:\MIP\webc之旁另开资料夹 c:\MIP\webd, c:\MIP\webt, c:\MIP\webq
+          把c:\MIP\webc\*.mip移动到这 c:\MIP\webd
+          编辑c:\MIP\webc\mip.aspx大约第80行位置:
+          请把 codFord=CCFD & "webc\" :tmpFord=CCFD & "webc\" :queFord=CCFD & "webc\"
+          改成 codFord=CCFD & "webd\" :tmpFord=CCFD & "webt\" :queFord=CCFD & "webq\"
+          存起 c:\MIP\webc\mip.aspx 即完成。
