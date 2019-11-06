@@ -11,7 +11,7 @@
   它是一個macro組合器，組合變數、一維文字序列(向量)、二維文字序列(矩陣)、       <br>
   文字區塊、含變數的模板 甚至 runTime才變化的模板。                             <br>
   .                                                                             <br>
-  資料夾位置在 https://github/longinlin/MIP3.1 ， 複製到本機後，                <br>
+  資料夾位置在 https://github.com/longinlin/MIP3.1 ， 複製到本機後，                <br>
   設定資料夾成為微軟IIS的虛擬目錄就可執行。免安裝。                             <br>
   以更少的寫字，表達更長的語意，提升資訊人員的生產力。                          <br>
   .                                                                             <br>
